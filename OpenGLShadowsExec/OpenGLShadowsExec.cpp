@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include <imgui.h>
 
 constexpr size_t WIDTH{ 1280ULL }, HEIGHT{ 720ULL };
@@ -20,6 +22,7 @@ int main()
     {
         return 1;
     }
+    const char* GLSL_VERSION = "#version 430";
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -42,6 +45,16 @@ int main()
         return 1;
     }
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(GLSL_VERSION);
+
+    ImGui::StyleColorsDark();
+
     srand(time(nullptr));
 
     glEnable(GL_DEPTH_TEST);
@@ -59,12 +72,18 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
         currentTime = glfwGetTime();
         timeDelta = currentTime - lastTime;
         lastTime = currentTime;
         glViewport(0, 0, WIDTH, HEIGHT);
         glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        ImGui::ShowDemoWindow();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
     }
     glfwDestroyWindow(window);
