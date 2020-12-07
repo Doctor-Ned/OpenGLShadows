@@ -1,6 +1,73 @@
 
+#include "ShadowLog.h"
+
+#include <glm/glm.hpp>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+
+constexpr size_t WIDTH{ 1280ULL }, HEIGHT{ 720ULL };
+
+static void glfw_error_callback(int error, const char* description)
+{
+    SHADOW_ERROR("GLFW error #{}: {}", error, description);
+}
+
 int main()
 {
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+    {
+        return 1;
+    }
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+    // Create window with graphics context
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Shadows", nullptr, nullptr);
+    if (window == nullptr)
+    {
+        SHADOW_CRITICAL("Failed to create window!");
+        return 1;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+    {
+        SHADOW_CRITICAL("Failed to initialize OpenGL loader!");
+        return 1;
+    }
+
+    srand(time(nullptr));
+
+    glEnable(GL_DEPTH_TEST);
+    //glAlphaFunc(GL_GREATER, 0.1f);
+    //glEnable(GL_ALPHA_TEST);
+    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glm::vec4 clearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glfwMakeContextCurrent(window);
+    double currentTime = 0.0, lastTime = 0.0, timeDelta = 0.0;
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwPollEvents();
+        currentTime = glfwGetTime();
+        timeDelta = currentTime - lastTime;
+        lastTime = currentTime;
+        glViewport(0, 0, WIDTH, HEIGHT);
+        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwSwapBuffers(window);
+    }
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
 }

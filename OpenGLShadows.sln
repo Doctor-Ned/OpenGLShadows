@@ -7,10 +7,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLShadowsExec", "OpenGL
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLShadowsLib", "OpenGLShadowsLib\OpenGLShadowsLib.vcxitems", "{2BDD08AE-0260-4A7B-B850-4B65EE95B030}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "ImGui\ImGui.vcxitems", "{EEAB89B3-BA21-4473-B20E-60ABC3E038B5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Glad", "Glad\Glad.vcxitems", "{B2CD12D8-9824-4FA9-89E6-4115949C3DFF}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Glad\Glad.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
+		ImGui\ImGui.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
 		OpenGLShadowsLib\OpenGLShadowsLib.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
 		OpenGLShadowsLib\OpenGLShadowsLib.vcxitems*{2bdd08ae-0260-4a7b-b850-4b65ee95b030}*SharedItemsImports = 9
+		Glad\Glad.vcxitems*{b2cd12d8-9824-4fa9-89e6-4115949c3dff}*SharedItemsImports = 9
+		ImGui\ImGui.vcxitems*{eeab89b3-ba21-4473-b20e-60abc3e038b5}*SharedItemsImports = 9
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
