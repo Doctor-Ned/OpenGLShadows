@@ -18,5 +18,13 @@
     <ClCompile Include="OpenGLShadowsExec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AppWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AppWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

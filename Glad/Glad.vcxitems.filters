@@ -16,4 +16,7 @@
       <Filter>KHR</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)glad.c" />
+  </ItemGroup>
 </Project>

@@ -99,7 +99,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AppWindow.cpp" />
     <ClCompile Include="OpenGLShadowsExec.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AppWindow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
