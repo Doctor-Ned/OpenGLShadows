@@ -9,18 +9,19 @@ namespace shadow
     class AppWindow final
     {
     public:
-        AppWindow() = default;
         ~AppWindow();
         AppWindow(AppWindow&) = delete;
         AppWindow(AppWindow&&) = delete;
         AppWindow& operator=(AppWindow&) = delete;
         AppWindow& operator=(AppWindow&&) = delete;
-        bool initialise(GLsizei width, GLsizei height);
-        bool isInitialised() const;
-        void deinitialise();
+        static AppWindow* getInstance();
+        bool initialize(GLsizei width, GLsizei height);
+        bool isInitialized() const;
+        void deinitialize();
         inline bool shouldClose() const;
         void loop();
     private:
+        AppWindow();
         const char* GLSL_VERSION{ "#version 430" };
         GLsizei width{}, height{};
         glm::vec4 clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };

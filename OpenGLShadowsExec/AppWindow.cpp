@@ -5,22 +5,44 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-shadow::AppWindow::~AppWindow()
+static void glfw_error_callback(int error, const char* description)
 {
-    deinitialise();
+    SHADOW_ERROR("GLFW error #{}: {}", error, description);
 }
 
-bool shadow::AppWindow::initialise(GLsizei width, GLsizei height)
+shadow::AppWindow::~AppWindow()
+{
+    try
+    {
+        SHADOW_DEBUG("Destroying window...");
+        deinitialize();
+        SHADOW_DEBUG("Terminating GLFW...");
+        glfwTerminate();
+    } catch (std::exception& e)
+    {
+        SHADOW_ERROR("Window destruction failed! {}", e.what());
+    }
+}
+
+shadow::AppWindow* shadow::AppWindow::getInstance()
+{
+    static AppWindow appWindow{};
+    return &appWindow;
+}
+
+bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
 {
     if (width <= 0 || height <= 0)
     {
         SHADOW_CRITICAL("Window dimensions must be greater than zero!");
         return false;
     }
+    SHADOW_DEBUG("Initializing a {}x{} window...", width, height);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
+    SHADOW_DEBUG("Creating GLFW context...");
     glfwWindow = glfwCreateWindow(width, height, "Shadows", nullptr, nullptr);
     if (glfwWindow == nullptr)
     {
@@ -32,17 +54,26 @@ bool shadow::AppWindow::initialise(GLsizei width, GLsizei height)
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
         SHADOW_CRITICAL("Failed to initialize OpenGL loader!");
-        deinitialise();
+        deinitialize();
         return false;
     }
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-    ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-    ImGui_ImplOpenGL3_Init(GLSL_VERSION);
-    ImGui::StyleColorsDark();
+    SHADOW_DEBUG("Initializing ImGui...");
+    try
+    {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;
+        ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+        ImGui_ImplOpenGL3_Init(GLSL_VERSION);
+        ImGui::StyleColorsDark();
+    } catch (std::exception& e)
+    {
+        SHADOW_CRITICAL("ImGui initialization failed! {}", e.what());
+        deinitialize();
+        return false;
+    }
 
     glEnable(GL_DEPTH_TEST);
     glFrontFace(GL_CCW);
@@ -58,16 +89,24 @@ bool shadow::AppWindow::initialise(GLsizei width, GLsizei height)
     return true;
 }
 
-bool shadow::AppWindow::isInitialised() const
+bool shadow::AppWindow::isInitialized() const
 {
     return glfwWindow;
 }
 
-void shadow::AppWindow::deinitialise()
+void shadow::AppWindow::deinitialize()
 {
+    SHADOW_DEBUG("Deinitializing window...");
     if (glfwWindow)
     {
-        glfwDestroyWindow(glfwWindow);
+        SHADOW_DEBUG("Destroying GLFW context...");
+        try
+        {
+            glfwDestroyWindow(glfwWindow);
+        } catch (std::exception& e)
+        {
+            SHADOW_ERROR("Failed to destroy GLFW context! {}", e.what());
+        }
         glfwWindow = nullptr;
     }
     width = height = 0;
@@ -89,4 +128,14 @@ void shadow::AppWindow::loop()
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfwWindow);
+}
+
+shadow::AppWindow::AppWindow()
+{
+    SHADOW_DEBUG("Initializing GLFW...");
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+    {
+        SHADOW_CRITICAL("GLFW initialisation failed!");
+    }
 }

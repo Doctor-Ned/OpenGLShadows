@@ -1,30 +1,14 @@
-#include "ShadowLog.h"
 #include "AppWindow.h"
-
-#include "glad/glad.h"
-#include <GLFW/glfw3.h>
-
-static void glfw_error_callback(int error, const char* description)
-{
-    SHADOW_ERROR("GLFW error #{}: {}", error, description);
-}
 
 int main()
 {
-    glfwSetErrorCallback(glfw_error_callback);
-    if (!glfwInit())
+    shadow::AppWindow* appWindow = shadow::AppWindow::getInstance();
+    if (appWindow->initialize(1280, 720))
     {
-        SHADOW_CRITICAL("GLFW initialisation failed!");
-        return 1;
-    }
-    shadow::AppWindow appWindow{};
-    if (appWindow.initialise(1280, 720))
-    {
-        while (!appWindow.shouldClose())
+        while (!appWindow->shouldClose())
         {
-            appWindow.loop();
+            appWindow->loop();
         }
     }
-    glfwTerminate();
     return 0;
 }
