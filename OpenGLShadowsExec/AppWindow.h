@@ -20,6 +20,8 @@ namespace shadow
         void deinitialize();
         inline bool shouldClose() const;
         void loop();
+        void setClearColor(const glm::vec4& clearColor);
+        void resize(GLsizei width, GLsizei height);
     private:
         AppWindow();
         const char* GLSL_VERSION{ "#version 430" };

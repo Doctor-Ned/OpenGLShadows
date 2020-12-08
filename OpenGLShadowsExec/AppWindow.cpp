@@ -130,6 +130,22 @@ void shadow::AppWindow::loop()
     glfwSwapBuffers(glfwWindow);
 }
 
+void shadow::AppWindow::setClearColor(const glm::vec4& clearColor)
+{
+    this->clearColor = clearColor;
+}
+
+void shadow::AppWindow::resize(GLsizei width, GLsizei height)
+{
+    if (isInitialized())
+    {
+        SHADOW_DEBUG("Changing window size to {}x{}...", width, height);
+        glfwSetWindowSize(glfwWindow, width, height);
+        this->width = width;
+        this->height = height;
+    }
+}
+
 shadow::AppWindow::AppWindow()
 {
     SHADOW_DEBUG("Initializing GLFW...");
