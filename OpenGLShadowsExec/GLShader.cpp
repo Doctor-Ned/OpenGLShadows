@@ -1,7 +1,6 @@
 #include "GLShader.h"
 #include "ShadowLog.h"
 
-#include <cassert>
 #include <fstream>
 
 shadow::GLShader::GLShader(gsl::cstring_span shaderPath, gsl::cstring_span commonFileName)
@@ -127,16 +126,87 @@ void shadow::GLShader::deleteProgram()
     }
 }
 
-void shadow::GLShader::use() const
+GLint shadow::GLShader::getUniformLocation(gsl::cstring_span name) const
 {
     assert(programId);
-    glUseProgram(programId);
+    GLint result = glGetUniformLocation(programId, name.cbegin());
+    if (result == -1)
+    {
+        SHADOW_ERROR("Uniform '{}' was not found!", name.cbegin());
+    }
+    return result;
 }
 
-GLuint shadow::GLShader::getProgramId() const
+void shadow::GLShader::setBool(gsl::cstring_span name, bool value) const
 {
-    assert(programId);
-    return programId;
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniform1i(location, static_cast<int>(value));
+    }
+}
+
+void shadow::GLShader::setInt(gsl::cstring_span name, int value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniform1i(location, value);
+    }
+}
+
+void shadow::GLShader::setFloat(gsl::cstring_span name, float value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniform1f(location, value);
+    }
+}
+
+void shadow::GLShader::setVec2(gsl::cstring_span name, glm::vec2 value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniform2f(location, value.x, value.y);
+    }
+}
+
+void shadow::GLShader::setVec3(gsl::cstring_span name, glm::vec3 value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniform3f(location, value.x, value.y, value.z);
+    }
+}
+
+void shadow::GLShader::setVec4(gsl::cstring_span name, glm::vec4 value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniform4f(location, value.x, value.y, value.z, value.w);
+    }
+}
+
+void shadow::GLShader::setMat2(gsl::cstring_span name, glm::mat2 value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniformMatrix2fv(location, 1, GL_FALSE, &value[0][0]);
+    }
+}
+
+void shadow::GLShader::setMat3(gsl::cstring_span name, glm::mat3 value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
+    }
+}
+
+void shadow::GLShader::setMat4(gsl::cstring_span name, glm::mat4 value) const
+{
+    if (GLint location = getUniformLocation(name); location != -1)
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+    }
 }
 
 bool shadow::GLShader::buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const

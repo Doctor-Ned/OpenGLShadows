@@ -14,7 +14,7 @@ namespace shadow
         AppWindow(AppWindow&&) = delete;
         AppWindow& operator=(AppWindow&) = delete;
         AppWindow& operator=(AppWindow&&) = delete;
-        static AppWindow* getInstance();
+        static AppWindow& getInstance();
         bool initialize(GLsizei width, GLsizei height);
         bool isInitialized() const;
         void deinitialize();

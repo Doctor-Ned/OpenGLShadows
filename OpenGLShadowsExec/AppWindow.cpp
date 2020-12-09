@@ -24,10 +24,10 @@ shadow::AppWindow::~AppWindow()
     }
 }
 
-shadow::AppWindow* shadow::AppWindow::getInstance()
+shadow::AppWindow& shadow::AppWindow::getInstance()
 {
     static AppWindow appWindow{};
-    return &appWindow;
+    return appWindow;
 }
 
 bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
