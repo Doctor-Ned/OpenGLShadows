@@ -114,6 +114,7 @@ void shadow::AppWindow::deinitialize()
 
 void shadow::AppWindow::loop()
 {
+    assert(glfwWindow);
     glfwPollEvents();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -137,13 +138,11 @@ void shadow::AppWindow::setClearColor(const glm::vec4& clearColor)
 
 void shadow::AppWindow::resize(GLsizei width, GLsizei height)
 {
-    if (isInitialized())
-    {
-        SHADOW_DEBUG("Changing window size to {}x{}...", width, height);
-        glfwSetWindowSize(glfwWindow, width, height);
-        this->width = width;
-        this->height = height;
-    }
+    assert(glfwWindow);
+    SHADOW_DEBUG("Changing window size to {}x{}...", width, height);
+    glfwSetWindowSize(glfwWindow, width, height);
+    this->width = width;
+    this->height = height;
 }
 
 shadow::AppWindow::AppWindow()
