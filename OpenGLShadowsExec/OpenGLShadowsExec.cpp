@@ -3,14 +3,18 @@
 
 int main()
 {
-    shadow::ResourceManager::getInstance().initialize("../../../Resources");
-    shadow::AppWindow& appWindow = shadow::AppWindow::getInstance();
-    if (appWindow.initialize(1280, 720))
+    if (!shadow::ResourceManager::getInstance().initialize("../../Resources"))
     {
-        while (!appWindow.shouldClose())
-        {
-            appWindow.loop();
-        }
+        return 1;
+    }
+    shadow::AppWindow& appWindow = shadow::AppWindow::getInstance();
+    if (!appWindow.initialize(1280, 720))
+    {
+        return 2;
+    }
+    while (!appWindow.shouldClose())
+    {
+        appWindow.loop();
     }
     return 0;
 }

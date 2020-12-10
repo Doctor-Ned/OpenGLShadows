@@ -12,10 +12,22 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     assert(!initialised);
     if (!exists(resourceDirectory))
     {
+        SHADOW_CRITICAL("Resource directory '{}' was not found!", resourceDirectory.generic_string());
         return false;
     }
     if (!is_directory(resourceDirectory))
     {
+        SHADOW_CRITICAL("Path '{}' is not a valid resource directory!", resourceDirectory.generic_string());
+        return false;
+    }
+    if (std::filesystem::path modelsTexturesPath = resourceDirectory / MODELS_TEXTURES_DIR; !exists(modelsTexturesPath))
+    {
+        SHADOW_CRITICAL("Directory '{}' not found!", modelsTexturesPath.generic_string());
+        return false;
+    }
+    if (std::filesystem::path shadersPath = resourceDirectory / SHADERS_DIR; !exists(shadersPath))
+    {
+        SHADOW_CRITICAL("Directory '{}' not found!", shadersPath.generic_string());
         return false;
     }
     this->resourceDirectory = resourceDirectory;
