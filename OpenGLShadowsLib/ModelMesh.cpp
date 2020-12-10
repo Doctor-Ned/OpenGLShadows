@@ -64,7 +64,7 @@ std::shared_ptr<shadow::TextureMesh> shadow::ModelMesh::processMesh(aiMesh* mesh
 {
     std::vector<TextureVertex> vertices;
     std::vector<GLuint> indices;
-    std::map<TextureType, std::vector<std::shared_ptr<Texture>>> textures;
+    std::map<TextureType, std::shared_ptr<Texture>> textures;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
@@ -89,36 +89,65 @@ std::shared_ptr<shadow::TextureMesh> shadow::ModelMesh::processMesh(aiMesh* mesh
         }
     }
 
-    if (mesh->mMaterialIndex >= 0)
+    for (TextureType type : {TextureType::Albedo, TextureType::Roughness, TextureType::Metalness, TextureType::Normal})
     {
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<std::shared_ptr<Texture>>
-            albedo = loadTextures(material, aiTextureType_BASE_COLOR),
-            roughness = loadTextures(material, aiTextureType_DIFFUSE_ROUGHNESS),
-            metalness = loadTextures(material, aiTextureType_METALNESS),
-            normal = loadTextures(material, aiTextureType_NORMAL_CAMERA);
-        textures.emplace(TextureType::Albedo, albedo);
-        textures.emplace(TextureType::Roughness, roughness);
-        textures.emplace(TextureType::Metalness, metalness);
-        textures.emplace(TextureType::Normal, normal);
+        std::shared_ptr<Texture> texture = loadTexture(type);
+        if (texture)
+        {
+            textures.emplace(type, texture);
+        }
     }
 
     return std::make_shared<TextureMesh>(vertices, indices, textures);
 }
 
-std::vector<std::shared_ptr<shadow::Texture>> shadow::ModelMesh::loadTextures(aiMaterial* mat, aiTextureType type) const
+std::shared_ptr<shadow::Texture> shadow::ModelMesh::loadTexture(TextureType textureType) const
 {
-    std::vector<std::shared_ptr<Texture>> result{};
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
+    std::filesystem::directory_iterator itEnd{};
+    for (std::filesystem::directory_iterator it{ path.parent_path() }; it != itEnd; ++it)
     {
-        aiString str;
-        mat->GetTexture(type, 0, &str);
-        
-        std::shared_ptr<Texture> texture = ResourceManager::getInstance().getTexture(path.parent_path().append(str.C_Str()));
-        if (texture)
+        if (is_regular_file(*it))
         {
-            result.push_back(texture);
+            std::filesystem::path p = it->path();
+            std::string fileName = p.filename().generic_string();
+            size_t lastUnderscore = fileName.find_last_of('_'), lastDot = fileName.find_last_of('.');
+            //TODO: might add a filetype check
+            if (lastUnderscore != std::string::npos && lastDot != std::string::npos)
+            {
+                ++lastUnderscore;
+                std::string type = fileName.substr(lastUnderscore, lastDot - lastUnderscore);
+                std::transform(type.begin(), type.end(), type.begin(),
+                               [](auto c) { return std::tolower(c); });
+                bool match;
+                switch (textureType)
+                {
+                    case TextureType::Albedo:
+                        match = !strcmp(type.c_str(), "basecolor") || !strcmp(type.c_str(), "albedo");
+                        break;
+                    case TextureType::Metalness:
+                        match = !strcmp(type.c_str(), "metallic") || !strcmp(type.c_str(), "metalness");
+                        break;
+                    case TextureType::Roughness:
+                        match = !strcmp(type.c_str(), "roughness");
+                        break;
+                    case TextureType::Normal:
+                        match = !strcmp(type.c_str(), "normal");
+                        break;
+                    default:
+                        match = false;
+                        SHADOW_ERROR("Encountered unknown texture type {}!", textureType);
+                        break;
+                }
+                if (match)
+                {
+                    std::shared_ptr<Texture> texture = ResourceManager::getInstance().getTexture(p);
+                    if (texture)
+                    {
+                        return texture;
+                    }
+                }
+            }
         }
     }
-    return result;
+    return {};
 }

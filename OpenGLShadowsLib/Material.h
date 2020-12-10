@@ -8,6 +8,6 @@ namespace shadow
     {
         glm::vec3 albedo{};
         glm::vec3 roughness{};
-        glm::vec3 metalness{};
+        glm::vec3 metallic{};
     };
 }

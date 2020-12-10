@@ -14,10 +14,10 @@ namespace shadow
     {
     public:
         TextureMesh(const std::vector<TextureVertex>& vertices, const std::vector<GLuint>& indices,
-                    std::map<TextureType, std::vector<std::shared_ptr<Texture>>> textures);
+                    std::map<TextureType, std::shared_ptr<Texture>> textures);
         void draw(std::shared_ptr<GLShader> shader) const override;
     private:
-        std::map<TextureType, std::vector<std::shared_ptr<Texture>>> textures{};
+        std::map<TextureType, std::shared_ptr<Texture>> textures{};
         GLuint vao{}, vbo{}, ebo{};
         GLsizei indexCount{};
     };

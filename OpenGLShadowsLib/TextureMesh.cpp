@@ -4,7 +4,7 @@
 #include "ShadowLog.h"
 
 shadow::TextureMesh::TextureMesh(const std::vector<TextureVertex>& vertices, const std::vector<GLuint>& indices,
-                                 std::map<TextureType, std::vector<std::shared_ptr<Texture>>> textures)
+                                 std::map<TextureType, std::shared_ptr<Texture>> textures)
     : textures(std::move(textures)), indexCount(static_cast<GLsizei>(indices.size()))
 {
     glGenVertexArrays(1, &vao);
@@ -33,14 +33,10 @@ void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
 {
     shader->use();
     GLuint textureIndex = 0U;
-    for (const std::pair<TextureType, std::vector<std::shared_ptr<Texture>>> text : textures)
+    for (const std::pair<TextureType, std::shared_ptr<Texture>> texture : textures)
     {
-        if (text.second.empty())
-        {
-            continue;
-        }
         glActiveTexture(GL_TEXTURE0 + textureIndex);
-        switch (text.first)
+        switch (texture.first)
         {
             case TextureType::Albedo:
                 shader->setInt("albedoTexture", textureIndex);
@@ -55,10 +51,10 @@ void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
                 shader->setInt("normalTexture", textureIndex);
                 break;
             default:
-                SHADOW_WARN("Encountered unsupported TextureType {}!", text.first);
+                SHADOW_WARN("Encountered unsupported TextureType {}!", texture.first);
                 continue;
         }
-        glBindTexture(GL_TEXTURE_2D, text.second[0]->getId());
+        glBindTexture(GL_TEXTURE_2D, texture.second->getId());
         ++textureIndex;
     }
     glActiveTexture(GL_TEXTURE0);

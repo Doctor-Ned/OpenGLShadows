@@ -23,7 +23,7 @@ namespace shadow
         ModelMesh(std::filesystem::path path);
         void processNode(aiNode* node, const aiScene* scene);
         std::shared_ptr<TextureMesh> processMesh(aiMesh* mesh, const aiScene* scene) const;
-        std::vector<std::shared_ptr<Texture>> loadTextures(aiMaterial* mat, aiTextureType type) const;
+        std::shared_ptr<Texture> loadTexture(TextureType textureType) const;
         std::vector<std::shared_ptr<TextureMesh>> meshes{};
         std::filesystem::path path{};
     };
