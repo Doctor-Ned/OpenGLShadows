@@ -50,6 +50,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)TextureType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp">
@@ -82,8 +85,5 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)imgui.ini" />
   </ItemGroup>
 </Project>

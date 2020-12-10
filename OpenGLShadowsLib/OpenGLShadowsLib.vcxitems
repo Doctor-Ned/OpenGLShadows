@@ -25,6 +25,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ShadowLog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Texture.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureMesh.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)TextureType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureVertex.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Vertex.h" />
   </ItemGroup>
@@ -39,8 +40,5 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TextureMesh.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)imgui.ini" />
   </ItemGroup>
 </Project>

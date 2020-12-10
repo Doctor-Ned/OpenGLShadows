@@ -1,10 +1,10 @@
 #pragma once
 
 #include "TextureVertex.h"
+#include "TextureType.h"
 #include "Mesh.h"
 #include "Texture.h"
 
-#include "glad/glad.h"
 #include <vector>
 #include <map>
 

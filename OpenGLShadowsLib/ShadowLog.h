@@ -1,5 +1,6 @@
 #pragma once
 
+#define NOMINMAX
 #include "spdlog/spdlog.h"
 
 #define SHADOW_LEVEL_TRACE 0

@@ -1,19 +1,13 @@
 #pragma once
 
+#include "ShadowLog.h"
+
 #include "glad/glad.h"
 #include <filesystem>
 #include <cassert>
 
 namespace shadow
 {
-    enum class TextureType
-    {
-        Albedo,
-        Roughness,
-        Metalness,
-        Normal
-    };
-
     class Texture final
     {
     public:

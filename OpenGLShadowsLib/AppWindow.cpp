@@ -1,5 +1,4 @@
 #include "AppWindow.h"
-#include "ShadowLog.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
