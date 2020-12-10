@@ -4,7 +4,8 @@
 #include "ShadowLog.h"
 
 shadow::TextureMesh::TextureMesh(const std::vector<TextureVertex>& vertices, const std::vector<GLuint>& indices,
-                                 std::map<TextureType, std::shared_ptr<Texture>> textures) : textures(std::move(textures)), indexCount(indices.size())
+                                 std::map<TextureType, std::shared_ptr<Texture>> textures)
+    : textures(std::move(textures)), indexCount(static_cast<GLsizei>(indices.size()))
 {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -45,6 +46,9 @@ void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
                 break;
             case TextureType::Metalness:
                 shader->setInt("metalnessTexture", textureIndex);
+                break;
+            case TextureType::Normal:
+                shader->setInt("normalTexture", textureIndex);
                 break;
             default:
                 SHADOW_WARN("Encountered unsupported TextureType {}!", texture.first);

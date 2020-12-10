@@ -10,7 +10,8 @@ namespace shadow
     {
         Albedo,
         Roughness,
-        Metalness
+        Metalness,
+        Normal
     };
 
     class Texture final

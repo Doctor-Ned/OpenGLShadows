@@ -17,6 +17,10 @@ shadow::Texture::~Texture()
 
 bool shadow::Texture::load()
 {
+    if (textureId)
+    {
+        return true;
+    }
     SHADOW_DEBUG("Loading texture '{}'...", path.generic_string());
     if (!exists(path))
     {
