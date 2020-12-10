@@ -99,28 +99,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AppWindow.cpp" />
-    <ClCompile Include="GLShader.cpp" />
-    <ClCompile Include="ColorMesh.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="ModelMesh.cpp" />
     <ClCompile Include="OpenGLShadowsExec.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="TextureMesh.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AppWindow.h" />
-    <ClInclude Include="GLShader.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="ColorMesh.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="ModelMesh.h" />
-    <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureMesh.h" />
-    <ClInclude Include="TextureVertex.h" />
-    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
