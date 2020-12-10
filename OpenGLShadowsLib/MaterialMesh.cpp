@@ -1,7 +1,7 @@
-#include "ColorMesh.h"
+#include "MaterialMesh.h"
 
-shadow::ColorMesh::ColorMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, glm::vec3 color)
-    : color(color), indexCount(static_cast<GLsizei>(indices.size()))
+shadow::MaterialMesh::MaterialMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, std::shared_ptr<Material> material)
+    : material(material), indexCount(static_cast<GLsizei>(indices.size()))
 {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -23,20 +23,22 @@ shadow::ColorMesh::ColorMesh(const std::vector<Vertex>& vertices, const std::vec
     glBindVertexArray(0);
 }
 
-void shadow::ColorMesh::setColor(glm::vec3 color)
+void shadow::MaterialMesh::setMaterial(std::shared_ptr<Material> material)
 {
-    this->color = color;
+    this->material = material;
 }
 
-glm::vec3 shadow::ColorMesh::getColor() const
+std::shared_ptr<shadow::Material> shadow::MaterialMesh::getMaterial() const
 {
-    return color;
+    return material;
 }
 
-void shadow::ColorMesh::draw(std::shared_ptr<GLShader> shader) const
+void shadow::MaterialMesh::draw(std::shared_ptr<GLShader> shader) const
 {
     shader->use();
-    shader->setVec3("color", color);
+    shader->setVec3("albedo", material->albedo);
+    shader->setFloat("roughness", material->roughness);
+    shader->setFloat("metallic", material->metallic);
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);

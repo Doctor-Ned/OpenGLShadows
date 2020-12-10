@@ -38,13 +38,16 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)AppWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)ColorMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)GLShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\MaterialMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MaterialModelMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -70,10 +73,13 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)AppWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)ColorMesh.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp">
+    <ClCompile Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\MaterialMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

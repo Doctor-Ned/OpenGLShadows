@@ -15,9 +15,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)AppWindow.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)ColorMesh.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GLShader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MaterialModelMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Mesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ModelMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ResourceManager.h" />
@@ -29,8 +30,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)AppWindow.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)ColorMesh.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ModelMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ResourceManager.cpp" />
