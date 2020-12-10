@@ -44,10 +44,10 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\MaterialMesh.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)MaterialModelMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)MaterialModelMesh.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -76,10 +76,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\MaterialMesh.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

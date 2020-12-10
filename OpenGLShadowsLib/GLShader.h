@@ -11,8 +11,6 @@ namespace shadow
     class GLShader final
     {
     public:
-        GLShader(gsl::cstring_span shaderPath, gsl::cstring_span commonFileName);
-        GLShader(gsl::cstring_span shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile);
         ~GLShader();
         GLShader(GLShader&) = delete;
         GLShader(GLShader&&) = delete;
@@ -34,6 +32,9 @@ namespace shadow
         void setMat3(gsl::cstring_span name, glm::mat3 value) const;
         void setMat4(gsl::cstring_span name, glm::mat4 value) const;
     private:
+        friend class ResourceManager;
+        GLShader(gsl::cstring_span shaderPath, gsl::cstring_span commonFileName);
+        GLShader(gsl::cstring_span shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile);
         bool buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const;
         bool buildShader(GLuint& shaderId, GLuint shaderType, const std::filesystem::path& path) const;
         std::filesystem::path vertexFile{}, fragmentFile{};
