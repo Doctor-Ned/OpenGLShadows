@@ -10,6 +10,7 @@ shadow::Texture::~Texture()
 {
     if (textureId)
     {
+        SHADOW_DEBUG("Destroying texture '{}'...", path.generic_string());
         glDeleteTextures(1, &textureId);
         textureId = 0U;
     }
