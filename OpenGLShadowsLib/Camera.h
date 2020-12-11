@@ -7,7 +7,7 @@ namespace shadow
     class Camera final
     {
     public:
-        Camera(float aspectRatio, float fov, float near, float far, glm::vec3 position, glm::vec3 direction, glm::vec3 up);
+        Camera(float aspectRatio, float fov, float nearZ, float farZ, glm::vec3 position, glm::vec3 direction, glm::vec3 up);
         ~Camera() = default;
         Camera(Camera&) = delete;
         Camera(Camera&&) = delete;
@@ -19,7 +19,7 @@ namespace shadow
     private:
         bool viewDirty{ true }, projectionDirty{ true };
         glm::mat4 view{}, projection{};
-        float aspectRatio{}, fov{}, near{}, far{};
+        float aspectRatio{}, fov{}, nearZ{}, farZ{};
         glm::vec3 position{}, direction{}, up{};
     };
 }

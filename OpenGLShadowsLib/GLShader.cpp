@@ -209,6 +209,11 @@ void shadow::GLShader::setMat4(gsl::cstring_span name, glm::mat4 value) const
     }
 }
 
+void shadow::GLShader::setModel(glm::mat4 value) const
+{
+    setMat4("model", value);
+}
+
 bool shadow::GLShader::buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const
 {
     assert(vertexShader);

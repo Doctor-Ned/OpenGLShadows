@@ -42,8 +42,9 @@ std::shared_ptr<shadow::Material> shadow::MaterialMesh::getMaterial() const
     return material;
 }
 
-void shadow::MaterialMesh::draw(std::shared_ptr<GLShader> shader) const
+void shadow::MaterialMesh::draw(std::shared_ptr<GLShader> shader, glm::mat4 model) const
 {
+    shader->setModel(model);
     shader->setVec3("albedo", material->albedo);
     shader->setFloat("roughness", material->roughness);
     shader->setFloat("metallic", material->metallic);

@@ -5,8 +5,9 @@
 
 #include <vector>
 
-shadow::Scene::Scene()
+shadow::Scene::Scene(std::shared_ptr<Camera> camera) : camera(camera)
 {
+    assert(camera);
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {
         shaderMap.emplace(static_cast<ShaderType>(i), std::vector<std::shared_ptr<SceneNode>>());
@@ -86,6 +87,8 @@ bool shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr
 void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
 {
     static ResourceManager& resourceManager = ResourceManager::getInstance();
+    glm::mat4 view = camera->getView(), projection = camera->getProjection();
+    //todo: make use of view and projection
     if (overrideShader)
     {
         overrideShader->use();
@@ -102,12 +105,18 @@ void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
                 {
                     if (node->isActive())
                     {
-                        node->getMesh()->draw(shader);
+                        assert(node->getMesh());
+                        node->getMesh()->draw(shader, node->getWorld());
                     }
                 }
             }
         }
     }
+}
+
+std::shared_ptr<shadow::Camera> shadow::Scene::getCamera() const
+{
+    return camera;
 }
 
 bool shadow::Scene::isInTree(std::shared_ptr<SceneNode> tree, std::shared_ptr<SceneNode> node)
@@ -141,7 +150,7 @@ void shadow::Scene::renderWithShader(std::shared_ptr<SceneNode> node, std::share
     std::shared_ptr<Mesh> mesh = node->getMesh();
     if (mesh)
     {
-        mesh->draw(shader);
+        mesh->draw(shader, node->getWorld());
     }
     for (const std::shared_ptr<SceneNode>& child : node->getChildren())
     {

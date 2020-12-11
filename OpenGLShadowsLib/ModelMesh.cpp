@@ -38,12 +38,12 @@ std::filesystem::path shadow::ModelMesh::getPath() const
     return path;
 }
 
-void shadow::ModelMesh::draw(std::shared_ptr<GLShader> shader) const
+void shadow::ModelMesh::draw(std::shared_ptr<GLShader> shader, glm::mat4 model) const
 {
     assert(!meshes.empty());
     for (const std::shared_ptr<TextureMesh>& mesh : meshes)
     {
-        mesh->draw(shader);
+        mesh->draw(shader, model);
     }
 }
 

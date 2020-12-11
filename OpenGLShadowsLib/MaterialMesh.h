@@ -17,7 +17,7 @@ namespace shadow
         static std::shared_ptr<MaterialMesh> fromPrimitiveData(std::shared_ptr<PrimitiveData> data, std::shared_ptr<Material> material);
         void setMaterial(std::shared_ptr<Material> material);
         std::shared_ptr<Material> getMaterial() const;
-        void draw(std::shared_ptr<GLShader> shader) const override;
+        void draw(std::shared_ptr<GLShader> shader, glm::mat4 model) const override;
         ShaderType getShaderType() const override;
     private:
         std::shared_ptr<Material> material{};

@@ -11,7 +11,7 @@ namespace shadow
     {
     public:
         virtual ~Mesh() = default;
-        virtual void draw(std::shared_ptr<GLShader> shader) const = 0;
+        virtual void draw(std::shared_ptr<GLShader> shader, glm::mat4 model) const = 0;
         virtual ShaderType getShaderType() const = 0;
     protected:
         Mesh() = default;

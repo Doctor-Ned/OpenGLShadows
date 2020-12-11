@@ -38,8 +38,9 @@ std::shared_ptr<shadow::TextureMesh> shadow::TextureMesh::fromPrimitiveData(std:
     return std::make_shared<TextureMesh>(data->toTextureVertex(), data->getIndices(), textures);
 }
 
-void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
+void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader, glm::mat4 model) const
 {
+    shader->setModel(model);
     GLuint textureIndex = 0U;
     for (const std::pair<TextureType, std::shared_ptr<Texture>> texture : textures)
     {
