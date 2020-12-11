@@ -33,6 +33,6 @@ namespace shadow
         glBindBuffer(GL_UNIFORM_BUFFER, uboId);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(T), nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        glBindBufferRange(GL_UNIFORM_BUFFER, binding, uboId, 0, sizeof(T));
+        glBindBufferBase(GL_UNIFORM_BUFFER, binding, uboId);
     }
 }
