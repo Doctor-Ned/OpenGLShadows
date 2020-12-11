@@ -21,8 +21,11 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialModelMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Mesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ModelMesh.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PrimitiveData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Primitives.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ResourceManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ShadowLog.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ShadowUtils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Texture.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureType.h" />
@@ -36,8 +39,11 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ModelMesh.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)PrimitiveData.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Primitives.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ResourceManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ShadowUtils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TextureMesh.cpp" />
   </ItemGroup>

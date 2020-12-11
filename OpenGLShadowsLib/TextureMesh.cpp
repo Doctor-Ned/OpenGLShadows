@@ -29,6 +29,15 @@ shadow::TextureMesh::TextureMesh(const std::vector<TextureVertex>& vertices, con
     glBindVertexArray(0);
 }
 
+std::shared_ptr<shadow::TextureMesh> shadow::TextureMesh::fromPrimitiveData(std::shared_ptr<PrimitiveData> data, std::map<TextureType, std::shared_ptr<Texture>> textures)
+{
+    if (!data->isValid())
+    {
+        return {};
+    }
+    return std::make_shared<TextureMesh>(data->toTextureVertex(), data->getIndices(), textures);
+}
+
 void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
 {
     shader->use();

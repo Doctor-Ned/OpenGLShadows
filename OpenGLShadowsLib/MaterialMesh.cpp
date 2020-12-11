@@ -23,6 +23,15 @@ shadow::MaterialMesh::MaterialMesh(const std::vector<Vertex>& vertices, const st
     glBindVertexArray(0);
 }
 
+std::shared_ptr<shadow::MaterialMesh> shadow::MaterialMesh::fromPrimitiveData(std::shared_ptr<PrimitiveData> data, std::shared_ptr<Material> material)
+{
+    if (!data->isValid())
+    {
+        return {};
+    }
+    return std::make_shared<MaterialMesh>(data->toVertex(), data->getIndices(), material);
+}
+
 void shadow::MaterialMesh::setMaterial(std::shared_ptr<Material> material)
 {
     this->material = material;

@@ -4,6 +4,7 @@
 #include "TextureType.h"
 #include "Mesh.h"
 #include "Texture.h"
+#include "PrimitiveData.h"
 
 #include <vector>
 #include <map>
@@ -15,6 +16,8 @@ namespace shadow
     public:
         TextureMesh(const std::vector<TextureVertex>& vertices, const std::vector<GLuint>& indices,
                     std::map<TextureType, std::shared_ptr<Texture>> textures);
+        static std::shared_ptr<TextureMesh> fromPrimitiveData(std::shared_ptr<PrimitiveData> data,
+                                                              std::map<TextureType, std::shared_ptr<Texture>> textures);
         void draw(std::shared_ptr<GLShader> shader) const override;
     private:
         std::map<TextureType, std::shared_ptr<Texture>> textures{};
