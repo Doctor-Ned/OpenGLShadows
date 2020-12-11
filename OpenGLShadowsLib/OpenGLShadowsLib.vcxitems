@@ -24,6 +24,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)PrimitiveData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Primitives.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ResourceManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Scene.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SceneNode.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ShaderType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ShadowLog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ShadowUtils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Texture.h" />
@@ -42,6 +45,8 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)PrimitiveData.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Primitives.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ResourceManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Scene.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SceneNode.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowUtils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Texture.cpp" />
