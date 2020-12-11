@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "ShadowUtils.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -85,6 +86,18 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
     lastTime = 0.0;
     timeDelta = 0.0;
 
+    camera = std::make_shared<Camera>(
+        width / height,
+        FPI * 0.5f,
+        0.01f,
+        100.0f,
+        glm::vec3(0.0f, -5.0f, 5.0f),
+        glm::vec3(0.0f, -1.0f, -1.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+
+    scene = std::make_shared<Scene>(camera);
+
     return true;
 }
 
@@ -124,6 +137,7 @@ void shadow::AppWindow::loop()
     glViewport(0, 0, width, height);
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    scene->render();
     ImGui::ShowDemoWindow();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

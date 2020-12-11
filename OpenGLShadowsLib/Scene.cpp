@@ -84,6 +84,11 @@ bool shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr
     return true;
 }
 
+void shadow::Scene::render()
+{
+    render({});
+}
+
 void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
 {
     static ResourceManager& resourceManager = ResourceManager::getInstance();
@@ -97,7 +102,7 @@ void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
     {
         for (std::map<ShaderType, std::vector<std::shared_ptr<SceneNode>>>::value_type& pair : shaderMap)
         {
-            if (pair.first != ShaderType::None)
+            if (pair.first != ShaderType::None && !pair.second.empty())
             {
                 std::shared_ptr<GLShader> shader = resourceManager.getShader(pair.first);
                 shader->use();

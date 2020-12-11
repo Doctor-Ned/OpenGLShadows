@@ -22,6 +22,7 @@ namespace shadow
         std::shared_ptr<SceneNode> addNode();
         bool removeNode(std::shared_ptr<SceneNode> node);
         bool setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr<SceneNode> child) const;
+        void render();
         void render(std::shared_ptr<GLShader> overrideShader);
         std::shared_ptr<Camera> getCamera() const;
     private:

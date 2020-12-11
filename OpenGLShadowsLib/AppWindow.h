@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ShadowLog.h"
+#include "Camera.h"
+#include "Scene.h"
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -31,6 +33,8 @@ namespace shadow
         glm::vec4 clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
         double currentTime{}, lastTime{}, timeDelta{};
         GLFWwindow* glfwWindow{ nullptr };
+        std::shared_ptr<Camera> camera{};
+        std::shared_ptr<Scene> scene{};
     };
 
     inline bool AppWindow::shouldClose() const
