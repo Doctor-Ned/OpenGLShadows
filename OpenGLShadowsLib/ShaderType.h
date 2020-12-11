@@ -2,8 +2,11 @@
 
 namespace shadow
 {
-    enum class ShaderType
+    enum class ShaderType : unsigned int
     {
-        None
+        None,
+        Material,
+        Texture,
+        ShaderTypeEnd
     };
 }

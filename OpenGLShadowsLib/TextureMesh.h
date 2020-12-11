@@ -19,6 +19,7 @@ namespace shadow
         static std::shared_ptr<TextureMesh> fromPrimitiveData(std::shared_ptr<PrimitiveData> data,
                                                               std::map<TextureType, std::shared_ptr<Texture>> textures);
         void draw(std::shared_ptr<GLShader> shader) const override;
+        ShaderType getShaderType() const override;
     private:
         std::map<TextureType, std::shared_ptr<Texture>> textures{};
         GLuint vao{}, vbo{}, ebo{};

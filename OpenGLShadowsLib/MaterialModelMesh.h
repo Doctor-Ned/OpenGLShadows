@@ -19,6 +19,7 @@ namespace shadow
         bool load();
         std::filesystem::path getPath() const;
         void draw(std::shared_ptr<GLShader> shader) const override;
+        ShaderType getShaderType() const override;
         std::shared_ptr<Material> getMaterial() const;
         void setMaterial(std::shared_ptr<Material> material);
     private:

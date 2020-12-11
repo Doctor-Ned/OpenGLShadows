@@ -40,7 +40,6 @@ std::shared_ptr<shadow::TextureMesh> shadow::TextureMesh::fromPrimitiveData(std:
 
 void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
 {
-    shader->use();
     GLuint textureIndex = 0U;
     for (const std::pair<TextureType, std::shared_ptr<Texture>> texture : textures)
     {
@@ -70,4 +69,9 @@ void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
+}
+
+shadow::ShaderType shadow::TextureMesh::getShaderType() const
+{
+    return ShaderType::Texture;
 }

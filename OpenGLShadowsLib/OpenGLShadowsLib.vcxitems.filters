@@ -76,9 +76,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)ModelMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

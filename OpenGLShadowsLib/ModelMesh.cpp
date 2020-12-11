@@ -47,6 +47,11 @@ void shadow::ModelMesh::draw(std::shared_ptr<GLShader> shader) const
     }
 }
 
+shadow::ShaderType shadow::ModelMesh::getShaderType() const
+{
+    return ShaderType::Texture;
+}
+
 void shadow::ModelMesh::processNode(aiNode* node, const aiScene* scene)
 {
     for (unsigned int i = 0; i < node->mNumMeshes; ++i)

@@ -56,6 +56,11 @@ void shadow::MaterialModelMesh::draw(std::shared_ptr<GLShader> shader) const
     }
 }
 
+shadow::ShaderType shadow::MaterialModelMesh::getShaderType() const
+{
+    return ShaderType::Material;
+}
+
 std::shared_ptr<shadow::Material> shadow::MaterialModelMesh::getMaterial() const
 {
     return material;

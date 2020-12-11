@@ -18,6 +18,7 @@ namespace shadow
         void setMaterial(std::shared_ptr<Material> material);
         std::shared_ptr<Material> getMaterial() const;
         void draw(std::shared_ptr<GLShader> shader) const override;
+        ShaderType getShaderType() const override;
     private:
         std::shared_ptr<Material> material{};
         GLuint vao{}, vbo{}, ebo{};

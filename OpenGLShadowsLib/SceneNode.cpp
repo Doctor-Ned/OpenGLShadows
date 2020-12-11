@@ -1,5 +1,6 @@
 #include "SceneNode.h"
 #include "Scene.h"
+#include "Mesh.h"
 
 #include <glm/gtx/transform.hpp>
 
@@ -66,7 +67,12 @@ shadow::SceneNode& shadow::SceneNode::setModel(glm::mat4 model)
 
 shadow::SceneNode& shadow::SceneNode::setMesh(std::shared_ptr<Mesh> mesh)
 {
-    this->mesh = mesh;
+    if (this->mesh != mesh)
+    {
+        ShaderType previousShaderType = this->mesh ? this->mesh->getShaderType() : ShaderType::None;
+        this->mesh = mesh;
+        scene.lock()->updateNodeShaderType(previousShaderType, shared_from_this());
+    }
     return *this;
 }
 

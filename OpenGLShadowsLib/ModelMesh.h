@@ -18,6 +18,7 @@ namespace shadow
         bool load();
         std::filesystem::path getPath() const;
         void draw(std::shared_ptr<GLShader> shader) const override;
+        ShaderType getShaderType() const override;
     private:
         friend class ResourceManager;
         ModelMesh(std::filesystem::path path);

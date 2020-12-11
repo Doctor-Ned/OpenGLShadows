@@ -1,5 +1,6 @@
 #include "ResourceManager.h"
 #include "ShadowLog.h"
+#include "GLShader.h"
 
 shadow::ResourceManager& shadow::ResourceManager::getInstance()
 {
@@ -32,6 +33,7 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     }
     this->resourceDirectory = resourceDirectory;
     initialised = true;
+    loadShaders();
     return true;
 }
 
@@ -79,6 +81,29 @@ std::shared_ptr<shadow::ModelMesh> shadow::ResourceManager::getModel(const std::
     }
     models.emplace(fullPath, model);
     return model;
+}
+
+std::shared_ptr<shadow::GLShader> shadow::ResourceManager::getShader(ShaderType shaderType)
+{
+    if (shaderType == ShaderType::None)
+    {
+        SHADOW_WARN("An empty shader was requested! This is probably a bug.");
+        return {};
+    }
+    const std::map<ShaderType, std::shared_ptr<GLShader>>::iterator it = shaders.find(shaderType);
+    if (it == shaders.end())
+    {
+        SHADOW_ERROR("Shader of type {} was not found!", shaderType);
+        return {};
+    }
+    return it->second;
+}
+
+void shadow::ResourceManager::loadShaders()
+{
+    SHADOW_DEBUG("Loading shaders...");
+    shaders.emplace(ShaderType::None, std::shared_ptr<GLShader>{});
+    //todo
 }
 
 std::filesystem::path shadow::ResourceManager::reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath)

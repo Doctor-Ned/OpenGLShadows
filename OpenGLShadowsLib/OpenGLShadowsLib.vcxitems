@@ -40,7 +40,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ModelMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)PrimitiveData.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Primitives.cpp" />

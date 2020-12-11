@@ -1,12 +1,24 @@
 #include "Scene.h"
+#include "SceneNode.h"
+#include "ResourceManager.h"
+#include "GLShader.h"
+
 #include <vector>
+
+shadow::Scene::Scene()
+{
+    for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
+    {
+        shaderMap.emplace(static_cast<ShaderType>(i), std::vector<std::shared_ptr<SceneNode>>());
+    }
+}
 
 std::shared_ptr<shadow::SceneNode> shadow::Scene::getRoot() const
 {
     return root;
 }
 
-std::shared_ptr<shadow::SceneNode> shadow::Scene::addNode(std::shared_ptr<SceneNode> parent) const
+std::shared_ptr<shadow::SceneNode> shadow::Scene::addNode(std::shared_ptr<SceneNode> parent)
 {
     if (!parent)
     {
@@ -16,17 +28,18 @@ std::shared_ptr<shadow::SceneNode> shadow::Scene::addNode(std::shared_ptr<SceneN
         assert(isInTree(root, parent));
     }
     std::shared_ptr<SceneNode> node{ new SceneNode() };
+    shaderMap[ShaderType::None].push_back(node);
     node->parent = parent;
     parent->children.push_back(node);
     return node;
 }
 
-std::shared_ptr<shadow::SceneNode> shadow::Scene::addNode() const
+std::shared_ptr<shadow::SceneNode> shadow::Scene::addNode()
 {
     return addNode(root);
 }
 
-bool shadow::Scene::removeNode(std::shared_ptr<SceneNode> node) const
+bool shadow::Scene::removeNode(std::shared_ptr<SceneNode> node)
 {
     assert(node);
     if (root == node)
@@ -39,6 +52,10 @@ bool shadow::Scene::removeNode(std::shared_ptr<SceneNode> node) const
     std::vector<std::shared_ptr<SceneNode>>::iterator it =
         std::find(parent->children.begin(), parent->children.end(), node);
     parent->children.erase(it);
+    std::vector<std::shared_ptr<SceneNode>>& shaderVec = shaderMap[node->getMesh() ? node->getMesh()->getShaderType() : ShaderType::None];
+    it = std::find(shaderVec.begin(), shaderVec.end(), node);
+    assert(it != shaderVec.end());
+    shaderVec.erase(it);
     return true;
 }
 
@@ -66,6 +83,33 @@ bool shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr
     return true;
 }
 
+void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
+{
+    static ResourceManager& resourceManager = ResourceManager::getInstance();
+    if (overrideShader)
+    {
+        overrideShader->use();
+        renderWithShader(root, overrideShader);
+    } else
+    {
+        for (std::map<ShaderType, std::vector<std::shared_ptr<SceneNode>>>::value_type& pair : shaderMap)
+        {
+            if (pair.first != ShaderType::None)
+            {
+                std::shared_ptr<GLShader> shader = resourceManager.getShader(pair.first);
+                shader->use();
+                for (std::shared_ptr<SceneNode>& node : pair.second)
+                {
+                    if (node->isActive())
+                    {
+                        node->getMesh()->draw(shader);
+                    }
+                }
+            }
+        }
+    }
+}
+
 bool shadow::Scene::isInTree(std::shared_ptr<SceneNode> tree, std::shared_ptr<SceneNode> node)
 {
     if (!node)
@@ -85,4 +129,38 @@ bool shadow::Scene::isInTree(std::shared_ptr<SceneNode> tree, std::shared_ptr<Sc
         }
     }
     return false;
+}
+
+void shadow::Scene::renderWithShader(std::shared_ptr<SceneNode> node, std::shared_ptr<GLShader> shader)
+{
+    assert(shader);
+    if (!node->isActive())
+    {
+        return;
+    }
+    std::shared_ptr<Mesh> mesh = node->getMesh();
+    if (mesh)
+    {
+        mesh->draw(shader);
+    }
+    for (const std::shared_ptr<SceneNode>& child : node->getChildren())
+    {
+        renderWithShader(child, shader);
+    }
+}
+
+void shadow::Scene::updateNodeShaderType(ShaderType previous, std::shared_ptr<SceneNode> node)
+{
+    ShaderType targetType = node->getMesh() ? node->getMesh()->getShaderType() : ShaderType::None;
+    if (targetType == previous)
+    {
+        return;
+    }
+    std::vector<std::shared_ptr<SceneNode>>& source = shaderMap[previous];
+    std::vector<std::shared_ptr<SceneNode>>& target = shaderMap[targetType];
+    const std::vector<std::shared_ptr<SceneNode>>::iterator it =
+        std::find(source.begin(), source.end(), node);
+    assert(it != source.end());
+    source.erase(it);
+    target.push_back(node);
 }
