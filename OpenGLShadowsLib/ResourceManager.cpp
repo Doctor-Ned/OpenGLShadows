@@ -77,17 +77,40 @@ std::shared_ptr<shadow::ModelMesh> shadow::ResourceManager::getModel(const std::
         SHADOW_ERROR("Model file '{}' does not exist!", fullPath.generic_string());
         return {};
     }
-    std::map<std::filesystem::path, std::shared_ptr<ModelMesh>>::iterator it = models.find(fullPath);
-    if (it != models.end())
+    std::shared_ptr<ModelData> data = getModelData(fullPath);
+    if (!data)
     {
-        return it->second;
+        SHADOW_ERROR("Unable to get ModelData from '{}'!", fullPath.generic_string());
+        return {};
     }
-    std::shared_ptr<ModelMesh> model = std::shared_ptr<ModelMesh>(new ModelMesh(fullPath));
+    std::shared_ptr<ModelMesh> model = std::shared_ptr<ModelMesh>(new ModelMesh(data));
     if (!model->load())
     {
         return {};
     }
-    models.emplace(fullPath, model);
+    return model;
+}
+
+std::shared_ptr<shadow::MaterialModelMesh> shadow::ResourceManager::getMaterialModel(const std::filesystem::path& path, std::shared_ptr<Material> material)
+{
+    assert(initialised);
+    std::filesystem::path fullPath = reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path);
+    if (!exists(fullPath))
+    {
+        SHADOW_ERROR("Model file '{}' does not exist!", fullPath.generic_string());
+        return {};
+    }
+    std::shared_ptr<ModelData> data = getModelData(fullPath);
+    if (!data)
+    {
+        SHADOW_ERROR("Unable to get ModelData from '{}'!", fullPath.generic_string());
+        return {};
+    }
+    std::shared_ptr<MaterialModelMesh> model = std::shared_ptr<MaterialModelMesh>(new MaterialModelMesh(data, material));
+    if (!model->load())
+    {
+        return {};
+    }
     return model;
 }
 
@@ -110,6 +133,136 @@ std::shared_ptr<shadow::GLShader> shadow::ResourceManager::getShader(ShaderType 
 std::shared_ptr<shadow::UboModelViewProjection> shadow::ResourceManager::getUboMvp() const
 {
     return uboMvp;
+}
+
+std::shared_ptr<shadow::ModelData> shadow::ResourceManager::getModelData(const std::filesystem::path& path)
+{
+    std::filesystem::path fullPath = reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path);
+    if (!exists(fullPath))
+    {
+        SHADOW_ERROR("Model file '{}' does not exist!", fullPath.generic_string());
+        return {};
+    }
+    std::map<std::filesystem::path, std::shared_ptr<ModelData>>::iterator it = modelData.find(fullPath);
+    if (it != modelData.end())
+    {
+        return it->second;
+    }
+    SHADOW_DEBUG("Loading model data from '{}'...", path.generic_string());
+    Assimp::Importer import;
+    const aiScene* scene = import.ReadFile(path.generic_string().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+    {
+        SHADOW_ERROR("Failed to load model '{}'! {}", path.generic_string(), import.GetErrorString());
+        return {};
+    }
+    std::vector<ModelMeshData> modelMeshData{};
+    processModelNode(scene->mRootNode, scene, path, modelMeshData);
+    std::shared_ptr<ModelData> result = std::make_shared<ModelData>(modelMeshData);
+    modelData.emplace(fullPath, result);
+    return result;
+}
+
+void shadow::ResourceManager::processModelNode(aiNode* node, const aiScene* scene, const std::filesystem::path& path, std::vector<ModelMeshData>& modelMeshData)
+{
+    for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+    {
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        modelMeshData.push_back(processModelMesh(mesh, scene, path));
+    }
+    for (unsigned int i = 0; i < node->mNumChildren; ++i)
+    {
+        processModelNode(node->mChildren[i], scene, path, modelMeshData);
+    }
+}
+
+shadow::ModelMeshData shadow::ResourceManager::processModelMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path& path)
+{
+    ModelMeshData result{};
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    {
+        result.vertices.emplace_back(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+        result.normals.emplace_back(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+        if (mesh->mTextureCoords[0])
+        {
+            result.texCoords.emplace_back(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+        } else
+        {
+            result.texCoords.emplace_back(0.0f, 0.0f);
+        }
+    }
+
+    for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+    {
+        aiFace& face = mesh->mFaces[i];
+        for (unsigned int j = 0; j < face.mNumIndices; ++j)
+        {
+            result.indices.push_back(face.mIndices[j]);
+        }
+    }
+
+    for (TextureType type : {TextureType::Albedo, TextureType::Roughness, TextureType::Metalness, TextureType::Normal})
+    {
+        std::shared_ptr<Texture> texture = loadModelTexture(type, path);
+        if (texture)
+        {
+            result.textures.emplace(type, texture);
+        }
+    }
+
+    return result;
+}
+
+std::shared_ptr<shadow::Texture> shadow::ResourceManager::loadModelTexture(TextureType textureType, const std::filesystem::path& path)
+{
+    std::filesystem::directory_iterator itEnd{};
+    for (std::filesystem::directory_iterator it{ path.parent_path() }; it != itEnd; ++it)
+    {
+        if (is_regular_file(*it))
+        {
+            std::filesystem::path p = it->path();
+            std::string fileName = p.filename().generic_string();
+            size_t lastUnderscore = fileName.find_last_of('_'), lastDot = fileName.find_last_of('.');
+            //TODO: might add a filetype check
+            if (lastUnderscore != std::string::npos && lastDot != std::string::npos)
+            {
+                ++lastUnderscore;
+                std::string type = fileName.substr(lastUnderscore, lastDot - lastUnderscore);
+                std::transform(type.begin(), type.end(), type.begin(),
+                               [](auto c) { return std::tolower(c); });
+                bool match;
+                switch (textureType)
+                {
+                    case TextureType::Albedo:
+                        match = !strcmp(type.c_str(), "basecolor") || !strcmp(type.c_str(), "albedo");
+                        break;
+                    case TextureType::Metalness:
+                        match = !strcmp(type.c_str(), "metallic") || !strcmp(type.c_str(), "metalness");
+                        break;
+                    case TextureType::Roughness:
+                        match = !strcmp(type.c_str(), "roughness");
+                        break;
+                    case TextureType::Normal:
+                        match = !strcmp(type.c_str(), "normal");
+                        break;
+                    default:
+                        match = false;
+                        SHADOW_ERROR("Encountered unknown texture type {}!", textureType);
+                        break;
+                }
+                if (match)
+                {
+                    std::shared_ptr<Texture> texture = getTexture(p);
+                    if (texture)
+                    {
+                        return texture;
+                    }
+                }
+            }
+        }
+    }
+    return {};
 }
 
 void shadow::ResourceManager::loadShaders()

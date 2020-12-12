@@ -21,6 +21,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialModelMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Mesh.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ModelData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ModelMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)PrimitiveData.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Primitives.h" />

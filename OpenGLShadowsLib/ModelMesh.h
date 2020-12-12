@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TextureMesh.h"
+#include "ModelData.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -16,16 +17,13 @@ namespace shadow
         ModelMesh& operator=(ModelMesh&) = delete;
         ModelMesh& operator=(ModelMesh&&) = delete;
         bool load();
-        std::filesystem::path getPath() const;
         void draw(std::shared_ptr<GLShader> shader) const override;
         ShaderType getShaderType() const override;
     private:
         friend class ResourceManager;
-        ModelMesh(std::filesystem::path path);
-        void processNode(aiNode* node, const aiScene* scene);
-        std::shared_ptr<TextureMesh> processMesh(aiMesh* mesh, const aiScene* scene) const;
-        std::shared_ptr<Texture> loadTexture(TextureType textureType) const;
+        ModelMesh(std::shared_ptr<ModelData> modelData);
         std::vector<std::shared_ptr<TextureMesh>> meshes{};
+        std::shared_ptr<ModelData> modelData{};
         std::filesystem::path path{};
     };
 }
