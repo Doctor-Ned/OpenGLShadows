@@ -1,9 +1,11 @@
 #include "AppWindow.h"
 
+#include "ShadowUtils.h"
+#include "ResourceManager.h"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "ShadowUtils.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -30,7 +32,7 @@ shadow::AppWindow& shadow::AppWindow::getInstance()
     return appWindow;
 }
 
-bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
+bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesystem::path resourceDirectory)
 {
     if (width <= 0 || height <= 0)
     {
@@ -80,6 +82,11 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);
 
+    if (!ResourceManager::getInstance().initialize(resourceDirectory))
+    {
+        return false;
+    }
+
     this->width = width;
     this->height = height;
     currentTime = 0.0;
@@ -96,9 +103,8 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
         glm::vec3(0.0f, 1.0f, 0.0f)
         );
 
-    scene = std::make_shared<Scene>(camera);
-
-    return true;
+    scene = std::make_shared<Scene>();
+    return scene->initialize(camera);
 }
 
 bool shadow::AppWindow::isInitialized() const
@@ -156,6 +162,17 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     glfwSetWindowSize(glfwWindow, width, height);
     this->width = width;
     this->height = height;
+    camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+}
+
+std::shared_ptr<shadow::Scene> shadow::AppWindow::getScene() const
+{
+    return scene;
+}
+
+std::shared_ptr<shadow::Camera> shadow::AppWindow::getCamera() const
+{
+    return camera;
 }
 
 shadow::AppWindow::AppWindow()

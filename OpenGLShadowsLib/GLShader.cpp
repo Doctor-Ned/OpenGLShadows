@@ -4,12 +4,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 
-shadow::GLShader::GLShader(gsl::cstring_span shaderPath, gsl::cstring_span commonFileName)
-    : vertexFile(to_string(shaderPath) + commonFileName.cbegin() + ".vs"), fragmentFile(to_string(shaderPath) + commonFileName.cbegin() + ".fs")
+shadow::GLShader::GLShader(std::filesystem::path shaderPath, gsl::cstring_span commonFileName)
+    : vertexFile(shaderPath / (to_string(commonFileName) + ".vert")), fragmentFile(shaderPath / (to_string(commonFileName) + ".frag"))
 {}
 
-shadow::GLShader::GLShader(gsl::cstring_span shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile)
-    : vertexFile(to_string(shaderPath) + vertexFile.cbegin()), fragmentFile(to_string(shaderPath) + fragmentFile.cbegin())
+shadow::GLShader::GLShader(std::filesystem::path shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile)
+    : vertexFile(shaderPath / to_string(vertexFile)), fragmentFile(shaderPath / to_string(fragmentFile))
 {}
 
 shadow::GLShader::~GLShader()
@@ -190,7 +190,7 @@ void shadow::GLShader::setMat2(gsl::cstring_span name, glm::mat2 value) const
 {
     if (GLint location = getUniformLocation(name); location != -1)
     {
-        glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        glUniformMatrix2fv(location, 1, GL_FALSE, value_ptr(value));
     }
 }
 
@@ -198,7 +198,7 @@ void shadow::GLShader::setMat3(gsl::cstring_span name, glm::mat3 value) const
 {
     if (GLint location = getUniformLocation(name); location != -1)
     {
-        glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        glUniformMatrix3fv(location, 1, GL_FALSE, value_ptr(value));
     }
 }
 
@@ -206,7 +206,7 @@ void shadow::GLShader::setMat4(gsl::cstring_span name, glm::mat4 value) const
 {
     if (GLint location = getUniformLocation(name); location != -1)
     {
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(value));
     }
 }
 

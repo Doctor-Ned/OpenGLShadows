@@ -36,8 +36,8 @@ namespace shadow
         void setModel(glm::mat4 value) const;
     private:
         friend class ResourceManager;
-        GLShader(gsl::cstring_span shaderPath, gsl::cstring_span commonFileName);
-        GLShader(gsl::cstring_span shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile);
+        GLShader(std::filesystem::path shaderPath, gsl::cstring_span commonFileName);
+        GLShader(std::filesystem::path shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile);
         bool buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const;
         bool buildShader(GLuint& shaderId, GLuint shaderType, const std::filesystem::path& path) const;
         std::filesystem::path vertexFile{}, fragmentFile{};

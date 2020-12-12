@@ -28,6 +28,11 @@ glm::mat4 shadow::Camera::getProjection()
     return projection;
 }
 
+glm::vec3 shadow::Camera::getPosition() const
+{
+    return position;
+}
+
 bool shadow::Camera::isViewDirty() const
 {
     return viewDirty;
@@ -36,4 +41,41 @@ bool shadow::Camera::isViewDirty() const
 bool shadow::Camera::isProjectionDirty() const
 {
     return projectionDirty;
+}
+
+void shadow::Camera::setAspectRatio(float aspectRatio)
+{
+    this->aspectRatio = aspectRatio;
+    projectionDirty = true;
+}
+
+void shadow::Camera::setFov(float fov)
+{
+    this->fov = fov;
+    projectionDirty = true;
+}
+
+void shadow::Camera::setClip(float nearZ, float farZ)
+{
+    this->nearZ = nearZ;
+    this->farZ = farZ;
+    projectionDirty = true;
+}
+
+void shadow::Camera::setPosition(glm::vec3 position)
+{
+    this->position = position;
+    viewDirty = true;
+}
+
+void shadow::Camera::setDirection(glm::vec3 direction)
+{
+    this->direction = direction;
+    viewDirty = true;
+}
+
+void shadow::Camera::setUp(glm::vec3 up)
+{
+    this->up = up;
+    viewDirty = true;
 }

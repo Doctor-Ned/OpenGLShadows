@@ -37,6 +37,14 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     return true;
 }
 
+void shadow::ResourceManager::updateShaders() const
+{
+    for (const std::map<ShaderType, std::shared_ptr<GLShader>>::value_type& pair : shaders)
+    {
+        pair.second->update();
+    }
+}
+
 std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path)
 {
     assert(initialised);
@@ -99,11 +107,42 @@ std::shared_ptr<shadow::GLShader> shadow::ResourceManager::getShader(ShaderType 
     return it->second;
 }
 
+std::shared_ptr<shadow::UboModelViewProjection> shadow::ResourceManager::getUboMvp() const
+{
+    return uboMvp;
+}
+
 void shadow::ResourceManager::loadShaders()
 {
+    SHADOW_DEBUG("Creating UBOs...");
+    uboMvp = std::make_shared<UboModelViewProjection>();
+
     SHADOW_DEBUG("Loading shaders...");
-    shaders.emplace(ShaderType::None, std::shared_ptr<GLShader>{});
-    //todo
+    const std::filesystem::path shadersDirectory = resourceDirectory / SHADERS_DIR;
+
+    shaders.emplace(ShaderType::Texture, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Texture")));
+
+    for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
+    {
+        const std::map<ShaderType, std::shared_ptr<GLShader>>::iterator it = shaders.find(static_cast<ShaderType>(i));
+        if (it != shaders.end())
+        {
+            if (!it->second->createProgram())
+            {
+                SHADOW_ERROR("Failed to create shader of type {}!", it->first);
+            } else
+            {
+                if (uboMvp->isDeclaredIn(it->second))
+                {
+                    SHADOW_DEBUG("Binding UBO '{}' to shader of type {}...", uboMvp->getBlockName().cbegin(), i);
+                    if (!uboMvp->bindTo(it->second))
+                    {
+                        SHADOW_ERROR("Binding failed!");
+                    }
+                }
+            }
+        }
+    }
 }
 
 std::filesystem::path shadow::ResourceManager::reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath)

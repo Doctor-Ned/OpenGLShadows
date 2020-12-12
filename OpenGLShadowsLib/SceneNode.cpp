@@ -1,6 +1,5 @@
 #include "SceneNode.h"
 #include "Scene.h"
-#include "Mesh.h"
 
 #include <glm/gtx/transform.hpp>
 

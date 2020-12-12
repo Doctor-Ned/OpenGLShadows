@@ -19,13 +19,15 @@ namespace shadow
         AppWindow& operator=(AppWindow&) = delete;
         AppWindow& operator=(AppWindow&&) = delete;
         static AppWindow& getInstance();
-        bool initialize(GLsizei width, GLsizei height);
+        bool initialize(GLsizei width, GLsizei height, std::filesystem::path resourceDirectory);
         bool isInitialized() const;
         void deinitialize();
         inline bool shouldClose() const;
         void loop();
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
+        std::shared_ptr<Scene> getScene() const;
+        std::shared_ptr<Camera> getCamera() const;
     private:
         AppWindow();
         const char* GLSL_VERSION{ "#version 430" };

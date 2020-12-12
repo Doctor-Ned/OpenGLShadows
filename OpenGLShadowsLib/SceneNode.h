@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Mesh.h"
+
 #include <vector>
 #include <memory>
 
 namespace shadow
 {
     class Scene;
-
     class SceneNode final : public std::enable_shared_from_this<SceneNode>
     {
     public:

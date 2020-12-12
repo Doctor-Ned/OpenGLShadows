@@ -15,8 +15,15 @@ namespace shadow
         Camera& operator=(Camera&&) = delete;
         glm::mat4 getView();
         glm::mat4 getProjection();
+        glm::vec3 getPosition() const;
         bool isViewDirty() const;
         bool isProjectionDirty() const;
+        void setAspectRatio(float aspectRatio);
+        void setFov(float fov);
+        void setClip(float nearZ, float farZ);
+        void setPosition(glm::vec3 position);
+        void setDirection(glm::vec3 direction);
+        void setUp(glm::vec3 up);
         //todo: add methods to modify the view/projection
     private:
         bool viewDirty{ true }, projectionDirty{ true };

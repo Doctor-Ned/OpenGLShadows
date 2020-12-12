@@ -40,30 +40,10 @@ std::shared_ptr<shadow::TextureMesh> shadow::TextureMesh::fromPrimitiveData(std:
 
 void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
 {
-    GLuint textureIndex = 0U;
     for (const std::pair<TextureType, std::shared_ptr<Texture>> texture : textures)
     {
-        glActiveTexture(GL_TEXTURE0 + textureIndex);
-        switch (texture.first)
-        {
-            case TextureType::Albedo:
-                shader->setInt("albedoTexture", textureIndex);
-                break;
-            case TextureType::Roughness:
-                shader->setInt("roughnessTexture", textureIndex);
-                break;
-            case TextureType::Metalness:
-                shader->setInt("metalnessTexture", textureIndex);
-                break;
-            case TextureType::Normal:
-                shader->setInt("normalTexture", textureIndex);
-                break;
-            default:
-                SHADOW_WARN("Encountered unsupported TextureType {}!", texture.first);
-                continue;
-        }
+        glActiveTexture(GL_TEXTURE0 + static_cast<GLuint>(texture.first));
         glBindTexture(GL_TEXTURE_2D, texture.second->getId());
-        ++textureIndex;
     }
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(vao);

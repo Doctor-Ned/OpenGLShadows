@@ -1,17 +1,30 @@
 #include "Scene.h"
-#include "SceneNode.h"
 #include "ResourceManager.h"
 #include "GLShader.h"
 
 #include <vector>
 
-shadow::Scene::Scene(std::shared_ptr<Camera> camera) : camera(camera)
+bool shadow::Scene::initialize(std::shared_ptr<Camera> camera)
 {
-    assert(camera);
+    if (!camera)
+    {
+        SHADOW_ERROR("Cannot initialize scene with null camera!");
+        return false;
+    }
+    this->camera = camera;
+    this->uboMvp = ResourceManager::getInstance().getUboMvp();
+    if (!uboMvp)
+    {
+        SHADOW_ERROR("Cannot proceed with uninitialized UboMvp!");
+        return false;
+    }
+    root = std::shared_ptr<SceneNode>(new SceneNode());
+    root->scene = shared_from_this();
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {
         shaderMap.emplace(static_cast<ShaderType>(i), std::vector<std::shared_ptr<SceneNode>>());
     }
+    return true;
 }
 
 std::shared_ptr<shadow::SceneNode> shadow::Scene::getRoot() const
@@ -31,6 +44,7 @@ std::shared_ptr<shadow::SceneNode> shadow::Scene::addNode(std::shared_ptr<SceneN
     std::shared_ptr<SceneNode> node{ new SceneNode() };
     shaderMap[ShaderType::None].push_back(node);
     node->parent = parent;
+    node->scene = shared_from_this();
     parent->children.push_back(node);
     return node;
 }
@@ -92,8 +106,18 @@ void shadow::Scene::render()
 void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
 {
     static ResourceManager& resourceManager = ResourceManager::getInstance();
-    glm::mat4 view = camera->getView(), projection = camera->getProjection();
-    //todo: make use of view and projection
+    if (camera->isViewDirty())
+    {
+        glm::mat4 view = camera->getView();
+        glm::vec3 viewPosition = camera->getPosition();
+        uboMvp->setView(view);
+        uboMvp->setViewPosition(viewPosition);
+    }
+    if (camera->isProjectionDirty())
+    {
+        glm::mat4 projection = camera->getProjection();
+        uboMvp->setProjection(projection);
+    }
     if (overrideShader)
     {
         overrideShader->use();
@@ -111,7 +135,8 @@ void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
                     if (node->isActive())
                     {
                         assert(node->getMesh());
-                        //todo: update model to node->getWorld()
+                        glm::mat4 model = node->getWorld();
+                        uboMvp->setModel(model);
                         node->getMesh()->draw(shader);
                     }
                 }
@@ -146,7 +171,7 @@ bool shadow::Scene::isInTree(std::shared_ptr<SceneNode> tree, std::shared_ptr<Sc
     return false;
 }
 
-void shadow::Scene::renderWithShader(std::shared_ptr<SceneNode> node, std::shared_ptr<GLShader> shader)
+void shadow::Scene::renderWithShader(std::shared_ptr<SceneNode> node, std::shared_ptr<GLShader> shader) const
 {
     assert(shader);
     if (!node->isActive())
@@ -156,7 +181,8 @@ void shadow::Scene::renderWithShader(std::shared_ptr<SceneNode> node, std::share
     std::shared_ptr<Mesh> mesh = node->getMesh();
     if (mesh)
     {
-        //todo: update model to node->getWorld()
+        glm::mat4 model = node->getWorld();
+        uboMvp->setModel(model);
         mesh->draw(shader);
     }
     for (const std::shared_ptr<SceneNode>& child : node->getChildren())
