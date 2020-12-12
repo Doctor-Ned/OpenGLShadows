@@ -91,15 +91,14 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     this->height = height;
     currentTime = 0.0;
     lastTime = 0.0;
-    timeDelta = 0.0;
 
     camera = std::make_shared<Camera>(
         static_cast<float>(width) / static_cast<float>(height),
-        FPI * 0.5f,
+        FPI * 0.25f,
         0.01f,
         100.0f,
-        glm::vec3(0.0f, -5.0f, 5.0f),
-        glm::vec3(0.0f, -1.0f, -1.0f),
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, -1.0f),
         glm::vec3(0.0f, 1.0f, 0.0f)
         );
 
@@ -130,7 +129,7 @@ void shadow::AppWindow::deinitialize()
     width = height = 0;
 }
 
-void shadow::AppWindow::loop()
+void shadow::AppWindow::loop(double& timeDelta)
 {
     assert(glfwWindow);
     glfwPollEvents();
@@ -144,7 +143,7 @@ void shadow::AppWindow::loop()
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     scene->render();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfwWindow);

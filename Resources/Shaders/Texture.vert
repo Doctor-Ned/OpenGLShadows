@@ -19,9 +19,9 @@ out VS_OUT {
 
 void main()
 {
-    vs_out.pos = vec3(model * vec4(pos, 1.0f));
-    gl_Position = projection * view * vec4(vs_out.pos, 1.0f);
+    vs_out.pos = vec3(model * vec4(pos, 1.0));
     vs_out.normal = normalize(transpose(inverse(mat3(model))) * normal);
-    vs_out.viewPosition = vec3(model * vec4(viewPosition, 1.0f));
+    vs_out.viewPosition = vec3(model * vec4(viewPosition, 1.0));
     vs_out.texCoords = texCoords;
+    gl_Position = projection * view * vec4(vs_out.pos, 1.0);
 }

@@ -70,12 +70,12 @@ void shadow::Camera::setPosition(glm::vec3 position)
 
 void shadow::Camera::setDirection(glm::vec3 direction)
 {
-    this->direction = direction;
+    this->direction = normalize(direction);
     viewDirty = true;
 }
 
 void shadow::Camera::setUp(glm::vec3 up)
 {
-    this->up = up;
+    this->up = normalize(up);
     viewDirty = true;
 }

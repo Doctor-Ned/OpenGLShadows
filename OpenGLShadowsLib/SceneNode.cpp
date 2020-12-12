@@ -91,7 +91,7 @@ shadow::SceneNode& shadow::SceneNode::scale(glm::vec3 vec)
 
 shadow::SceneNode& shadow::SceneNode::rotate(float angle, glm::vec3 axis)
 {
-    model = glm::rotate(angle, axis);
+    model = glm::rotate(angle, axis) * model;
     dirty = true;
     return *this;
 }

@@ -20,7 +20,7 @@ shadow::TextureMesh::TextureMesh(const std::vector<TextureVertex>& vertices, con
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TextureVertex), static_cast<void*>(nullptr));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TextureVertex), reinterpret_cast<void*>(offsetof(TextureVertex, position)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TextureVertex), reinterpret_cast<void*>(offsetof(TextureVertex, normal)));
     glEnableVertexAttribArray(2);
@@ -45,10 +45,10 @@ void shadow::TextureMesh::draw(std::shared_ptr<GLShader> shader) const
         glActiveTexture(GL_TEXTURE0 + static_cast<GLuint>(texture.first));
         glBindTexture(GL_TEXTURE_2D, texture.second->getId());
     }
-    glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 shadow::ShaderType shadow::TextureMesh::getShaderType() const

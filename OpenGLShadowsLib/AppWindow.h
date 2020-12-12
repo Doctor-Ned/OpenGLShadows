@@ -23,7 +23,7 @@ namespace shadow
         bool isInitialized() const;
         void deinitialize();
         inline bool shouldClose() const;
-        void loop();
+        void loop(double& timeDelta);
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
         std::shared_ptr<Scene> getScene() const;
@@ -33,7 +33,7 @@ namespace shadow
         const char* GLSL_VERSION{ "#version 430" };
         GLsizei width{}, height{};
         glm::vec4 clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
-        double currentTime{}, lastTime{}, timeDelta{};
+        double currentTime{}, lastTime{};
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
