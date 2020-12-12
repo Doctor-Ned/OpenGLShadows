@@ -26,6 +26,7 @@ namespace shadow
         void loop(double& timeDelta);
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
+        unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
         std::shared_ptr<Camera> getCamera() const;
     private:
@@ -33,7 +34,8 @@ namespace shadow
         const char* GLSL_VERSION{ "#version 430" };
         GLsizei width{}, height{};
         glm::vec4 clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
-        double currentTime{}, lastTime{};
+        double currentTime{ 0.0 }, lastTime{ 0.0 };
+        unsigned int fpsCounter{ 0U }, fpsSecond{ 1U }, measuredFps{0U};
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};

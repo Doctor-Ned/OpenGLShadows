@@ -52,6 +52,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
         return false;
     }
     glfwMakeContextCurrent(glfwWindow);
+    glfwSwapInterval(0); // disable v-sync
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
@@ -89,8 +90,6 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
 
     this->width = width;
     this->height = height;
-    currentTime = 0.0;
-    lastTime = 0.0;
 
     camera = std::make_shared<Camera>(
         static_cast<float>(width) / static_cast<float>(height),
@@ -132,12 +131,21 @@ void shadow::AppWindow::deinitialize()
 void shadow::AppWindow::loop(double& timeDelta)
 {
     assert(glfwWindow);
-    glfwPollEvents();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     currentTime = glfwGetTime();
     timeDelta = currentTime - lastTime;
+    if (static_cast<unsigned int>(currentTime) >= fpsSecond)
+    {
+        measuredFps = fpsCounter;
+        //SHADOW_INFO("{} FPS", measuredFps);
+        fpsCounter = 0U;
+        ++fpsSecond;
+    } else
+    {
+        ++fpsCounter;
+    }
     lastTime = currentTime;
     glViewport(0, 0, width, height);
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
@@ -147,6 +155,7 @@ void shadow::AppWindow::loop(double& timeDelta)
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(glfwWindow);
+    glfwPollEvents();
 }
 
 void shadow::AppWindow::setClearColor(const glm::vec4& clearColor)
@@ -162,6 +171,11 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     this->width = width;
     this->height = height;
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+}
+
+unsigned int shadow::AppWindow::getFps() const
+{
+    return measuredFps;
 }
 
 std::shared_ptr<shadow::Scene> shadow::AppWindow::getScene() const
