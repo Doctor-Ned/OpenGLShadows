@@ -1,6 +1,7 @@
 #include "GLShader.h"
 #include "ShadowLog.h"
 
+#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 
 shadow::GLShader::GLShader(gsl::cstring_span shaderPath, gsl::cstring_span commonFileName)
@@ -189,7 +190,7 @@ void shadow::GLShader::setMat2(gsl::cstring_span name, glm::mat2 value) const
 {
     if (GLint location = getUniformLocation(name); location != -1)
     {
-        glUniformMatrix2fv(location, 1, GL_FALSE, &value[0][0]);
+        glUniformMatrix2fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 }
 
@@ -197,7 +198,7 @@ void shadow::GLShader::setMat3(gsl::cstring_span name, glm::mat3 value) const
 {
     if (GLint location = getUniformLocation(name); location != -1)
     {
-        glUniformMatrix3fv(location, 1, GL_FALSE, &value[0][0]);
+        glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 }
 
@@ -205,7 +206,7 @@ void shadow::GLShader::setMat4(gsl::cstring_span name, glm::mat4 value) const
 {
     if (GLint location = getUniformLocation(name); location != -1)
     {
-        glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 }
 
