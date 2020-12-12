@@ -17,7 +17,7 @@ namespace shadow
         ModelMesh& operator=(ModelMesh&&) = delete;
         bool load();
         std::filesystem::path getPath() const;
-        void draw(std::shared_ptr<GLShader> shader, glm::mat4 model) const override;
+        void draw(std::shared_ptr<GLShader> shader) const override;
         ShaderType getShaderType() const override;
     private:
         friend class ResourceManager;

@@ -111,7 +111,8 @@ void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
                     if (node->isActive())
                     {
                         assert(node->getMesh());
-                        node->getMesh()->draw(shader, node->getWorld());
+                        //todo: update model to node->getWorld()
+                        node->getMesh()->draw(shader);
                     }
                 }
             }
@@ -155,7 +156,8 @@ void shadow::Scene::renderWithShader(std::shared_ptr<SceneNode> node, std::share
     std::shared_ptr<Mesh> mesh = node->getMesh();
     if (mesh)
     {
-        mesh->draw(shader, node->getWorld());
+        //todo: update model to node->getWorld()
+        mesh->draw(shader);
     }
     for (const std::shared_ptr<SceneNode>& child : node->getChildren())
     {

@@ -15,6 +15,8 @@ namespace shadow
         Camera& operator=(Camera&&) = delete;
         glm::mat4 getView();
         glm::mat4 getProjection();
+        bool isViewDirty() const;
+        bool isProjectionDirty() const;
         //todo: add methods to modify the view/projection
     private:
         bool viewDirty{ true }, projectionDirty{ true };

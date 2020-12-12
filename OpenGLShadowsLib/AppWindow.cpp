@@ -87,7 +87,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height)
     timeDelta = 0.0;
 
     camera = std::make_shared<Camera>(
-        width / height,
+        static_cast<float>(width) / static_cast<float>(height),
         FPI * 0.5f,
         0.01f,
         100.0f,

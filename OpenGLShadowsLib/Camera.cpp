@@ -27,3 +27,13 @@ glm::mat4 shadow::Camera::getProjection()
     }
     return projection;
 }
+
+bool shadow::Camera::isViewDirty() const
+{
+    return viewDirty;
+}
+
+bool shadow::Camera::isProjectionDirty() const
+{
+    return projectionDirty;
+}
