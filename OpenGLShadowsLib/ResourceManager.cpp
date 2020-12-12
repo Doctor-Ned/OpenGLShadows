@@ -47,40 +47,16 @@ void shadow::ResourceManager::updateShaders() const
 
 std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path)
 {
-    assert(initialised);
-    std::filesystem::path fullPath = reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path);
-    if (!exists(fullPath))
-    {
-        SHADOW_ERROR("Texture file '{}' does not exist!", fullPath.generic_string());
-        return {};
-    }
-    std::map<std::filesystem::path, std::shared_ptr<Texture>>::iterator it = textures.find(fullPath);
-    if (it != textures.end())
-    {
-        return it->second;
-    }
-    std::shared_ptr<Texture> texture = std::shared_ptr<Texture>(new Texture(fullPath));
-    if (!texture->load())
-    {
-        return {};
-    }
-    textures.emplace(fullPath, texture);
-    return texture;
+    return getTexture(path, true);
 }
 
 std::shared_ptr<shadow::ModelMesh> shadow::ResourceManager::getModel(const std::filesystem::path& path)
 {
     assert(initialised);
-    std::filesystem::path fullPath = reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path);
-    if (!exists(fullPath))
-    {
-        SHADOW_ERROR("Model file '{}' does not exist!", fullPath.generic_string());
-        return {};
-    }
-    std::shared_ptr<ModelData> data = getModelData(fullPath);
+    std::shared_ptr<ModelData> data = getModelData(path);
     if (!data)
     {
-        SHADOW_ERROR("Unable to get ModelData from '{}'!", fullPath.generic_string());
+        SHADOW_ERROR("Unable to get ModelData from '{}'!", path.generic_string());
         return {};
     }
     std::shared_ptr<ModelMesh> model = std::shared_ptr<ModelMesh>(new ModelMesh(data));
@@ -94,16 +70,10 @@ std::shared_ptr<shadow::ModelMesh> shadow::ResourceManager::getModel(const std::
 std::shared_ptr<shadow::MaterialModelMesh> shadow::ResourceManager::getMaterialModel(const std::filesystem::path& path, std::shared_ptr<Material> material)
 {
     assert(initialised);
-    std::filesystem::path fullPath = reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path);
-    if (!exists(fullPath))
-    {
-        SHADOW_ERROR("Model file '{}' does not exist!", fullPath.generic_string());
-        return {};
-    }
-    std::shared_ptr<ModelData> data = getModelData(fullPath);
+    std::shared_ptr<ModelData> data = getModelData(path);
     if (!data)
     {
-        SHADOW_ERROR("Unable to get ModelData from '{}'!", fullPath.generic_string());
+        SHADOW_ERROR("Unable to get ModelData from '{}'!", path.generic_string());
         return {};
     }
     std::shared_ptr<MaterialModelMesh> model = std::shared_ptr<MaterialModelMesh>(new MaterialModelMesh(data, material));
@@ -135,6 +105,29 @@ std::shared_ptr<shadow::UboModelViewProjection> shadow::ResourceManager::getUboM
     return uboMvp;
 }
 
+std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path, bool shouldReworkPath)
+{
+    assert(initialised);
+    std::filesystem::path fullPath = shouldReworkPath ? reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path) : path;
+    if (!exists(fullPath))
+    {
+        SHADOW_ERROR("Texture file '{}' does not exist!", fullPath.generic_string());
+        return {};
+    }
+    std::map<std::filesystem::path, std::shared_ptr<Texture>>::iterator it = textures.find(fullPath);
+    if (it != textures.end())
+    {
+        return it->second;
+    }
+    std::shared_ptr<Texture> texture = std::shared_ptr<Texture>(new Texture(fullPath));
+    if (!texture->load())
+    {
+        return {};
+    }
+    textures.emplace(fullPath, texture);
+    return texture;
+}
+
 std::shared_ptr<shadow::ModelData> shadow::ResourceManager::getModelData(const std::filesystem::path& path)
 {
     std::filesystem::path fullPath = reworkPath(resourceDirectory, MODELS_TEXTURES_DIR, path);
@@ -148,16 +141,16 @@ std::shared_ptr<shadow::ModelData> shadow::ResourceManager::getModelData(const s
     {
         return it->second;
     }
-    SHADOW_DEBUG("Loading model data from '{}'...", path.generic_string());
+    SHADOW_DEBUG("Loading model data from '{}'...", fullPath.generic_string());
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(path.generic_string().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = import.ReadFile(fullPath.generic_string().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        SHADOW_ERROR("Failed to load model '{}'! {}", path.generic_string(), import.GetErrorString());
+        SHADOW_ERROR("Failed to load model '{}'! {}", fullPath.generic_string(), import.GetErrorString());
         return {};
     }
     std::vector<ModelMeshData> modelMeshData{};
-    processModelNode(scene->mRootNode, scene, path, modelMeshData);
+    processModelNode(scene->mRootNode, scene, fullPath, modelMeshData);
     std::shared_ptr<ModelData> result = std::make_shared<ModelData>(modelMeshData);
     modelData.emplace(fullPath, result);
     return result;
@@ -253,7 +246,7 @@ std::shared_ptr<shadow::Texture> shadow::ResourceManager::loadModelTexture(Textu
                 }
                 if (match)
                 {
-                    std::shared_ptr<Texture> texture = getTexture(p);
+                    std::shared_ptr<Texture> texture = getTexture(p, false);
                     if (texture)
                     {
                         return texture;

@@ -30,6 +30,7 @@ namespace shadow
         std::shared_ptr<UboModelViewProjection> getUboMvp() const;
     private:
         ResourceManager() = default;
+        std::shared_ptr<Texture> getTexture(const std::filesystem::path& path, bool shouldReworkPath);
         std::shared_ptr<ModelData> getModelData(const std::filesystem::path& path);
         void processModelNode(aiNode* node, const aiScene* scene, const std::filesystem::path& path, std::vector<ModelMeshData>& modelMeshData);
         shadow::ModelMeshData processModelMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path& path);
