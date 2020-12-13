@@ -6,7 +6,7 @@
 
 namespace shadow
 {
-    struct ModelViewProjection
+    struct UboMvpStruct
     {
         glm::mat4 model{};
         glm::mat4 view{};
@@ -14,10 +14,10 @@ namespace shadow
         glm::vec3 viewPosition{};
     };
 
-    class UboModelViewProjection final : public UniformBufferObject<ModelViewProjection>
+    class UboMvp final : public UniformBufferObject<UboMvpStruct>
     {
     public:
-        UboModelViewProjection();
+        UboMvp();
         void setModel(glm::mat4& model);
         void setView(glm::mat4& view);
         void setProjection(glm::mat4& projection);

@@ -2,7 +2,8 @@
 
 #include "Camera.h"
 #include "SceneNode.h"
-#include "UboModelViewProjection.h"
+#include "UboMvp.h"
+#include "UboMaterial.h"
 
 #include <memory>
 #include <map>
@@ -36,6 +37,7 @@ namespace shadow
         std::shared_ptr<SceneNode> root{};
         std::map<ShaderType, std::vector<std::shared_ptr<SceneNode>>> shaderMap{};
         std::shared_ptr<Camera> camera{};
-        std::shared_ptr<UboModelViewProjection> uboMvp{};
+        std::shared_ptr<UboMvp> uboMvp{};
+        std::shared_ptr<UboMaterial> uboMaterial{};
     };
 }

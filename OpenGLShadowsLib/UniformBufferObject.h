@@ -9,7 +9,7 @@ namespace shadow
     {
     public:
         virtual ~UniformBufferObject();
-        void set(const T& value);
+        void set(T& value);
         bool isDeclaredIn(std::shared_ptr<GLShader> shader);
         bool bindTo(std::shared_ptr<GLShader> shader);
         gsl::cstring_span getBlockName() const;
@@ -28,7 +28,7 @@ namespace shadow
     }
 
     template<typename T>
-    inline void UniformBufferObject<T>::set(const T& value)
+    inline void UniformBufferObject<T>::set(T& value)
     {
         bufferSubData(&value, sizeof(T), 0);
     }

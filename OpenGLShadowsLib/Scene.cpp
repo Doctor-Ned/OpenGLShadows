@@ -18,6 +18,12 @@ bool shadow::Scene::initialize(std::shared_ptr<Camera> camera)
         SHADOW_ERROR("Cannot proceed with uninitialized UboMvp!");
         return false;
     }
+    this->uboMaterial = ResourceManager::getInstance().getUboMaterial();
+    if (!uboMaterial)
+    {
+        SHADOW_ERROR("Cannot proceed with uninitialized UboMaterial!");
+        return false;
+    }
     root = std::shared_ptr<SceneNode>(new SceneNode());
     root->scene = shared_from_this();
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)

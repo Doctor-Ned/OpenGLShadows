@@ -27,5 +27,6 @@ namespace shadow
         std::vector<std::shared_ptr<MaterialMesh>> meshes{};
         std::shared_ptr<ModelData> modelData{};
         std::shared_ptr<Material> material{};
+        std::shared_ptr<UboMaterial> uboMaterial{};
     };
 }

@@ -3,7 +3,7 @@
 #include "ResourceManager.h"
 
 shadow::MaterialModelMesh::MaterialModelMesh(std::shared_ptr<ModelData> modelData, std::shared_ptr<Material> material)
-    : modelData(modelData), material(material)
+    : modelData(modelData), material(material), uboMaterial(ResourceManager::getInstance().getUboMaterial())
 {}
 
 bool shadow::MaterialModelMesh::load()
@@ -37,9 +37,10 @@ bool shadow::MaterialModelMesh::load()
 void shadow::MaterialModelMesh::draw(std::shared_ptr<GLShader> shader) const
 {
     assert(!meshes.empty());
+    uboMaterial->set(*material);
     for (const std::shared_ptr<MaterialMesh>& mesh : meshes)
     {
-        mesh->draw(shader);
+        mesh->draw(shader, false);
     }
 }
 

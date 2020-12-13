@@ -35,7 +35,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureVertex.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)UboModelViewProjection.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UboMaterial.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UboMvp.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UniformBufferObject.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Vertex.h" />
   </ItemGroup>
@@ -55,6 +56,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowUtils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TextureMesh.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)UboModelViewProjection.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UboMaterial.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UboMvp.cpp" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
 #include "MaterialMesh.h"
+#include "ResourceManager.h"
 
 shadow::MaterialMesh::MaterialMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, std::shared_ptr<Material> material)
-    : material(material), indexCount(static_cast<GLsizei>(indices.size()))
+    : material(material), uboMaterial(ResourceManager::getInstance().getUboMaterial()), indexCount(static_cast<GLsizei>(indices.size()))
 {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -44,9 +45,15 @@ std::shared_ptr<shadow::Material> shadow::MaterialMesh::getMaterial() const
 
 void shadow::MaterialMesh::draw(std::shared_ptr<GLShader> shader) const
 {
-    shader->setVec3("albedo", material->albedo);
-    shader->setFloat("roughness", material->roughness);
-    shader->setFloat("metallic", material->metallic);
+    draw(shader, true);
+}
+
+void shadow::MaterialMesh::draw(std::shared_ptr<GLShader> shader, bool updateMaterial) const
+{
+    if (updateMaterial)
+    {
+        uboMaterial->set(*material);
+    }
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);

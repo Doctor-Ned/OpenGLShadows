@@ -4,7 +4,8 @@
 #include "ModelMesh.h"
 #include "MaterialModelMesh.h"
 #include "ModelData.h"
-#include "UboModelViewProjection.h"
+#include "UboMvp.h"
+#include "UboMaterial.h"
 
 #include <memory>
 #include <filesystem>
@@ -27,7 +28,8 @@ namespace shadow
         std::shared_ptr<ModelMesh> getModel(const std::filesystem::path& path);
         std::shared_ptr<MaterialModelMesh> getMaterialModel(const std::filesystem::path& path, std::shared_ptr<Material> material);
         std::shared_ptr<GLShader> getShader(ShaderType shaderType);
-        std::shared_ptr<UboModelViewProjection> getUboMvp() const;
+        std::shared_ptr<UboMvp> getUboMvp() const;
+        std::shared_ptr<UboMaterial> getUboMaterial() const;
     private:
         ResourceManager() = default;
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path, bool shouldReworkPath);
@@ -43,6 +45,7 @@ namespace shadow
         std::map<std::filesystem::path, std::shared_ptr<Texture>> textures{};
         std::map<std::filesystem::path, std::shared_ptr<ModelData>> modelData{};
         std::map<ShaderType, std::shared_ptr<GLShader>> shaders{};
-        std::shared_ptr<UboModelViewProjection> uboMvp{};
+        std::shared_ptr<UboMvp> uboMvp{};
+        std::shared_ptr<UboMaterial> uboMaterial{};
     };
 }

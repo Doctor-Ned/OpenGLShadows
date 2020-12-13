@@ -100,9 +100,14 @@ std::shared_ptr<shadow::GLShader> shadow::ResourceManager::getShader(ShaderType 
     return it->second;
 }
 
-std::shared_ptr<shadow::UboModelViewProjection> shadow::ResourceManager::getUboMvp() const
+std::shared_ptr<shadow::UboMvp> shadow::ResourceManager::getUboMvp() const
 {
     return uboMvp;
+}
+
+std::shared_ptr<shadow::UboMaterial> shadow::ResourceManager::getUboMaterial() const
+{
+    return uboMaterial;
 }
 
 std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path, bool shouldReworkPath)
@@ -261,12 +266,14 @@ std::shared_ptr<shadow::Texture> shadow::ResourceManager::loadModelTexture(Textu
 void shadow::ResourceManager::loadShaders()
 {
     SHADOW_DEBUG("Creating UBOs...");
-    uboMvp = std::make_shared<UboModelViewProjection>();
+    uboMvp = std::make_shared<UboMvp>();
+    uboMaterial = std::make_shared<UboMaterial>();
 
     SHADOW_DEBUG("Loading shaders...");
     const std::filesystem::path shadersDirectory = resourceDirectory / SHADERS_DIR;
 
     shaders.emplace(ShaderType::Texture, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Texture")));
+    shaders.emplace(ShaderType::Material, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Material")));
 
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {
@@ -283,7 +290,15 @@ void shadow::ResourceManager::loadShaders()
                     SHADOW_DEBUG("Binding UBO '{}' to shader of type {}...", uboMvp->getBlockName().cbegin(), i);
                     if (!uboMvp->bindTo(it->second))
                     {
-                        SHADOW_ERROR("Binding failed!");
+                        SHADOW_ERROR("Failed to bind UBO '{}' to shader of type {}!", uboMvp->getBlockName().cbegin(), i);
+                    }
+                }
+                if (uboMaterial->isDeclaredIn(it->second))
+                {
+                    SHADOW_DEBUG("Binding UBO '{}' to shader of type {}...", uboMaterial->getBlockName().cbegin(), i);
+                    if (!uboMaterial->bindTo(it->second))
+                    {
+                        SHADOW_ERROR("Failed to bind UBO '{}' to shader of type {}!", uboMaterial->getBlockName().cbegin(), i);
                     }
                 }
             }

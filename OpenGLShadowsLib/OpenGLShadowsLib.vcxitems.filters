@@ -77,10 +77,13 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)UniformBufferObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)UboModelViewProjection.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)ModelData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)ModelData.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)UboMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\UboMvp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -130,7 +133,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)UboModelViewProjection.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)UboMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\UboMvp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

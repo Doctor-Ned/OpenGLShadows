@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "PrimitiveData.h"
+#include "UboMaterial.h"
 
 #include "glad/glad.h"
 #include <vector>
@@ -18,11 +19,12 @@ namespace shadow
         void setMaterial(std::shared_ptr<Material> material);
         std::shared_ptr<Material> getMaterial() const;
         void draw(std::shared_ptr<GLShader> shader) const override;
+        void draw(std::shared_ptr<GLShader> shader, bool updateMaterial) const;
         ShaderType getShaderType() const override;
     private:
         std::shared_ptr<Material> material{};
+        std::shared_ptr<UboMaterial> uboMaterial{};
         GLuint vao{}, vbo{}, ebo{};
         GLsizei indexCount{};
     };
 }
-
