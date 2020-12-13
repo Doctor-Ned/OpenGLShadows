@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (std140) uniform Material {
+layout (std140, binding = 1) uniform Material {
     vec3 albedo;
     float roughness;
     float metallic;

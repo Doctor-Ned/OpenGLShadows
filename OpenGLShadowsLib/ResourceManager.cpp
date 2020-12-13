@@ -283,24 +283,6 @@ void shadow::ResourceManager::loadShaders()
             if (!it->second->createProgram())
             {
                 SHADOW_ERROR("Failed to create shader of type {}!", it->first);
-            } else
-            {
-                if (uboMvp->isDeclaredIn(it->second))
-                {
-                    SHADOW_DEBUG("Binding UBO '{}' to shader of type {}...", uboMvp->getBlockName().cbegin(), i);
-                    if (!uboMvp->bindTo(it->second))
-                    {
-                        SHADOW_ERROR("Failed to bind UBO '{}' to shader of type {}!", uboMvp->getBlockName().cbegin(), i);
-                    }
-                }
-                if (uboMaterial->isDeclaredIn(it->second))
-                {
-                    SHADOW_DEBUG("Binding UBO '{}' to shader of type {}...", uboMaterial->getBlockName().cbegin(), i);
-                    if (!uboMaterial->bindTo(it->second))
-                    {
-                        SHADOW_ERROR("Failed to bind UBO '{}' to shader of type {}!", uboMaterial->getBlockName().cbegin(), i);
-                    }
-                }
             }
         }
     }
