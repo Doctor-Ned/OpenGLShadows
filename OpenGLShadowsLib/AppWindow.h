@@ -26,6 +26,7 @@ namespace shadow
         void loop(double& timeDelta);
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
+        double getTime() const;
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
         std::shared_ptr<Camera> getCamera() const;

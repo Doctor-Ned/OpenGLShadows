@@ -139,7 +139,6 @@ void shadow::AppWindow::loop(double& timeDelta)
     if (static_cast<unsigned int>(currentTime) >= fpsSecond)
     {
         measuredFps = fpsCounter;
-        //SHADOW_INFO("{} FPS", measuredFps);
         fpsCounter = 0U;
         ++fpsSecond;
     } else
@@ -171,6 +170,11 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     this->width = width;
     this->height = height;
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+}
+
+double shadow::AppWindow::getTime() const
+{
+    return currentTime;
 }
 
 unsigned int shadow::AppWindow::getFps() const

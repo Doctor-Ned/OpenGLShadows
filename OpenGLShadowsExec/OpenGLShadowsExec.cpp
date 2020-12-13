@@ -22,11 +22,18 @@ int main()
     node->setMesh(modelBackpack);
     node->scale(glm::vec3(0.1f));
     double timeDelta = 0.0;
+    unsigned int secondCounter = 0U;
     while (!appWindow.shouldClose())
     {
         appWindow.loop(timeDelta);
         node->rotate(static_cast<float>(timeDelta) * 0.25f, glm::vec3(0.0f, 1.0f, 0.0f));
         resourceManager.updateShaders();
+        double time = appWindow.getTime();
+        if (static_cast<unsigned int>(time) > secondCounter)
+        {
+            secondCounter = static_cast<unsigned int>(time);
+            SHADOW_INFO("{} FPS", appWindow.getFps());
+        }
     }
     return 0;
 }
