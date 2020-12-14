@@ -1,12 +1,14 @@
 #version 430 core
 
-struct DirectionalLightData {
+struct DirectionalLightData
+{
     vec3 color;
     float strength;
     vec3 direction;
 };
 
-struct SpotLightData {
+struct SpotLightData
+{
     vec3 color;
     float strength;
     vec3 direction;
@@ -15,15 +17,18 @@ struct SpotLightData {
     float outerCutOff;
 };
 
-layout (std430, binding = 2) buffer DirectionalLights {
+layout (std430, binding = 2) buffer DirectionalLights
+{
     DirectionalLightData directionalLights[];
 };
 
-layout (std430, binding = 3) buffer SpotLights {
+layout (std430, binding = 3) buffer SpotLights
+{
     SpotLightData spotLights[];
 };
 
-in VS_OUT {
+in VS_OUT
+{
     vec3 pos;
     vec3 normal;
     vec3 viewPosition;
@@ -37,6 +42,7 @@ layout(binding = 3) uniform sampler2D normalTexture;
 
 out vec4 outColor;
 
-void main() {
+void main()
+{
     outColor = texture(albedoTexture, fs_in.texCoords);
 }

@@ -210,9 +210,14 @@ void shadow::GLShader::setMat4(gsl::cstring_span name, glm::mat4 value) const
     }
 }
 
-void shadow::GLShader::setModel(glm::mat4 value) const
+void shadow::GLShader::setModel(glm::mat4 model) const
 {
-    setMat4("model", value);
+    setMat4("model", model);
+}
+
+void shadow::GLShader::setLightSpaceMatrix(glm::mat4 lightSpaceMatrix) const
+{
+    setMat4("lightSpaceMatrix", lightSpaceMatrix);
 }
 
 bool shadow::GLShader::buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const

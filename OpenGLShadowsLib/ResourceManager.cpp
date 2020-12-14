@@ -274,6 +274,7 @@ void shadow::ResourceManager::loadShaders()
 
     shaders.emplace(ShaderType::Texture, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Texture")));
     shaders.emplace(ShaderType::Material, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Material")));
+    shaders.emplace(ShaderType::Depth, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Depth")));
 
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {

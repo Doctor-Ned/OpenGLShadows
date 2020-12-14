@@ -1,18 +1,21 @@
 #version 430 core
 
-layout (std140, binding = 1) uniform Material {
+layout (std140, binding = 1) uniform Material
+{
     vec3 albedo;
     float roughness;
     float metallic;
 };
 
-struct DirectionalLightData {
+struct DirectionalLightData
+{
     vec3 color;
     float strength;
     vec3 direction;
 };
 
-struct SpotLightData {
+struct SpotLightData
+{
     vec3 color;
     float strength;
     vec3 direction;
@@ -21,15 +24,18 @@ struct SpotLightData {
     float outerCutOff;
 };
 
-layout (std430, binding = 2) buffer DirectionalLights {
+layout (std430, binding = 2) buffer DirectionalLights
+{
     DirectionalLightData directionalLights[];
 };
 
-layout (std430, binding = 3) buffer SpotLights {
+layout (std430, binding = 3) buffer SpotLights
+{
     SpotLightData spotLights[];
 };
 
-in VS_OUT {
+in VS_OUT
+{
     vec3 pos;
     vec3 normal;
     vec3 viewPosition;
@@ -38,6 +44,7 @@ in VS_OUT {
 
 out vec4 outColor;
 
-void main() {
+void main()
+{
     outColor = vec4(albedo, 1.0);
 }

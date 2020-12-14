@@ -33,7 +33,8 @@ namespace shadow
         void setMat2(gsl::cstring_span name, glm::mat2 value) const;
         void setMat3(gsl::cstring_span name, glm::mat3 value) const;
         void setMat4(gsl::cstring_span name, glm::mat4 value) const;
-        void setModel(glm::mat4 value) const;
+        void setModel(glm::mat4 model) const;
+        void setLightSpaceMatrix(glm::mat4 lightSpaceMatrix) const;
     private:
         friend class ResourceManager;
         GLShader(std::filesystem::path shaderPath, gsl::cstring_span commonFileName);
