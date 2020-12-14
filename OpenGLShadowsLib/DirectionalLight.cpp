@@ -19,7 +19,7 @@ glm::mat4 shadow::DirectionalLight::getLightSpaceMatrix()
     return lightSpaceMatrix;
 }
 
-void shadow::DirectionalLight::setColor(glm::vec3& color)
+void shadow::DirectionalLight::setColor(glm::vec3 color)
 {
     lightData.color = color;
     dirty = true;
@@ -31,13 +31,13 @@ void shadow::DirectionalLight::setStrength(float strength)
     dirty = true;
 }
 
-void shadow::DirectionalLight::setPosition(glm::vec3& position)
+void shadow::DirectionalLight::setPosition(glm::vec3 position)
 {
     this->position = position;
     lightSpaceDirty = true;
 }
 
-void shadow::DirectionalLight::setDirection(glm::vec3& direction)
+void shadow::DirectionalLight::setDirection(glm::vec3 direction)
 {
     lightData.direction = normalize(direction);
     dirty = true;

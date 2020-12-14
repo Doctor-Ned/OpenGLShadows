@@ -14,9 +14,9 @@ namespace shadow
         T& getData();
         bool isDirty() const;
         virtual glm::mat4 getLightSpaceMatrix() = 0;
-        virtual void setColor(glm::vec3& color) = 0;
+        virtual void setColor(glm::vec3 color) = 0;
         virtual void setStrength(float strength) = 0;
-        virtual void setPosition(glm::vec3& position) = 0; // even if it's a directional light, it still needs a position for view matrix
+        virtual void setPosition(glm::vec3 position) = 0; // even if it's a directional light, it still needs a position for view matrix
         void setNearZ(float nearZ);
         void setFarZ(float farZ);
     protected:

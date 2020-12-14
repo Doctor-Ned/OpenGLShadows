@@ -8,7 +8,7 @@ namespace shadow
     class DirectedLight abstract : public Light<T>
     {
     public:
-        virtual void setDirection(glm::vec3& direction) = 0;
+        virtual void setDirection(glm::vec3 direction) = 0;
     protected:
         DirectedLight(T& data, float nearZ, float farZ) : Light<T>(data, nearZ, farZ) {}
     };

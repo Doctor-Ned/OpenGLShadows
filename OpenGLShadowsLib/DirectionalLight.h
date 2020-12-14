@@ -16,10 +16,10 @@ namespace shadow
     public:
         DirectionalLight(DirectionalLightData& data, float nearZ, float farZ);
         glm::mat4 getLightSpaceMatrix() override;
-        void setColor(glm::vec3& color) override;
+        void setColor(glm::vec3 color) override;
         void setStrength(float strength) override;
-        void setPosition(glm::vec3& position) override;
-        void setDirection(glm::vec3& direction) override;
+        void setPosition(glm::vec3 position) override;
+        void setDirection(glm::vec3 direction) override;
         void setProjectionSize(float projectionSize);
     private:
         glm::mat4 lightSpaceMatrix{};

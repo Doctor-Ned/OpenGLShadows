@@ -20,7 +20,7 @@ glm::mat4 shadow::SpotLight::getLightSpaceMatrix()
     return lightSpaceMatrix;
 }
 
-void shadow::SpotLight::setColor(glm::vec3& color)
+void shadow::SpotLight::setColor(glm::vec3 color)
 {
     lightData.color = color;
     dirty = true;
@@ -32,14 +32,14 @@ void shadow::SpotLight::setStrength(float strength)
     dirty = true;
 }
 
-void shadow::SpotLight::setDirection(glm::vec3& direction)
+void shadow::SpotLight::setDirection(glm::vec3 direction)
 {
     lightData.direction = normalize(direction);
     dirty = true;
     lightSpaceDirty = true;
 }
 
-void shadow::SpotLight::setPosition(glm::vec3& position)
+void shadow::SpotLight::setPosition(glm::vec3 position)
 {
     lightData.position = position;
     dirty = true;

@@ -28,6 +28,7 @@ layout (std140, binding = 2) uniform Lights
 {
     DirectionalLightData dirLightData;
     SpotLightData spotLightData;
+    float ambient;
 };
 
 uniform sampler2D directionalShadow;
@@ -42,7 +43,94 @@ in VS_OUT
 
 out vec4 outColor;
 
+const float PI = 3.14159265359;
+  
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a      = roughness*roughness;
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+    float num   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+    return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+    return num / denom;
+}
+
+float GeometrySmith(float NdotV, float NdotL, float roughness)
+{
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+    return ggx1 * ggx2;
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+}
+
+vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
+{
+    if(dirLightData.strength == 0.0)
+    {
+        return vec3(0.0);
+    }
+    vec3 L = normalize(-dirLightData.direction);
+    vec3 H = normalize(V + L);
+    float NdotL = max(dot(N, L), 0.0);
+    float cosTheta = max(dot(V, H), 0.0);
+    vec3 F = fresnelSchlick(cosTheta, F0);
+    float D = DistributionGGX(N, H, roughness);
+    float G = GeometrySchlickGGX(NdotV, NdotL);
+    vec3 kD = mix(vec3(1.0) - F, vec3(0.0), metallic);
+    vec3 diffuse = kD * albedo / PI;
+    vec3 specular = (F*D*G) / max(4.0 * NdotV * NdotL, 0.00001);
+    return (diffuse + specular) * dirLightData.color * NdotL * dirLightData.strength;
+}
+
+vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
+{
+    if(spotLightData.strength == 0.0)
+    {
+        return vec3(0.0);
+    }
+    vec3 toLight = normalize(-spotLightData.direction);
+    vec3 L = normalize(spotLightData.position - fs_in.pos);
+    float theta = dot(toLight, L);
+    float epsilon = max(spotLightData.innerCutOff - spotLightData.outerCutOff, 0.0);
+    float intensity = clamp((theta - spotLightData.outerCutOff) / epsilon, 0.0f, 1.0f);
+    vec3 H = normalize(V + L);
+    float NdotL = max(dot(N, L), 0.0);
+    float cosTheta = max(dot(V, H), 0.0);
+    vec3 F = fresnelSchlick(cosTheta, F0);
+    float D = DistributionGGX(N, H, roughness);
+    float G = GeometrySchlickGGX(NdotV, NdotL);
+    float dist = length(spotLightData.position - fs_in.pos);
+    float attenuation = 1.0 / (dist * dist);
+    vec3 kD = mix(vec3(1.0) - F, vec3(0.0), metallic);
+    vec3 diffuse = kD * albedo / PI;
+    vec3 specular = (F*D*G) / max(4.0 * NdotV * NdotL, 0.00001);
+    return (diffuse + specular) * spotLightData.color * spotLightData.strength * attenuation * intensity * NdotL;
+}
+
 void main()
 {
-    outColor = vec4(albedo, 1.0);
+    vec3 N = fs_in.normal;
+    vec3 V = normalize(fs_in.viewPosition - fs_in.pos);
+    float NdotV = max(dot(N, V), 0.0);
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+    vec3 Lo =
+        albedo * ambient
+        + getDirectionalLightColor(N, V, NdotV, F0)
+        + getSpotLightColor(N, V, NdotV, F0);
+    outColor = vec4(Lo, 1.0);
 }

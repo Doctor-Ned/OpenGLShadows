@@ -28,3 +28,8 @@ std::shared_ptr<shadow::SpotLight> shadow::UboLights::getSpotLight() const
 {
     return spotLight;
 }
+
+void shadow::UboLights::setAmbient(float ambient)
+{
+    bufferSubData(&ambient, sizeof(float), offsetof(Lights, ambient));
+}

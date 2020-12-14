@@ -13,6 +13,12 @@ int main()
     {
         return 1;
     }
+    std::shared_ptr<UboLights> uboLights = ResourceManager::getInstance().getUboLights();
+    std::shared_ptr<DirectionalLight> dirLight = uboLights->getDirectionalLight();
+    std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
+    dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    dirLight->setDirection(glm::vec3(-1.0f, -1.0f, 0.0f));
+    dirLight->setStrength(5.0f);
     std::shared_ptr<Camera> camera = appWindow.getCamera();
     std::shared_ptr<PrimitiveData> planeData = Primitives::plane(5.0f, 5.0f);
     std::shared_ptr<TextureMesh> plane = std::make_shared<TextureMesh>(
