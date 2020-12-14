@@ -29,6 +29,10 @@ shadow::TextureMesh::TextureMesh(const std::vector<TextureVertex>& vertices, con
     glBindVertexArray(0);
 }
 
+shadow::TextureMesh::TextureMesh(const std::vector<TextureVertex>& vertices, const std::vector<GLuint>& indices, std::shared_ptr<Texture> texture)
+    : TextureMesh(vertices, indices, std::map<TextureType, std::shared_ptr<Texture>> { { TextureType::Albedo, texture }})
+{}
+
 std::shared_ptr<shadow::TextureMesh> shadow::TextureMesh::fromPrimitiveData(std::shared_ptr<PrimitiveData> data, std::map<TextureType, std::shared_ptr<Texture>> textures)
 {
     if (!data->isValid())
