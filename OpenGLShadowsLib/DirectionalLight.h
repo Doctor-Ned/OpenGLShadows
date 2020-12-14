@@ -7,7 +7,7 @@ namespace shadow
     struct DirectionalLightData
     {
         glm::vec3 color{};
-        float strength;
+        float strength{};
         glm::vec3 direction{};
     };
 

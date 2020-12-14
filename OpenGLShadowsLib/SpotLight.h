@@ -7,7 +7,7 @@ namespace shadow
     struct SpotLightData
     {
         glm::vec3 color{};
-        float strength;
+        float strength{};
         glm::vec3 direction{};
         float innerCutOff{};
         glm::vec3 position{};
