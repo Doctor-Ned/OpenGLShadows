@@ -2,6 +2,10 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+shadow::DirectionalLight::DirectionalLight(DirectionalLightData& data, float nearZ, float farZ)
+    : DirectedLight<DirectionalLightData>(data, nearZ, farZ)
+{}
+
 glm::mat4 shadow::DirectionalLight::getLightSpaceMatrix()
 {
     if (lightSpaceDirty)

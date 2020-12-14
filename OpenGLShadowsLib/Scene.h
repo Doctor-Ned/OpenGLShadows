@@ -4,6 +4,7 @@
 #include "SceneNode.h"
 #include "UboMvp.h"
 #include "UboMaterial.h"
+#include "UboLights.h"
 
 #include <memory>
 #include <map>
@@ -39,5 +40,6 @@ namespace shadow
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboMaterial> uboMaterial{};
+        std::shared_ptr<UboLights> uboLights{};
     };
 }

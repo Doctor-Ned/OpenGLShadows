@@ -2,7 +2,6 @@
 
 #include "ShadowUtils.h"
 #include "ResourceManager.h"
-#include "LightManager.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -85,11 +84,6 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     glEnable(GL_BLEND);
 
     if (!ResourceManager::getInstance().initialize(resourceDirectory))
-    {
-        return false;
-    }
-
-    if (!LightManager::getInstance().initialize())
     {
         return false;
     }

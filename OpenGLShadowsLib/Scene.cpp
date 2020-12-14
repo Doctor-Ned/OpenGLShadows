@@ -24,6 +24,12 @@ bool shadow::Scene::initialize(std::shared_ptr<Camera> camera)
         SHADOW_ERROR("Cannot proceed with uninitialized UboMaterial!");
         return false;
     }
+    this->uboLights = ResourceManager::getInstance().getUboLights();
+    if (!uboLights)
+    {
+        SHADOW_ERROR("Cannot proceed with uninitialized UboLights!");
+        return false;
+    }
     root = std::shared_ptr<SceneNode>(new SceneNode());
     root->scene = shared_from_this();
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
@@ -124,6 +130,7 @@ void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
         glm::mat4 projection = camera->getProjection();
         uboMvp->setProjection(projection);
     }
+    uboLights->update();
     if (overrideShader)
     {
         overrideShader->use();

@@ -6,6 +6,7 @@
 #include "ModelData.h"
 #include "UboMvp.h"
 #include "UboMaterial.h"
+#include "UboLights.h"
 
 #include <memory>
 #include <filesystem>
@@ -30,6 +31,7 @@ namespace shadow
         std::shared_ptr<GLShader> getShader(ShaderType shaderType);
         std::shared_ptr<UboMvp> getUboMvp() const;
         std::shared_ptr<UboMaterial> getUboMaterial() const;
+        std::shared_ptr<UboLights> getUboLights() const;
     private:
         ResourceManager() = default;
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path, bool shouldReworkPath);
@@ -47,5 +49,6 @@ namespace shadow
         std::map<ShaderType, std::shared_ptr<GLShader>> shaders{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboMaterial> uboMaterial{};
+        std::shared_ptr<UboLights> uboLights{};
     };
 }

@@ -98,7 +98,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)SpotLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)LightManager.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)UboLights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -160,7 +160,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(MSBuildThisFileDirectory)LightManager.cpp">
+    <ClCompile Include="$(MSBuildThisFileDirectory)UboLights.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

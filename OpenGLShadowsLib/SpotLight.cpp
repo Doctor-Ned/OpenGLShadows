@@ -4,6 +4,10 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
+shadow::SpotLight::SpotLight(SpotLightData& data, float nearZ, float farZ)
+    : DirectedLight(data, nearZ, farZ)
+{}
+
 glm::mat4 shadow::SpotLight::getLightSpaceMatrix()
 {
     if (lightSpaceDirty)

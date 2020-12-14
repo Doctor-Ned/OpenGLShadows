@@ -19,7 +19,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DirectedLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DirectionalLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Light.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)LightManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GLShader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
@@ -40,6 +39,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureVertex.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UboLights.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UboMaterial.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UboMvp.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UniformBufferObject.h" />
@@ -49,7 +49,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)AppWindow.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DirectionalLight.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)LightManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp" />
@@ -64,6 +63,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)SpotLight.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TextureMesh.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UboLights.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)UboMaterial.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)UboMvp.cpp" />
   </ItemGroup>

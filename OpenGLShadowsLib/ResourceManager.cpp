@@ -110,6 +110,11 @@ std::shared_ptr<shadow::UboMaterial> shadow::ResourceManager::getUboMaterial() c
     return uboMaterial;
 }
 
+std::shared_ptr<shadow::UboLights> shadow::ResourceManager::getUboLights() const
+{
+    return uboLights;
+}
+
 std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path, bool shouldReworkPath)
 {
     assert(initialised);
@@ -268,6 +273,11 @@ void shadow::ResourceManager::loadShaders()
     SHADOW_DEBUG("Creating UBOs...");
     uboMvp = std::make_shared<UboMvp>();
     uboMaterial = std::make_shared<UboMaterial>();
+    DirectionalLightData dirLightData{};
+    SpotLightData spotLightData{};
+    uboLights = std::make_shared<UboLights>(
+        std::make_shared<DirectionalLight>(dirLightData, 0.01f, 100.0f),
+        std::make_shared<SpotLight>(spotLightData, 0.01f, 100.0f));
 
     SHADOW_DEBUG("Loading shaders...");
     const std::filesystem::path shadersDirectory = resourceDirectory / SHADERS_DIR;

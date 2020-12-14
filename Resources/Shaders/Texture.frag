@@ -17,15 +17,14 @@ struct SpotLightData
     float outerCutOff;
 };
 
-layout (std430, binding = 2) buffer DirectionalLights
+layout (std140, binding = 2) uniform Lights
 {
-    DirectionalLightData directionalLights[];
+    DirectionalLightData dirLightData;
+    SpotLightData spotLightData;
 };
 
-layout (std430, binding = 3) buffer SpotLights
-{
-    SpotLightData spotLights[];
-};
+uniform sampler2D directionalShadow;
+uniform sampler2D spotShadow;
 
 in VS_OUT
 {
