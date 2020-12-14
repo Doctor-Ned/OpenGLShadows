@@ -16,6 +16,9 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)AppWindow.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Camera.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)DirectedLight.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)DirectionalLight.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Light.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GLShader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
@@ -31,6 +34,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)ShaderType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ShadowLog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)ShadowUtils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SpotLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Texture.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TextureType.h" />
@@ -43,6 +47,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)AppWindow.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)DirectionalLight.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp" />
@@ -54,6 +59,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)SceneNode.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowUtils.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SpotLight.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)TextureMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)UboMaterial.cpp" />
