@@ -95,7 +95,7 @@ void shadow::GLShader::update()
                     fragmentShader = shader;
                     glDeleteShader(oldShader);
                     glDeleteProgram(oldProgram);
-                    SHADOW_DEBUG("Program rebuilt and replaced successfully!");
+                    SHADOW_DEBUG("Program rebuilt as {} and replaced successfully!", programId);
                 } else
                 {
                     SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
@@ -133,7 +133,8 @@ GLint shadow::GLShader::getUniformLocation(gsl::cstring_span name) const
     GLint result = glGetUniformLocation(programId, name.cbegin());
     if (result == -1)
     {
-        SHADOW_ERROR("Uniform '{}' was not found!", name.cbegin());
+        SHADOW_ERROR("Uniform '{}' was not found in program {} ('{}', '{}')!",
+                     name.cbegin(), programId, vertexFile.generic_string(), fragmentFile.generic_string());
     }
     return result;
 }
@@ -243,6 +244,7 @@ bool shadow::GLShader::buildProgram(GLuint& programId, GLuint vertexShader, GLui
         programId = 0U;
         return false;
     }
+    SHADOW_DEBUG("Program built as {}!", programId);
     return true;
 }
 
