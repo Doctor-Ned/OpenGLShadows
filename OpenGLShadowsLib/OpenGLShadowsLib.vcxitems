@@ -19,6 +19,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DirectedLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DirectionalLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Light.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)LightManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GLShader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
@@ -48,6 +49,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)AppWindow.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DirectionalLight.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)LightManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialMesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GLShader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)MaterialModelMesh.cpp" />

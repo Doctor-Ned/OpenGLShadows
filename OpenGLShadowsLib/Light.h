@@ -11,7 +11,7 @@ namespace shadow
         Light(T& t, float nearZ, float farZ);
         virtual ~Light() = default;
         void setData(T& data);
-        T& getData() const;
+        T& getData();
         bool isDirty() const;
         virtual glm::mat4 getLightSpaceMatrix() = 0;
         virtual void setColor(glm::vec3& color) = 0;
@@ -31,7 +31,7 @@ namespace shadow
         dirty = true;
     }
     template<typename T>
-    inline T& Light<T>::getData() const
+    inline T& Light<T>::getData()
     {
         dirty = false;
         return lightData;
