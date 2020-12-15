@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ShadowLog.h"
+#include "TextureVertex.h"
 
 #include "glad/glad.h"
 #include <glm/glm.hpp>
@@ -16,6 +17,7 @@ namespace shadow
         ShadowUtils() = delete;
         static std::vector<glm::vec3> generateNormals(const std::vector<glm::vec3>& vertices, const std::vector<GLuint>& indices);
         static glm::vec3 getNormal(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3);
+        static void generateTangentsBitangents(std::vector<TextureVertex>& vert, const std::vector<GLuint>& indices);
         template<typename T> static T min3(T a, T b, T c);
         template<typename T> static T max3(T a, T b, T c);
     };

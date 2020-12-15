@@ -10,7 +10,8 @@ namespace shadow
     {
         DirectionalLightData dirLightData{};
         SpotLightData spotLightData{};
-        float ambient{0.05f};
+        glm::vec3 paddingL{};
+        float ambient{};
     };
 
     class UboLights final : UniformBufferObject<Lights>

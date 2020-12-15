@@ -12,6 +12,7 @@ namespace shadow
         glm::mat4 view{};
         glm::mat4 projection{};
         glm::vec3 viewPosition{};
+        float paddingMvp{};
     };
 
     class UboMvp final : public UniformBufferObject<UboMvpStruct>

@@ -10,6 +10,13 @@
 
 namespace shadow
 {
+    enum class ShaderBuildStatus
+    {
+        Success,
+        Failed,
+        Unavailable
+    };
+
     class GLShader final
     {
     public:
@@ -40,7 +47,7 @@ namespace shadow
         GLShader(std::filesystem::path shaderPath, gsl::cstring_span commonFileName);
         GLShader(std::filesystem::path shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile);
         bool buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const;
-        bool buildShader(GLuint& shaderId, GLuint shaderType, const std::filesystem::path& path) const;
+        ShaderBuildStatus buildShader(GLuint& shaderId, GLuint shaderType, const std::filesystem::path& path) const;
         std::filesystem::path vertexFile{}, fragmentFile{};
         std::filesystem::file_time_type vertexTimestamp{}, fragmentTimestamp{};
         GLuint programId{ 0U }, vertexShader{ 0U }, fragmentShader{ 0U };

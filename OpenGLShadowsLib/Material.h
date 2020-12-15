@@ -10,6 +10,7 @@ namespace shadow
         : albedo(std::move(albedo)), roughness(roughness), metallic(metallic) {}
         glm::vec3 albedo{};
         float roughness{};
+        glm::vec3 paddingM{};
         float metallic{};
     };
 }

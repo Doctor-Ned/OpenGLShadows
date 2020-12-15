@@ -4,6 +4,7 @@ layout (std140, binding = 1) uniform Material
 {
     vec3 albedo;
     float roughness;
+    vec3 paddingM;
     float metallic;
 };
 
@@ -12,6 +13,7 @@ struct DirectionalLightData
     vec3 color;
     float strength;
     vec3 direction;
+    float padding;
 };
 
 struct SpotLightData
@@ -28,6 +30,7 @@ layout (std140, binding = 2) uniform Lights
 {
     DirectionalLightData dirLightData;
     SpotLightData spotLightData;
+    vec3 paddingL;
     float ambient;
 };
 

@@ -1,6 +1,7 @@
 #include "ResourceManager.h"
 #include "ShadowLog.h"
 #include "GLShader.h"
+#include "ShadowUtils.h"
 
 shadow::ResourceManager& shadow::ResourceManager::getInstance()
 {
@@ -186,13 +187,18 @@ shadow::ModelMeshData shadow::ResourceManager::processModelMesh(aiMesh* mesh, co
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         result.vertices.emplace_back(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-        result.normals.emplace_back(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+        if (mesh->HasNormals())
+        {
+            result.normals.emplace_back(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+        }
         if (mesh->mTextureCoords[0])
         {
             result.texCoords.emplace_back(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-        } else
+        }
+        if (mesh->HasTangentsAndBitangents())
         {
-            result.texCoords.emplace_back(0.0f, 0.0f);
+            result.tangents.emplace_back(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+            result.bitangents.emplace_back(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
         }
     }
 
@@ -203,6 +209,11 @@ shadow::ModelMeshData shadow::ResourceManager::processModelMesh(aiMesh* mesh, co
         {
             result.indices.push_back(face.mIndices[j]);
         }
+    }
+
+    if (!mesh->HasNormals())
+    {
+        result.normals = ShadowUtils::generateNormals(result.vertices, result.indices);
     }
 
     for (TextureType type : {TextureType::Albedo, TextureType::Roughness, TextureType::Metalness, TextureType::Normal})
@@ -238,16 +249,16 @@ std::shared_ptr<shadow::Texture> shadow::ResourceManager::loadModelTexture(Textu
                 switch (textureType)
                 {
                     case TextureType::Albedo:
-                        match = !strcmp(type.c_str(), "basecolor") || !strcmp(type.c_str(), "albedo");
+                        match = !strcmp(type.c_str(), "bc") || !strcmp(type.c_str(), "basecolor") || !strcmp(type.c_str(), "albedo");
                         break;
                     case TextureType::Metalness:
-                        match = !strcmp(type.c_str(), "metallic") || !strcmp(type.c_str(), "metalness");
+                        match = !strcmp(type.c_str(), "m") || !strcmp(type.c_str(), "metallic") || !strcmp(type.c_str(), "metalness");
                         break;
                     case TextureType::Roughness:
-                        match = !strcmp(type.c_str(), "roughness");
+                        match = !strcmp(type.c_str(), "r") || !strcmp(type.c_str(), "roughness");
                         break;
                     case TextureType::Normal:
-                        match = !strcmp(type.c_str(), "normal");
+                        match = !strcmp(type.c_str(), "n") || !strcmp(type.c_str(), "normal");
                         break;
                     default:
                         match = false;

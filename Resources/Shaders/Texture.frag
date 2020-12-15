@@ -5,6 +5,7 @@ struct DirectionalLightData
     vec3 color;
     float strength;
     vec3 direction;
+    float padding;
 };
 
 struct SpotLightData
@@ -21,6 +22,7 @@ layout (std140, binding = 2) uniform Lights
 {
     DirectionalLightData dirLightData;
     SpotLightData spotLightData;
+    vec3 paddingL;
     float ambient;
 };
 
@@ -33,6 +35,9 @@ in VS_OUT
     vec3 normal;
     vec3 viewPosition;
     vec2 texCoords;
+    vec3 tangentViewPos;
+    vec3 tangentFragPos;
+    vec3 tangentSpotPos;
 } fs_in;
 
 layout(binding = 0) uniform sampler2D albedoTexture;
@@ -104,16 +109,16 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float 
     }
     vec3 toLight = normalize(-spotLightData.direction);
     vec3 L = normalize(spotLightData.position - fs_in.pos);
-    float theta = dot(toLight, L);
-    float epsilon = max(spotLightData.innerCutOff - spotLightData.outerCutOff, 0.0);
-    float intensity = clamp((theta - spotLightData.outerCutOff) / epsilon, 0.0f, 1.0f);
+    float theta = dot(L, toLight);
+    float epsilon = spotLightData.innerCutOff - spotLightData.outerCutOff;
+    float intensity = clamp((theta - spotLightData.outerCutOff) / epsilon, 0.0, 1.0);
     vec3 H = normalize(V + L);
     float NdotL = max(dot(N, L), 0.0);
     float cosTheta = max(dot(V, H), 0.0);
     vec3 F = fresnelSchlick(cosTheta, F0);
     float D = DistributionGGX(N, H, roughness);
     float G = GeometrySchlickGGX(NdotV, NdotL);
-    float dist = length(spotLightData.position - fs_in.pos);
+    float dist = length(fs_in.tangentSpotPos - fs_in.tangentFragPos);
     float attenuation = 1.0 / (dist * dist);
     vec3 kD = mix(vec3(1.0) - F, vec3(0.0), metallic);
     vec3 diffuse = kD * albedo / PI;
@@ -126,14 +131,15 @@ void main()
     vec3 albedo = texture(albedoTexture, fs_in.texCoords).rgb;
     float roughness = texture(roughnessTexture, fs_in.texCoords).r;
     float metallic = texture(metalnessTexture, fs_in.texCoords).r;
-    vec3 N = fs_in.normal; // temporary, add normal mapping
-    vec3 V = normalize(fs_in.viewPosition - fs_in.pos);
+    vec3 N = texture(normalTexture, fs_in.texCoords).rgb;
+    N = normalize(N * 2.0 - 1.0);
+    vec3 V = normalize(fs_in.tangentViewPos - fs_in.tangentFragPos);
     float NdotV = max(dot(N, V), 0.0);
     vec3 F0 = mix(vec3(0.04), albedo, metallic);
     vec3 Lo =
         albedo * ambient
-        + getDirectionalLightColor(N, V, NdotV, F0, albedo, roughness, metallic)
-        + getSpotLightColor(N, V, NdotV, F0, albedo, roughness, metallic);
+        + max(getDirectionalLightColor(N, V, NdotV, F0, albedo, roughness, metallic), vec3(0.0))
+        + max(getSpotLightColor(N, V, NdotV, F0, albedo, roughness, metallic), vec3(0.0));
     outColor = vec4(Lo, 1.0);
-    // outColor = texture(albedoTexture, fs_in.texCoords);
+    //outColor = texture(albedoTexture, fs_in.texCoords);
 }

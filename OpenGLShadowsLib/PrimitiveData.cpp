@@ -43,6 +43,7 @@ std::vector<shadow::TextureVertex> shadow::PrimitiveData::toTextureVertex() cons
     {
         result.push_back({ vertices[i], normals[i], texCoords[i] });
     }
+    ShadowUtils::generateTangentsBitangents(result, indices);
     return result;
 }
 
