@@ -56,9 +56,8 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     float a      = roughness*roughness;
     float a2     = a*a;
     float NdotH  = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH*NdotH;
     float nom   = a2;
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    float denom = (NdotH * NdotH * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
     return nom / max(denom, 0.001);
 }
@@ -146,8 +145,4 @@ void main()
         + max(getDirectionalLightColor(N, fs_in.toView, NdotV, F0, albedo, roughness, metallic), vec3(0.0))
         + max(getSpotLightColor(N, fs_in.toView, NdotV, F0, albedo, roughness, metallic), vec3(0.0));
     outColor = vec4(Lo, 1.0);
-    //outColor = texture(albedoTexture, fs_in.texCoords);
-    //outColor = texture(normalTexture, fs_in.texCoords);
-    //outColor = texture(roughnessTexture, fs_in.texCoords);
-    //outColor = texture(metalnessTexture, fs_in.texCoords);
 }
