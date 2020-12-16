@@ -22,16 +22,14 @@ int main()
     std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    dirLight->setDirection(glm::vec3(-1.0f, -1.0f, 0.0f));
     //dirLight->setStrength(5.0f);
     spotLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    spotLight->setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
     //spotLight->setStrength(1.0f);
-    spotLight->setInnerCutOff(FPI * 0.5f);
-    spotLight->setOuterCutOff(FPI);
+    spotLight->setInnerCutOff(cosf(FPI * 0.5f));
+    spotLight->setOuterCutOff(cosf(FPI));
     spotLight->setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     std::shared_ptr<Camera> camera = appWindow.getCamera();
-    std::shared_ptr<PrimitiveData> planeData = Primitives::plane(5.0f, 5.0f);
+    std::shared_ptr<PrimitiveData> planeData = Primitives::plane(5.0f, 5.0f, glm::vec2(5.0f));
     std::shared_ptr<TextureMesh> plane = std::make_shared<TextureMesh>(
         planeData->toTextureVertex(), planeData->getIndices(),
         std::map <TextureType, std::shared_ptr<Texture>> {
@@ -54,7 +52,7 @@ int main()
     tableNode->setMesh(table);
     tableNode->translate(glm::vec3(0.5f, 0.0f, -0.5f));
     tableNode->scale(glm::vec3(0.0035f));
-    node->setMesh(modelCat);
+    //node->setMesh(modelCat);
     node->translate(glm::vec3(0.0f, 0.0f, 0.0f));
     node->scale(glm::vec3(0.01f));
     suitcaseNode->setMesh(suitcase);
@@ -68,23 +66,11 @@ int main()
     planeNode->translate(glm::vec3(0.0f, -0.0f, 0.0f));
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
-    float angleX{}, angleZ{};
-    const glm::vec3 dirLightBaseDirection = glm::vec3(0.0f, -1.0f, 0.0f);
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
-        glm::vec3 color = dirLight->getData().color;
-        ImGui::ColorEdit3("Direction light color", reinterpret_cast<float*>(&color));
-        dirLight->setColor(color);
-        float strength = dirLight->getData().strength;
-        ImGui::SliderFloat("Direction light strength", &strength, 0.0f, 100.0f);
-        dirLight->setStrength(strength);
-        ImGui::SliderAngle("Direction light angle X", &angleX);
-        ImGui::SliderAngle("Direction light angle Z", &angleZ);
-        glm::mat4 dirRotation(1.0f);
-        dirRotation = rotate(dirRotation, angleX, glm::vec3(1.0f, 0.0f, 0.0f));
-        dirRotation = rotate(dirRotation, angleZ, glm::vec3(0.0f, 0.0f, 1.0f));
-        dirLight->setDirection(dirRotation * glm::vec4(dirLightBaseDirection, 0.0f));
+        dirLight->drawGui();
+        spotLight->drawGui();
         ImGui::End();
     };
     while (!appWindow.shouldClose())

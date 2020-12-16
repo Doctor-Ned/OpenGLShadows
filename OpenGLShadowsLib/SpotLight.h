@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DirectedLight.h"
+#include "GUIDrawable.h"
 
 namespace shadow
 {
@@ -14,7 +15,7 @@ namespace shadow
         float outerCutOff{ 0.0f };
     };
 
-    class SpotLight final : public DirectedLight<SpotLightData>
+    class SpotLight final : public DirectedLight<SpotLightData>, public GUIDrawable
     {
     public:
         SpotLight(SpotLightData& data, float nearZ, float farZ);
@@ -25,7 +26,9 @@ namespace shadow
         void setPosition(glm::vec3 position) override;
         void setInnerCutOff(float innerCutOff);
         void setOuterCutOff(float outerCutOff);
+        void drawGui() override;
     private:
         glm::mat4 lightSpaceMatrix{};
+        float angleX{}, angleY{}, angleZ{};
     };
 }

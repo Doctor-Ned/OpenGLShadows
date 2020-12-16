@@ -3,6 +3,7 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 shadow::SpotLight::SpotLight(SpotLightData& data, float nearZ, float farZ)
     : DirectedLight(data, nearZ, farZ)
@@ -56,4 +57,54 @@ void shadow::SpotLight::setOuterCutOff(float outerCutOff)
 {
     lightData.outerCutOff = outerCutOff;
     dirty = true;
+}
+
+void shadow::SpotLight::drawGui()
+{
+    ImGui::PushID(this);
+    ImGui::Text("Spot light");
+    glm::vec3 color = lightData.color, position = lightData.position;
+    float strength = lightData.strength;
+    float aX = angleX, aY = angleY, aZ = angleZ;
+    float innerAngle = std::acosf(lightData.innerCutOff), outerAngle = std::acosf(lightData.outerCutOff);
+    ImGui::ColorPicker3("Color", value_ptr(color));
+    ImGui::SliderFloat("Strength", &strength, 0.0f, 10.0f);
+    ImGui::DragFloat3("Position", value_ptr(position), 0.1f);
+    ImGui::SliderAngle("Angle X", &aX);
+    ImGui::SliderAngle("Angle Y", &aY);
+    ImGui::SliderAngle("Angle Z", &aZ);
+    glm::vec3 direction =
+        glm::quat(glm::vec3(aX, aY, aZ)) * glm::vec3(0.0f, 0.0f, -1.0f);
+    ImGui::TextWrapped("Direction: [%.1f, %.1f, %.1f]", direction[0], direction[1], direction[2]);
+    ImGui::SliderAngle("Inner cutoff angle", &innerAngle, 0.0f, 180.0f);
+    ImGui::SliderAngle("Outer cutoff angle", &outerAngle, 0.0f, 180.0f);
+    if (color != lightData.color)
+    {
+        setColor(color);
+    }
+    if (position != lightData.position)
+    {
+        setPosition(position);
+    }
+    if (direction != lightData.direction)
+    {
+        angleX = aX;
+        angleY = aY;
+        angleZ = aZ;
+        setDirection(direction);
+    }
+    if (strength != lightData.strength)
+    {
+        setStrength(strength);
+    }
+    float innerCutOff = std::cosf(innerAngle), outerCutOff = std::cosf(outerAngle);
+    if (std::abs(innerCutOff - lightData.innerCutOff) > 0.001f)
+    {
+        setInnerCutOff(innerCutOff);
+    }
+    if (std::abs(outerCutOff - lightData.outerCutOff) > 0.001f)
+    {
+        setOuterCutOff(outerCutOff);
+    }
+    ImGui::PopID();
 }

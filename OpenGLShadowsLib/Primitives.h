@@ -19,7 +19,7 @@ namespace shadow
         static std::shared_ptr<PrimitiveData> cylinder(unsigned int precision, unsigned int heightSegments);
         static std::shared_ptr<PrimitiveData> cylinder(unsigned int precision, unsigned int heightSegments, float radius, float height);
         static std::shared_ptr<PrimitiveData> plane();
-        static std::shared_ptr<PrimitiveData> plane(float width, float length);
+        static std::shared_ptr<PrimitiveData> plane(float width, float length, glm::vec2 texCoordsMax);
         static std::shared_ptr<PrimitiveData> sphere(unsigned int precision);
         static std::shared_ptr<PrimitiveData> sphere(unsigned int precision, float radius);
         static std::shared_ptr<PrimitiveData> torus(unsigned int precision);

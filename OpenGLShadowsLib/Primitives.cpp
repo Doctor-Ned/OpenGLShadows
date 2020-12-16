@@ -130,10 +130,10 @@ std::shared_ptr<shadow::PrimitiveData> shadow::Primitives::cylinder(unsigned int
 
 std::shared_ptr<shadow::PrimitiveData> shadow::Primitives::plane()
 {
-    return plane(1.0f, 1.0f);
+    return plane(1.0f, 1.0f, glm::vec2(1.0f, 1.0f));
 }
 
-std::shared_ptr<shadow::PrimitiveData> shadow::Primitives::plane(float width, float length)
+std::shared_ptr<shadow::PrimitiveData> shadow::Primitives::plane(float width, float length, glm::vec2 texCoordsMax)
 {
     float hWidth = width * 0.5f, hLength = length * 0.5f;
     std::vector<glm::vec3> vertices{
@@ -144,9 +144,9 @@ std::shared_ptr<shadow::PrimitiveData> shadow::Primitives::plane(float width, fl
     };
     std::vector<glm::vec2> texCoords{
         { 0.0f, 0.0f },
-        { 1.0f, 0.0f },
-        { 1.0f, 1.0f },
-        { 0.0f, 1.0f }
+        { texCoordsMax.x, 0.0f },
+        texCoordsMax,
+        { 0.0f, texCoordsMax.y }
     };
     std::vector<GLuint> indices{ 2,0,1,3,0,2 };
     return std::make_shared<PrimitiveData>(vertices, texCoords, indices);

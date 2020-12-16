@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DirectedLight.h"
+#include "GUIDrawable.h"
 
 namespace shadow
 {
@@ -12,7 +13,7 @@ namespace shadow
         float padding{};
     };
 
-    class DirectionalLight final : public DirectedLight<DirectionalLightData>
+    class DirectionalLight final : public DirectedLight<DirectionalLightData>, public GUIDrawable
     {
     public:
         DirectionalLight(DirectionalLightData& data, float nearZ, float farZ);
@@ -22,9 +23,11 @@ namespace shadow
         void setPosition(glm::vec3 position) override;
         void setDirection(glm::vec3 direction) override;
         void setProjectionSize(float projectionSize);
+        void drawGui() override;
     private:
         glm::mat4 lightSpaceMatrix{};
         float projectionSize{ 10.0f };
         glm::vec3 position{};
+        float angleX{}, angleY{}, angleZ{};
     };
 }
