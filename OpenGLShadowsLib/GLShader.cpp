@@ -56,8 +56,9 @@ void shadow::GLShader::update()
             switch (buildShader(shader, GL_VERTEX_SHADER, vertexFile))
             {
                 case ShaderBuildStatus::Failed:
+                    vertexTimestamp = timestamp;
                     SHADOW_ERROR("Failed to rebuild vertex shader, using the old build.");
-                    [[fallthrough]];
+                    break;
                 case ShaderBuildStatus::Success:
                 {
                     vertexTimestamp = timestamp;
@@ -73,12 +74,11 @@ void shadow::GLShader::update()
                         SHADOW_DEBUG("Program rebuilt and replaced successfully!");
                     } else
                     {
+                        glDeleteShader(shader);
                         SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
                     }
                     break;
                 }
-                case ShaderBuildStatus::Unavailable:
-                    break;
                 default:
                     break;
             }
@@ -94,8 +94,9 @@ void shadow::GLShader::update()
             switch (buildShader(shader, GL_FRAGMENT_SHADER, fragmentFile))
             {
                 case ShaderBuildStatus::Failed:
+                    fragmentTimestamp = timestamp;
                     SHADOW_ERROR("Failed to rebuild fragment shader, using the old build.");
-                    [[fallthrough]];
+                    break;
                 case ShaderBuildStatus::Success:
                 {
                     fragmentTimestamp = timestamp;
@@ -111,12 +112,11 @@ void shadow::GLShader::update()
                         SHADOW_DEBUG("Program rebuilt as {} and replaced successfully!", programId);
                     } else
                     {
+                        glDeleteShader(shader);
                         SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
                     }
                     break;
                 }
-                case ShaderBuildStatus::Unavailable:
-                    break;
                 default:
                     break;
             }

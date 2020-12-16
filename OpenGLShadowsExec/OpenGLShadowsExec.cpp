@@ -5,12 +5,15 @@
 #include "Primitives.h"
 #include "ShadowUtils.h"
 
+#include <glm/gtx/transform.hpp>
+#include <glm/ext/quaternion_trigonometric.inl>
+
 int main()
 {
     using namespace shadow;
     AppWindow& appWindow = AppWindow::getInstance();
     ResourceManager& resourceManager = ResourceManager::getInstance();
-    if (!appWindow.initialize(1280, 720, "../../Resources"))
+    if (!appWindow.initialize(1920, 1080, "../../Resources"))
     {
         return 1;
     }
@@ -23,31 +26,66 @@ int main()
     //dirLight->setStrength(5.0f);
     spotLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     spotLight->setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
-    spotLight->setStrength(222.0f);
+    //spotLight->setStrength(1.0f);
     spotLight->setInnerCutOff(FPI * 0.5f);
     spotLight->setOuterCutOff(FPI);
     spotLight->setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     std::shared_ptr<Camera> camera = appWindow.getCamera();
     std::shared_ptr<PrimitiveData> planeData = Primitives::plane(5.0f, 5.0f);
     std::shared_ptr<TextureMesh> plane = std::make_shared<TextureMesh>(
-        planeData->toTextureVertex(), planeData->getIndices(), resourceManager.getTexture("Grass.jpg"));
+        planeData->toTextureVertex(), planeData->getIndices(),
+        std::map <TextureType, std::shared_ptr<Texture>> {
+            { TextureType::Albedo, resourceManager.getTexture("Planks/planks_albedo.png") },
+            { TextureType::Roughness, resourceManager.getTexture("Planks/planks_roughness.png") },
+            { TextureType::Metalness, resourceManager.getTexture("Planks/planks_metallic.png") },
+            { TextureType::Normal, resourceManager.getTexture("Planks/planks_normal.png") }
+    });
     //std::shared_ptr<ModelMesh> modelFlareGun = resourceManager.getModel("FlareGun/FlareGun.obj");
     //std::shared_ptr<ModelMesh> modelBackpack = resourceManager.getModel("Backpack/backpack.obj");
     //std::shared_ptr<MaterialModelMesh> modelCat = resourceManager.getMaterialModel("OrigamiCat/OrigamiCat.obj", std::make_shared<Material>(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.0f));
-    std::shared_ptr<ModelMesh> modelGun = resourceManager.getModel("Gun/gun.obj");
+    //std::shared_ptr<ModelMesh> modelGun = resourceManager.getModel("Gun/gun.obj");
+    std::shared_ptr<ModelMesh> table = resourceManager.getModel("Table/Table.obj");
+    std::shared_ptr<ModelMesh> suitcase = resourceManager.getModel("Suitcase/Vintage_Suitcase_LP.obj");
+    std::shared_ptr<ModelMesh> chair = resourceManager.getModel("Chair/Chair.obj");
     std::shared_ptr<Scene> scene = appWindow.getScene();
-    std::shared_ptr<SceneNode> node = scene->addNode(), planeNode = scene->addNode();
+    std::shared_ptr<SceneNode> node = scene->addNode(), suitcaseNode = scene->addNode(), chairNode = scene->addNode(), planeNode = scene->addNode();
     camera->setPosition(glm::vec3(0.0f, 1.0f, 1.0f));
     camera->setDirection(glm::vec3(0.0f, -1.0f, -1.0f));
-    node->setMesh(modelGun);
-    node->scale(glm::vec3(2.5f));
+    node->setMesh(table);
+    node->scale(glm::vec3(0.0035f));
+    suitcaseNode->setMesh(suitcase);
+    suitcaseNode->translate(glm::vec3(-0.00f, 0.0f, -0.8f));
+    suitcaseNode->scale(glm::vec3(0.0075f));
+    suitcaseNode->rotate(FPI * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f));
+    chairNode->setMesh(chair);
+    chairNode->scale(glm::vec3(0.5f));
+    chairNode->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
     planeNode->setMesh(plane);
-    planeNode->translate(glm::vec3(0.0f, -1.5f, 0.0f));
+    planeNode->translate(glm::vec3(0.0f, -0.0f, 0.0f));
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
+    float angleX{}, angleZ{};
+    const glm::vec3 dirLightBaseDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+    auto guiProc = [&]()
+    {
+        ImGui::Begin("Settings");
+        glm::vec3 color = dirLight->getData().color;
+        ImGui::ColorEdit3("Direction light color", reinterpret_cast<float*>(&color));
+        dirLight->setColor(color);
+        float strength = dirLight->getData().strength;
+        ImGui::SliderFloat("Direction light strength", &strength, 0.0f, 100.0f);
+        dirLight->setStrength(strength);
+        ImGui::SliderAngle("Direction light angle X", &angleX);
+        ImGui::SliderAngle("Direction light angle Z", &angleZ);
+        glm::mat4 dirRotation(1.0f);
+        dirRotation = rotate(dirRotation, angleX, glm::vec3(1.0f, 0.0f, 0.0f));
+        dirRotation = rotate(dirRotation, angleZ, glm::vec3(0.0f, 0.0f, 1.0f));
+        dirLight->setDirection(dirRotation * glm::vec4(dirLightBaseDirection, 0.0f));
+        ImGui::End();
+    };
     while (!appWindow.shouldClose())
     {
-        appWindow.loop(timeDelta);
+        appWindow.loop(timeDelta, guiProc);
         node->rotate(static_cast<float>(timeDelta) * 0.25f, glm::vec3(0.0f, 1.0f, 0.0f));
         resourceManager.updateShaders();
         double time = appWindow.getTime();

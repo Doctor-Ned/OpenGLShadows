@@ -22,7 +22,7 @@ std::vector<glm::vec3> shadow::ShadowUtils::generateNormals(const std::vector<gl
 
 glm::vec3 shadow::ShadowUtils::getNormal(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3)
 {
-    return normalize(cross(normalize(v3 - v1), normalize(v2 - v1)));
+    return normalize(cross(v2 - v1, v3 - v1));
 }
 
 void shadow::ShadowUtils::generateTangentsBitangents(std::vector<TextureVertex>& vert, const std::vector<GLuint>& indices)
@@ -32,7 +32,7 @@ void shadow::ShadowUtils::generateTangentsBitangents(std::vector<TextureVertex>&
     for (size_t i = 0; i < indices.size(); ++i)
     {
         GLuint i1 = indices[i], i2 = indices[++i], i3 = indices[++i];
-        TextureVertex& v1 = vert[i1], &v2 = vert[i2], &v3 = vert[i3];
+        TextureVertex& v1 = vert[i1], & v2 = vert[i2], & v3 = vert[i3];
         glm::vec3 edge1 = v2.position - v1.position;
         glm::vec3 edge2 = v3.position - v1.position;
         glm::vec2 deltaUV1 = v2.texCoords - v1.texCoords;

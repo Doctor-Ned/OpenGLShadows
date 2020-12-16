@@ -154,7 +154,7 @@ std::shared_ptr<shadow::ModelData> shadow::ResourceManager::getModelData(const s
     }
     SHADOW_DEBUG("Loading model data from '{}'...", fullPath.generic_string());
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(fullPath.generic_string().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = import.ReadFile(fullPath.generic_string().c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         SHADOW_ERROR("Failed to load model '{}'! {}", fullPath.generic_string(), import.GetErrorString());
@@ -187,21 +187,17 @@ shadow::ModelMeshData shadow::ResourceManager::processModelMesh(aiMesh* mesh, co
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         result.vertices.emplace_back(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-        if (mesh->HasNormals())
-        {
-            result.normals.emplace_back(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-        }
+        result.normals.emplace_back(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         if (mesh->mTextureCoords[0])
         {
             result.texCoords.emplace_back(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-        }
-        if (mesh->HasTangentsAndBitangents())
+        } else
         {
-            result.tangents.emplace_back(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
-            result.bitangents.emplace_back(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
+            result.texCoords.emplace_back(0.0f, 0.0f);
         }
+        result.tangents.emplace_back(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+        result.bitangents.emplace_back(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
     }
-
     for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
     {
         aiFace& face = mesh->mFaces[i];
@@ -209,11 +205,6 @@ shadow::ModelMeshData shadow::ResourceManager::processModelMesh(aiMesh* mesh, co
         {
             result.indices.push_back(face.mIndices[j]);
         }
-    }
-
-    if (!mesh->HasNormals())
-    {
-        result.normals = ShadowUtils::generateNormals(result.vertices, result.indices);
     }
 
     for (TextureType type : {TextureType::Albedo, TextureType::Roughness, TextureType::Metalness, TextureType::Normal})

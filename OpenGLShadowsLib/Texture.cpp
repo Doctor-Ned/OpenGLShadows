@@ -28,7 +28,7 @@ bool shadow::Texture::load()
         SHADOW_ERROR("Texture file '{}' does not exist!", path.generic_string());
         return false;
     }
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
     int comp;
     unsigned char* data = stbi_load(path.generic_string().c_str(), &width, &height, &comp, 0);
     if (!data)

@@ -46,25 +46,28 @@ out VS_OUT
     vec3 normal;
     vec3 viewPosition;
     vec2 texCoords;
-    vec3 tangentViewPos;
     vec3 tangentFragPos;
-    vec3 tangentSpotPos;
+    vec3 tangentDirLightDirection;
+    vec3 tangentSpotLightDirection;
+    vec3 tangentSpotLightPosition;
+    vec3 toView;
 } vs_out;
 
 void main()
 {
     vs_out.pos = vec3(model * vec4(pos, 1.0));
-    vs_out.viewPosition = vec3(model * vec4(viewPosition, 1.0));
+    vs_out.viewPosition = viewPosition;
     vs_out.texCoords = texCoords;
+    vec3 T = normalize(vec3(model * vec4(tangent, 0.0)));
+    vec3 B = normalize(vec3(model * vec4(bitangent, 0.0)));
+    vec3 N = normalize(vec3(model * vec4(normal, 0.0)));
+    mat3 TBN = transpose(mat3(T,B,N));
+    vs_out.tangentFragPos = TBN * vs_out.pos;
+    vs_out.tangentDirLightDirection = TBN * dirLightData.direction;
+    vs_out.tangentSpotLightDirection = TBN * spotLightData.direction;
+    vs_out.tangentSpotLightPosition = TBN * spotLightData.position;
+    vs_out.toView = normalize(TBN * viewPosition - vs_out.tangentFragPos);
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     vs_out.normal = normalize(normalMatrix * normal);
-    vec3 T = normalize(normalMatrix * tangent);
-    vec3 N = normalize(normalMatrix * normal);
-    T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
-    mat3 TBN = mat3(T, B, N);
-    vs_out.tangentSpotPos = TBN * spotLightData.position;
-    vs_out.tangentViewPos = TBN * viewPosition;
-    vs_out.tangentFragPos = TBN * vs_out.pos;
     gl_Position = projection * view * vec4(vs_out.pos, 1.0);
 }

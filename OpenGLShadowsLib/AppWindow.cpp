@@ -3,10 +3,6 @@
 #include "ShadowUtils.h"
 #include "ResourceManager.h"
 
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 static void glfw_error_callback(int error, const char* description)
 {
     SHADOW_ERROR("GLFW error #{}: {}", error, description);
@@ -126,35 +122,6 @@ void shadow::AppWindow::deinitialize()
         glfwWindow = nullptr;
     }
     width = height = 0;
-}
-
-void shadow::AppWindow::loop(double& timeDelta)
-{
-    assert(glfwWindow);
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-    currentTime = glfwGetTime();
-    timeDelta = currentTime - lastTime;
-    if (static_cast<unsigned int>(currentTime) >= fpsSecond)
-    {
-        measuredFps = fpsCounter;
-        fpsCounter = 0U;
-        ++fpsSecond;
-    } else
-    {
-        ++fpsCounter;
-    }
-    lastTime = currentTime;
-    glViewport(0, 0, width, height);
-    glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    scene->render();
-    //ImGui::ShowDemoWindow();
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    glfwSwapBuffers(glfwWindow);
-    glfwPollEvents();
 }
 
 void shadow::AppWindow::setClearColor(const glm::vec4& clearColor)
