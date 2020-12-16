@@ -17,7 +17,7 @@ namespace shadow
     class ResourceManager
     {
     public:
-        ~ResourceManager() = default;
+        ~ResourceManager();
         ResourceManager(ResourceManager&) = delete;
         ResourceManager(ResourceManager&&) = delete;
         ResourceManager& operator=(ResourceManager&) = delete;
@@ -32,6 +32,7 @@ namespace shadow
         std::shared_ptr<UboMvp> getUboMvp() const;
         std::shared_ptr<UboMaterial> getUboMaterial() const;
         std::shared_ptr<UboLights> getUboLights() const;
+        void renderQuad() const;
     private:
         ResourceManager() = default;
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path, bool shouldReworkPath);
@@ -50,5 +51,6 @@ namespace shadow
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboMaterial> uboMaterial{};
         std::shared_ptr<UboLights> uboLights{};
+        GLuint quadVao{}, quadVbo[2]{};
     };
 }

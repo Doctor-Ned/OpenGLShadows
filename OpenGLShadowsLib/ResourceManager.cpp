@@ -3,6 +3,12 @@
 #include "GLShader.h"
 #include "ShadowUtils.h"
 
+shadow::ResourceManager::~ResourceManager()
+{
+    glDeleteBuffers(2, quadVbo);
+    glDeleteVertexArrays(1, &quadVao);
+}
+
 shadow::ResourceManager& shadow::ResourceManager::getInstance()
 {
     static ResourceManager resourceManager{};
@@ -32,6 +38,37 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
         SHADOW_CRITICAL("Directory '{}' not found!", shadersPath.generic_string());
         return false;
     }
+
+    glm::vec2 screenQuadVertices[6]
+    {
+        {-1.0f, -1.0f},
+        {1.0f, 1.0f},
+        {-1.0f, 1.0f},
+        {-1.0f, -1.0f},
+        {1.0f, -1.0f},
+        {1.0f, 1.0f}
+    };
+    glm::vec2 screenQuadTexCoords[6]
+    {
+        {0.0f, 0.0f},
+        {1.0f, 1.0f},
+        {0.0f, 1.0f},
+        {0.0f, 0.0f},
+        {1.0f, 0.0f},
+        {1.0f, 1.0f}
+    };
+    glGenVertexArrays(1, &quadVao);
+    glGenBuffers(2, quadVbo);
+    glBindVertexArray(quadVao);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 6, screenQuadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), screenQuadVertices);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVbo[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 6, screenQuadTexCoords, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), screenQuadTexCoords);
+    glBindVertexArray(0);
     this->resourceDirectory = resourceDirectory;
     initialised = true;
     loadShaders();
@@ -114,6 +151,13 @@ std::shared_ptr<shadow::UboMaterial> shadow::ResourceManager::getUboMaterial() c
 std::shared_ptr<shadow::UboLights> shadow::ResourceManager::getUboLights() const
 {
     return uboLights;
+}
+
+void shadow::ResourceManager::renderQuad() const
+{
+    glBindVertexArray(quadVao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
 }
 
 std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path, bool shouldReworkPath)

@@ -15,6 +15,7 @@ namespace shadow
     {
     public:
         MaterialMesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices, std::shared_ptr<Material> material);
+        ~MaterialMesh();
         static std::shared_ptr<MaterialMesh> fromPrimitiveData(std::shared_ptr<PrimitiveData> data, std::shared_ptr<Material> material);
         void setMaterial(std::shared_ptr<Material> material);
         std::shared_ptr<Material> getMaterial() const;

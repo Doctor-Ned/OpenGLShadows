@@ -24,6 +24,13 @@ shadow::MaterialMesh::MaterialMesh(const std::vector<Vertex>& vertices, const st
     glBindVertexArray(0);
 }
 
+shadow::MaterialMesh::~MaterialMesh()
+{
+    glDeleteBuffers(1, &ebo);
+    glDeleteBuffers(1, &vbo);
+    glDeleteVertexArrays(1, &vao);
+}
+
 std::shared_ptr<shadow::MaterialMesh> shadow::MaterialMesh::fromPrimitiveData(std::shared_ptr<PrimitiveData> data, std::shared_ptr<Material> material)
 {
     if (!data->isValid())
