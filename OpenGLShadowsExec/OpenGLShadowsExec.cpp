@@ -40,8 +40,8 @@ int main()
     });
     //std::shared_ptr<ModelMesh> modelFlareGun = resourceManager.getModel("FlareGun/FlareGun.obj");
     //std::shared_ptr<ModelMesh> modelBackpack = resourceManager.getModel("Backpack/backpack.obj");
-    std::shared_ptr<MaterialModelMesh> modelCat = resourceManager.getMaterialModel("OrigamiCat/OrigamiCat.obj", std::make_shared<Material>(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.2f));
-    //std::shared_ptr<ModelMesh> modelGun = resourceManager.getModel("Gun/gun.obj");
+    //std::shared_ptr<MaterialModelMesh> modelCat = resourceManager.getMaterialModel("OrigamiCat/OrigamiCat.obj", std::make_shared<Material>(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.2f));
+    std::shared_ptr<ModelMesh> modelGun = resourceManager.getModel("Gun/gun.obj");
     std::shared_ptr<ModelMesh> table = resourceManager.getModel("Table/Table.obj");
     std::shared_ptr<ModelMesh> suitcase = resourceManager.getModel("Suitcase/Vintage_Suitcase_LP.obj");
     std::shared_ptr<ModelMesh> chair = resourceManager.getModel("Chair/Chair.obj");
@@ -52,9 +52,9 @@ int main()
     tableNode->setMesh(table);
     tableNode->translate(glm::vec3(0.5f, 0.0f, -0.5f));
     tableNode->scale(glm::vec3(0.0035f));
-    //node->setMesh(modelCat);
+    //node->setMesh(modelBackpack);
     node->translate(glm::vec3(0.0f, 0.0f, 0.0f));
-    node->scale(glm::vec3(0.01f));
+    node->scale(glm::vec3(0.1f));
     suitcaseNode->setMesh(suitcase);
     suitcaseNode->translate(glm::vec3(-0.00f, 0.0f, -0.8f));
     suitcaseNode->scale(glm::vec3(0.0075f));

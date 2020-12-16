@@ -104,6 +104,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)GUIDrawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp">
@@ -164,6 +167,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)UboLights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
