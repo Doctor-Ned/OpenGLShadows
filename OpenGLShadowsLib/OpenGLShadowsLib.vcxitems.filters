@@ -107,6 +107,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="D:\VisualStudioRepos\OpenGLShadows\OpenGLShadowsLib\Vertex2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp">

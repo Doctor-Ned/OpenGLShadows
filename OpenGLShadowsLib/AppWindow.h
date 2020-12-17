@@ -3,6 +3,8 @@
 #include "ShadowLog.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "Framebuffer.h"
+#include "ResourceManager.h"
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -44,6 +46,7 @@ namespace shadow
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
+        Framebuffer mainFramebuffer{};
     };
 
     inline bool AppWindow::shouldClose() const
@@ -55,6 +58,8 @@ namespace shadow
     void shadow::AppWindow::loop(double& timeDelta, F& guiProc)
     {
         assert(glfwWindow);
+        static ResourceManager& resourceManager = ResourceManager::getInstance();
+        static std::shared_ptr<GLShader> ppShader = resourceManager.getShader(ShaderType::PostProcess);
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -70,10 +75,19 @@ namespace shadow
             ++fpsCounter;
         }
         lastTime = currentTime;
+        glBindFramebuffer(GL_FRAMEBUFFER, mainFramebuffer.getFbo());
+        glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, width, height);
         glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         scene->render();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ppShader->use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mainFramebuffer.getTexture());
+        resourceManager.renderQuad();
         //ImGui::ShowDemoWindow();
         guiProc();
         ImGui::Render();
@@ -82,4 +96,3 @@ namespace shadow
         glfwPollEvents();
     }
 }
-

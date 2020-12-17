@@ -1,7 +1,6 @@
 #include "AppWindow.h"
 
 #include "ShadowUtils.h"
-#include "ResourceManager.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -79,6 +78,11 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);
 
+    if (!mainFramebuffer.create(true, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT))
+    {
+        return false;
+    }
+
     if (!ResourceManager::getInstance().initialize(resourceDirectory))
     {
         return false;
@@ -136,6 +140,7 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     glfwSetWindowSize(glfwWindow, width, height);
     this->width = width;
     this->height = height;
+    mainFramebuffer.resize(width, height);
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
 }
 

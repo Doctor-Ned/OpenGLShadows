@@ -51,6 +51,6 @@ namespace shadow
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboMaterial> uboMaterial{};
         std::shared_ptr<UboLights> uboLights{};
-        GLuint quadVao{}, quadVbo[2]{};
+        GLuint quadVao{}, quadVbo{};
     };
 }

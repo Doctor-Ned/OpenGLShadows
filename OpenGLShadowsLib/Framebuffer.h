@@ -26,4 +26,16 @@ namespace shadow
         GLsizei width{}, height{};
         GLenum format{}, type{};
     };
+
+    inline GLuint shadow::Framebuffer::getTexture() const
+    {
+        assert(texture);
+        return texture;
+    }
+
+    inline GLuint shadow::Framebuffer::getFbo() const
+    {
+        assert(framebuffer);
+        return framebuffer;
+    }
 }

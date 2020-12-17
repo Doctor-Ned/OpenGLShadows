@@ -2,10 +2,11 @@
 #include "ShadowLog.h"
 #include "GLShader.h"
 #include "ShadowUtils.h"
+#include "Vertex2D.h"
 
 shadow::ResourceManager::~ResourceManager()
 {
-    glDeleteBuffers(2, quadVbo);
+    glDeleteBuffers(1, &quadVbo);
     glDeleteVertexArrays(1, &quadVao);
 }
 
@@ -39,35 +40,30 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
         return false;
     }
 
-    glm::vec2 screenQuadVertices[6]
+    Vertex2D screenQuadVertices[6]
     {
-        {-1.0f, -1.0f},
-        {1.0f, 1.0f},
-        {-1.0f, 1.0f},
-        {-1.0f, -1.0f},
-        {1.0f, -1.0f},
-        {1.0f, 1.0f}
-    };
-    glm::vec2 screenQuadTexCoords[6]
-    {
-        {0.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f}
+        {{-1.0f, -1.0f},
+        {0.0f, 0.0f}},
+        {{1.0f, 1.0f},
+        {1.0f, 1.0f}},
+        {{-1.0f, 1.0f},
+        {0.0f, 1.0f}},
+        {{-1.0f, -1.0f},
+        {0.0f, 0.0f}},
+        {{1.0f, -1.0f},
+        {1.0f, 0.0f}},
+        {{1.0f, 1.0f},
+        {1.0f, 1.0f}}
     };
     glGenVertexArrays(1, &quadVao);
-    glGenBuffers(2, quadVbo);
+    glGenBuffers(1, &quadVbo);
     glBindVertexArray(quadVao);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 6, screenQuadVertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * 6, screenQuadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), screenQuadVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 6, screenQuadTexCoords, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void*>(offsetof(Vertex2D, position)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), screenQuadTexCoords);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), reinterpret_cast<void*>(offsetof(Vertex2D, texCoords)));
     glBindVertexArray(0);
     this->resourceDirectory = resourceDirectory;
     initialised = true;
@@ -156,6 +152,7 @@ std::shared_ptr<shadow::UboLights> shadow::ResourceManager::getUboLights() const
 void shadow::ResourceManager::renderQuad() const
 {
     glBindVertexArray(quadVao);
+    glBindVertexBuffer(0, quadVbo, 0, sizeof(Vertex2D));
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
@@ -331,6 +328,7 @@ void shadow::ResourceManager::loadShaders()
     shaders.emplace(ShaderType::Texture, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Texture")));
     shaders.emplace(ShaderType::Material, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Material")));
     shaders.emplace(ShaderType::Depth, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Depth")));
+    shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
 
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {

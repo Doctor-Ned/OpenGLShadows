@@ -8,6 +8,7 @@ namespace shadow
         Material,
         Texture,
         Depth,
+        PostProcess,
         ShaderTypeEnd
     };
 }
