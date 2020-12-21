@@ -5,8 +5,10 @@
 #include "Primitives.h"
 #include "ShadowUtils.h"
 
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
-#include <glm/ext/quaternion_trigonometric.inl>
+#include <glm/detail/type_quat.hpp>
+#include <glm/ext/quaternion_trigonometric.hpp>
 
 int main()
 {
@@ -56,7 +58,7 @@ int main()
     node->translate(glm::vec3(0.0f, 0.0f, 0.0f));
     node->scale(glm::vec3(0.1f));
     suitcaseNode->setMesh(suitcase);
-    suitcaseNode->translate(glm::vec3(-0.00f, 0.0f, -0.8f));
+    suitcaseNode->translate(glm::vec3(-0.2f, 0.0f, -0.4f));
     suitcaseNode->scale(glm::vec3(0.0075f));
     suitcaseNode->rotate(FPI * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f));
     chairNode->setMesh(chair);
@@ -66,11 +68,24 @@ int main()
     planeNode->translate(glm::vec3(0.0f, -0.0f, 0.0f));
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
+    float camX{}, camY{}, camZ{};
+    glm::vec3 position = camera->getPosition();
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
         dirLight->drawGui();
         spotLight->drawGui();
+        static glm::vec3 pos(0.0f, 0.0f, 0.0f);
+        ImGui::DragFloat3("Suitcase pos", &pos[0], 0.1f);
+        glm::mat4 mod = suitcaseNode->getModel();
+        mod[3] = glm::vec4(pos, 1.0f);
+        suitcaseNode->setModel(mod);
+        ImGui::SliderAngle("CamX", &camX);
+        ImGui::SliderAngle("CamY", &camY);
+        ImGui::SliderAngle("CamZ", &camZ);
+        camera->setDirection(glm::quat(glm::vec3(camX, camY, camZ)) * glm::vec3(0.0f, 0.0f, -1.0f));
+        ImGui::DragFloat3("CamPos", &position[0], 0.25f);
+        camera->setPosition(position);
         ImGui::End();
     };
     while (!appWindow.shouldClose())

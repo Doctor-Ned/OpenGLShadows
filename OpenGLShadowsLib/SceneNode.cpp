@@ -61,6 +61,7 @@ shadow::SceneNode& shadow::SceneNode::setActiveSelf(bool activeSelf)
 shadow::SceneNode& shadow::SceneNode::setModel(glm::mat4 model)
 {
     this->model = model;
+    dirty = true;
     return *this;
 }
 
