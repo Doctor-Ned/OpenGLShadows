@@ -78,7 +78,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);
 
-    if (!mainFramebuffer.create(true, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT))
+    if (!mainFramebuffer.create(true, GL_COLOR_ATTACHMENT0, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT))
     {
         return false;
     }

@@ -15,16 +15,16 @@ namespace shadow
         Framebuffer(Framebuffer&&) = delete;
         Framebuffer& operator=(Framebuffer&) = delete;
         Framebuffer& operator=(Framebuffer&&) = delete;
-        bool create(bool createDepthRenderbuffer, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type);
+        bool create(bool createDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type);
         void resize(GLsizei width, GLsizei height);
         inline GLuint getTexture() const;
         inline GLuint getFbo() const;
     private:
-        static GLuint createTexture(GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type);
+        static GLuint createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type);
         GLuint framebuffer{}, texture{}, depthRenderbuffer{};
         GLint internalFormat{};
         GLsizei width{}, height{};
-        GLenum format{}, type{};
+        GLenum attachment{}, format{}, type{};
     };
 
     inline GLuint shadow::Framebuffer::getTexture() const

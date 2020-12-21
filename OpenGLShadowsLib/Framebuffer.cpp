@@ -1,16 +1,12 @@
 #include "Framebuffer.h"
 
-bool shadow::Framebuffer::create(bool createDepthRenderbuffer, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
+bool shadow::Framebuffer::create(bool createDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
+    : internalFormat(internalFormat), width(width), height(height), attachment(attachment), format(format), type(type)
 {
-    SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {})...", width, height, createDepthRenderbuffer, internalFormat, format, type);
-    this->internalFormat = internalFormat;
-    this->width = width;
-    this->height = height;
-    this->format = format;
-    this->type = type;
+    SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {}, {})...", width, height, createDepthRenderbuffer, attachment, internalFormat, format, type);
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    texture = createTexture(internalFormat, width, height, format, type);
+    texture = createTexture(attachment, internalFormat, width, height, format, type);
     if (createDepthRenderbuffer)
     {
         glGenRenderbuffers(1, &depthRenderbuffer);
@@ -33,13 +29,13 @@ void shadow::Framebuffer::resize(GLsizei width, GLsizei height)
     assert(framebuffer);
     SHADOW_DEBUG("Resizing framebuffer to {}x{}...", width, height);
     GLuint oldTexture = texture;
-    texture = createTexture(internalFormat, width, height, format, type);
+    texture = createTexture(attachment, internalFormat, width, height, format, type);
     this->width = width;
     this->height = height;
     glDeleteTextures(1, &oldTexture);
 }
 
-GLuint shadow::Framebuffer::createTexture(GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
+GLuint shadow::Framebuffer::createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
 {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -50,9 +46,14 @@ GLuint shadow::Framebuffer::createTexture(GLint internalFormat, GLsizei width, G
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-    GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-    glDrawBuffers(1, drawBuffers);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
+    if (attachment == GL_DEPTH_ATTACHMENT)
+    {
+        glDrawBuffer(GL_NONE);
+    } else
+    {
+        glDrawBuffer(attachment);
+    }
     return texture;
 }
 
