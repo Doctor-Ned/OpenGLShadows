@@ -60,19 +60,10 @@ int main()
     std::shared_ptr<ModelMesh> chair = resourceManager.getModel("Chair/Chair.obj");
     std::shared_ptr<Scene> scene = appWindow.getScene();
     std::shared_ptr<SceneNode> node = scene->addNode(), suitcaseNode = scene->addNode(), chairNode = scene->addNode(), planeNode = scene->addNode(), tableNode = scene->addNode();
-    tableNode->setMesh(table);
-    tableNode->translate(glm::vec3(-0.03f, 0.0f, -0.1f));
-    tableNode->scale(glm::vec3(0.0035f));
-    suitcaseNode->setMesh(suitcase);
-    suitcaseNode->scale(glm::vec3(0.0055f));
-    suitcaseNode->rotate(-FPI * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f));
-    suitcaseNode->setPosition(glm::vec3(0.07f, 0.267f, -0.2f));
-    chairNode->setMesh(chair);
-    chairNode->scale(glm::vec3(0.5f));
-    chairNode->rotate(FPI * 0.85f, glm::vec3(0.0f, 1.0f, 0.0f));
-    chairNode->setPosition(glm::vec3(-0.03f, 0.0f, 0.3f));
-    planeNode->setMesh(plane);
-    planeNode->translate(glm::vec3(0.0f, -0.0f, 0.0f));
+    tableNode->setMesh(table).translate(glm::vec3(-0.03f, 0.0f, -0.1f)).scale(glm::vec3(0.0035f));
+    suitcaseNode->setMesh(suitcase).scale(glm::vec3(0.0055f)).rotate(-FPI * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f)).setPosition(glm::vec3(0.07f, 0.267f, -0.2f));
+    chairNode->setMesh(chair).scale(glm::vec3(0.5f)).rotate(FPI * 0.85f, glm::vec3(0.0f, 1.0f, 0.0f)).setPosition(glm::vec3(-0.03f, 0.0f, 0.3f));
+    planeNode->setMesh(plane).translate(glm::vec3(0.0f, -0.0f, 0.0f));
     scene->setParent(node, tableNode);
     scene->setParent(node, suitcaseNode);
     scene->setParent(node, chairNode);
@@ -87,10 +78,10 @@ int main()
     glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(spotLight->getNearZ(), spotLight->getFarZ());
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
-    enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048 };
+    enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
     int currentMapSize = Medium512;
 
-    const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)" };
+    const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
@@ -123,6 +114,9 @@ int main()
                         break;
                     case Huge2048:
                         appWindow.resizeLights(2048);
+                        break;
+                    case Enormous4096:
+                        appWindow.resizeLights(4096);
                         break;
                 }
             }
