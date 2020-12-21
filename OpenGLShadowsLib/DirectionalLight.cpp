@@ -52,6 +52,11 @@ void shadow::DirectionalLight::setProjectionSize(float projectionSize)
     lightSpaceDirty = true;
 }
 
+float shadow::DirectionalLight::getProjectionSize() const
+{
+    return projectionSize;
+}
+
 void shadow::DirectionalLight::drawGui()
 {
     ImGui::PushID(this);

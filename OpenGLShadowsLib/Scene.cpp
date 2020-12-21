@@ -86,7 +86,7 @@ bool shadow::Scene::removeNode(std::shared_ptr<SceneNode> node)
     return true;
 }
 
-bool shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr<SceneNode> child) const
+void shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr<SceneNode> child) const
 {
     assert(child);
     if (!parent)
@@ -95,7 +95,6 @@ bool shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr
     } else if (isInTree(child, parent))
     {
         SHADOW_WARN("Attempted to change child of a node creating a reference loop. Changes were prevented.");
-        return false;
     }
     std::shared_ptr<SceneNode> currParent = child->getParent();
     if (parent != currParent)
@@ -107,7 +106,6 @@ bool shadow::Scene::setParent(std::shared_ptr<SceneNode> parent, std::shared_ptr
         child->parent = parent;
         child->setDirty();
     }
-    return true;
 }
 
 void shadow::Scene::render()

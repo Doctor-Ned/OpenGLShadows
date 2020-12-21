@@ -32,6 +32,10 @@ bool shadow::LightManager::initialize(GLsizei textureSize)
 void shadow::LightManager::resize(GLsizei textureSize)
 {
     assert(textureSize > 0);
+    if (this->textureSize == textureSize)
+    {
+        return;
+    }
     dirFbo.resize(textureSize, textureSize);
     spotFbo.resize(textureSize, textureSize);
     this->textureSize = textureSize;

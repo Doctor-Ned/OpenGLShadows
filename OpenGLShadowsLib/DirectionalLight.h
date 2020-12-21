@@ -25,6 +25,7 @@ namespace shadow
         void setPosition(glm::vec3 position) override;
         void setDirection(glm::vec3 direction) override;
         void setProjectionSize(float projectionSize);
+        float getProjectionSize() const;
         void drawGui() override;
     private:
         float projectionSize{ 10.0f };

@@ -21,6 +21,8 @@ namespace shadow
         virtual void setPosition(glm::vec3 position) = 0; // even if it's a directional light, it still needs a position for view matrix
         void setNearZ(float nearZ);
         void setFarZ(float farZ);
+        float getNearZ() const;
+        float getFarZ() const;
     protected:
         bool dirty{ true }, lightSpaceDirty{ true };
         T lightData{};
@@ -59,6 +61,16 @@ namespace shadow
     {
         this->farZ = farZ;
         lightSpaceDirty = true;
+    }
+    template<typename T>
+    inline float Light<T>::getNearZ() const
+    {
+        return nearZ;
+    }
+    template<typename T>
+    inline float Light<T>::getFarZ() const
+    {
+        return farZ;
     }
     template<typename T>
     inline Light<T>::Light(T& t, float nearZ, float farZ) : lightData(t), nearZ(nearZ), farZ(farZ)

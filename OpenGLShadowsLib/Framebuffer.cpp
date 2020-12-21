@@ -37,6 +37,10 @@ void shadow::Framebuffer::resize(GLsizei width, GLsizei height)
 {
     assert(framebuffer);
     assert(width > 0 && height > 0);
+    if (this->width == width && this->height == height)
+    {
+        return;
+    }
     SHADOW_DEBUG("Resizing framebuffer to {}x{}...", width, height);
     GLint previousFramebuffer;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFramebuffer);
