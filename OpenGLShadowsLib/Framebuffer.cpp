@@ -2,7 +2,7 @@
 
 bool shadow::Framebuffer::create(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
 {
-    SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {}, {})...", width, height, createDepthRenderbuffer, attachment, internalFormat, format, type);
+    SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {}, {})...", width, height, addDepthRenderbuffer, attachment, internalFormat, format, type);
     this->attachment = attachment;
     this->internalFormat = internalFormat;
     this->width = width;
