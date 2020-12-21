@@ -16,6 +16,7 @@ layout (std140, binding = 0) uniform ModelViewProjection
 
 struct DirectionalLightData
 {
+    mat4 lightSpace;
     vec3 color;
     float strength;
     vec3 direction;
@@ -24,6 +25,7 @@ struct DirectionalLightData
 
 struct SpotLightData
 {
+    mat4 lightSpace;
     vec3 color;
     float strength;
     vec3 direction;
@@ -51,6 +53,8 @@ out VS_OUT
     vec3 tangentSpotLightDirection;
     vec3 tangentSpotLightPosition;
     vec3 toView;
+    vec4 dirSpacePos;
+    vec4 spotSpacePos;
 } vs_out;
 
 void main()
@@ -67,6 +71,8 @@ void main()
     vs_out.tangentSpotLightDirection = TBN * spotLightData.direction;
     vs_out.tangentSpotLightPosition = TBN * spotLightData.position;
     vs_out.toView = normalize(TBN * viewPosition - vs_out.tangentFragPos);
+    vs_out.dirSpacePos = dirLightData.lightSpace * vec4(vs_out.pos, 1.0);
+    vs_out.spotSpacePos = spotLightData.lightSpace * vec4(vs_out.pos, 1.0);
     mat3 normalMatrix = transpose(inverse(mat3(model)));
     vs_out.normal = normalize(normalMatrix * normal);
     gl_Position = projection * view * vec4(vs_out.pos, 1.0);

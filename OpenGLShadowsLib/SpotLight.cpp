@@ -9,16 +9,16 @@ shadow::SpotLight::SpotLight(SpotLightData& data, float nearZ, float farZ)
     : DirectedLight(data, nearZ, farZ)
 {}
 
-glm::mat4 shadow::SpotLight::getLightSpaceMatrix()
+glm::mat4 shadow::SpotLight::getLightSpace()
 {
-    if (lightSpaceDirty)
-    {
-        lightSpaceDirty = false;
-        lightSpaceMatrix =
-            glm::perspective(FPI * 0.5f, 1.0f, nearZ, farZ)
-            * lookAt(lightData.position, lightData.position + lightData.direction, glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-    return lightSpaceMatrix;
+    return lightData.lightSpace;
+}
+
+void shadow::SpotLight::updateLightSpace()
+{
+    lightData.lightSpace = glm::perspective(FPI * 0.5f, 1.0f, nearZ, farZ)
+        * lookAt(lightData.position, lightData.position + lightData.direction, glm::vec3(0.0f, 1.0f, 0.0f));
+    lightSpaceDirty = false;
 }
 
 void shadow::SpotLight::setColor(glm::vec3 color)
@@ -67,7 +67,10 @@ void shadow::SpotLight::drawGui()
     float strength = lightData.strength;
     float aX = angleX, aY = angleY, aZ = angleZ;
     float innerAngle = std::acosf(lightData.innerCutOff), outerAngle = std::acosf(lightData.outerCutOff);
+    float nearZ = this->nearZ, farZ = this->farZ;
     ImGui::ColorPicker3("Color", value_ptr(color));
+    ImGui::DragFloat("Near Z", &nearZ, 0.1f);
+    ImGui::DragFloat("Far Z", &farZ, 0.1f);
     ImGui::SliderFloat("Strength", &strength, 0.0f, 10.0f);
     ImGui::DragFloat3("Position", value_ptr(position), 0.1f);
     ImGui::SliderAngle("Angle X", &aX);
@@ -78,6 +81,14 @@ void shadow::SpotLight::drawGui()
     ImGui::TextWrapped("Direction: [%.1f, %.1f, %.1f]", direction[0], direction[1], direction[2]);
     ImGui::SliderAngle("Inner cutoff angle", &innerAngle, 0.0f, 180.0f);
     ImGui::SliderAngle("Outer cutoff angle", &outerAngle, 0.0f, 180.0f);
+    if (nearZ != this->nearZ)
+    {
+        setNearZ(nearZ);
+    }
+    if (farZ != this->farZ)
+    {
+        setFarZ(farZ);
+    }
     if (color != lightData.color)
     {
         setColor(color);

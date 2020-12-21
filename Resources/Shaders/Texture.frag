@@ -2,6 +2,7 @@
 
 struct DirectionalLightData
 {
+    mat4 lightSpace;
     vec3 color;
     float strength;
     vec3 direction;
@@ -10,6 +11,7 @@ struct DirectionalLightData
 
 struct SpotLightData
 {
+    mat4 lightSpace;
     vec3 color;
     float strength;
     vec3 direction;
@@ -26,8 +28,8 @@ layout (std140, binding = 2) uniform Lights
     float ambient;
 };
 
-uniform sampler2D directionalShadow;
-uniform sampler2D spotShadow;
+layout(binding = 10) uniform sampler2D directionalShadow;
+layout(binding = 11) uniform sampler2D spotShadow;
 
 in VS_OUT
 {
@@ -40,6 +42,8 @@ in VS_OUT
     vec3 tangentSpotLightDirection;
     vec3 tangentSpotLightPosition;
     vec3 toView;
+    vec4 dirSpacePos;
+    vec4 spotSpacePos;
 } fs_in;
 
 layout(binding = 0) uniform sampler2D albedoTexture;
@@ -94,9 +98,19 @@ vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo,
     {
         return vec3(0.0);
     }
+
+    vec3 projCoords = (fs_in.dirSpacePos.xyz / fs_in.dirSpacePos.w) * 0.5 + 0.5;
+    float closestDepth = texture(directionalShadow, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float bias = max(0.05 * (1.0 - dot(fs_in.normal, -dirLightData.direction)), 0.005);
+    if(currentDepth - bias > closestDepth)
+    {
+        return vec3(0.0);
+    }
+    
     vec3 L = normalize(-fs_in.tangentDirLightDirection);
-    vec3 H = normalize(V + L);
     float NdotL = max(dot(N, L), 0.0);
+    vec3 H = normalize(V + L);
     float cosTheta = clamp(dot(H, V), 0.0, 1.0);
     vec3 F = fresnelSchlick(cosTheta, F0);
     float D = DistributionGGX(N, H, roughness);
@@ -113,13 +127,23 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float 
     {
         return vec3(0.0);
     }
-    vec3 toLight = normalize(-fs_in.tangentSpotLightDirection);
+
+    vec3 projCoords = (fs_in.spotSpacePos.xyz / fs_in.spotSpacePos.w) * 0.5 + 0.5;
+    float closestDepth = texture(spotShadow, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float bias = max(0.05 * (1.0 - dot(fs_in.normal, spotLightData.position - fs_in.pos)), 0.005);
+    if(currentDepth - bias > closestDepth)
+    {
+        return vec3(0.0);
+    }
+    
     vec3 L = normalize(fs_in.tangentSpotLightPosition - fs_in.tangentFragPos);
+    float NdotL = max(dot(N, L), 0.0);
+    vec3 toLight = normalize(-fs_in.tangentSpotLightDirection);
     float theta = dot(L, toLight);
     float epsilon = spotLightData.innerCutOff - spotLightData.outerCutOff;
     float intensity = clamp((theta - spotLightData.outerCutOff) / epsilon, 0.0, 1.0);
     vec3 H = normalize(V + L);
-    float NdotL = max(dot(N, L), 0.0);
     float cosTheta = max(dot(H, V), 0.0);
     vec3 F = fresnelSchlick(cosTheta, F0);
     float D = DistributionGGX(N, H, roughness);

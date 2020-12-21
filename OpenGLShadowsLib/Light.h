@@ -13,7 +13,9 @@ namespace shadow
         void setData(T& data);
         T& getData();
         bool isDirty() const;
-        virtual glm::mat4 getLightSpaceMatrix() = 0;
+        bool isLightSpaceDirty() const;
+        virtual glm::mat4 getLightSpace() = 0;
+        virtual void updateLightSpace() = 0;
         virtual void setColor(glm::vec3 color) = 0;
         virtual void setStrength(float strength) = 0;
         virtual void setPosition(glm::vec3 position) = 0; // even if it's a directional light, it still needs a position for view matrix
@@ -40,6 +42,11 @@ namespace shadow
     inline bool Light<T>::isDirty() const
     {
         return dirty;
+    }
+    template<typename T>
+    inline bool Light<T>::isLightSpaceDirty() const
+    {
+        return lightSpaceDirty;
     }
     template<typename T>
     inline void Light<T>::setNearZ(float nearZ)

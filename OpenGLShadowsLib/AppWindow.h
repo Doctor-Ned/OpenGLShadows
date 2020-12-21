@@ -34,12 +34,14 @@ namespace shadow
         void loop(double& timeDelta, F& guiProc);
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
+        void resizeLights(GLsizei textureSize);
         double getTime() const;
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
         std::shared_ptr<Camera> getCamera() const;
     private:
         AppWindow();
+        void updateLightShadowSamplers();
         const char* GLSL_VERSION{ "#version 430" };
         GLsizei width{}, height{};
         glm::vec4 clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
@@ -82,21 +84,24 @@ namespace shadow
             ++fpsCounter;
         }
         lastTime = currentTime;
+        uboLights->update();
         glEnable(GL_DEPTH_TEST);
+        glCullFace(GL_FRONT_AND_BACK);
         GL_PUSH_DEBUG_GROUP("DirLight");
         glViewport(0, 0, lightManager.getTextureSize(), lightManager.getTextureSize());
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
         glClear(GL_DEPTH_BUFFER_BIT);
         depthShader->use();
-        depthShader->setLightSpaceMatrix(dirLight->getLightSpaceMatrix());
+        depthShader->setLightSpaceMatrix(dirLight->getLightSpace());
         scene->render(depthShader);
         GL_POP_DEBUG_GROUP();
         GL_PUSH_DEBUG_GROUP("SpotLight");
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getSpotFbo());
         glClear(GL_DEPTH_BUFFER_BIT);
-        depthShader->setLightSpaceMatrix(spotLight->getLightSpaceMatrix());
+        depthShader->setLightSpaceMatrix(spotLight->getLightSpace());
         scene->render(depthShader);
         GL_POP_DEBUG_GROUP();
+        glCullFace(GL_BACK);
         GL_PUSH_DEBUG_GROUP("Main render");
         glViewport(0, 0, width, height);
         glBindFramebuffer(GL_FRAMEBUFFER, mainFramebuffer.getFbo());
@@ -113,7 +118,6 @@ namespace shadow
             glm::mat4 projection = camera->getProjection();
             uboMvp->setProjection(projection);
         }
-        uboLights->update();
         scene->render();
         GL_POP_DEBUG_GROUP();
         GL_PUSH_DEBUG_GROUP("PostProcess");

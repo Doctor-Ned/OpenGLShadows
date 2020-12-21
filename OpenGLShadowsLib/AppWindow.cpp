@@ -104,6 +104,8 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     this->width = width;
     this->height = height;
 
+    updateLightShadowSamplers();
+
     camera = std::make_shared<Camera>(
         static_cast<float>(width) / static_cast<float>(height),
         FPI * 0.25f,
@@ -157,6 +159,12 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
 }
 
+void shadow::AppWindow::resizeLights(GLsizei textureSize)
+{
+    LightManager::getInstance().resize(textureSize);
+    updateLightShadowSamplers();
+}
+
 double shadow::AppWindow::getTime() const
 {
     return currentTime;
@@ -185,4 +193,23 @@ shadow::AppWindow::AppWindow()
     {
         SHADOW_CRITICAL("GLFW initialisation failed!");
     }
+}
+
+void shadow::AppWindow::updateLightShadowSamplers()
+{
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    std::vector<std::shared_ptr<GLShader>> shaders{
+        resourceManager.getShader(ShaderType::Material),
+        resourceManager.getShader(ShaderType::Texture)
+    };
+    LightManager& lightManager = LightManager::getInstance();
+    for (const std::shared_ptr<GLShader>& shader : shaders)
+    {
+        shader->use();
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getDirTexture());
+        glActiveTexture(GL_TEXTURE11);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
+    }
+    glActiveTexture(GL_TEXTURE0);
 }

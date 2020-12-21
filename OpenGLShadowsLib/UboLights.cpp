@@ -9,11 +9,21 @@ shadow::UboLights::UboLights(std::shared_ptr<DirectionalLight> directionalLight,
 
 void shadow::UboLights::update()
 {
-    if (directionalLight->isDirty())
+    bool dirty = directionalLight->isLightSpaceDirty();
+    if (dirty)
+    {
+        directionalLight->updateLightSpace();
+    }
+    if (dirty || directionalLight->isDirty())
     {
         bufferSubData(&(directionalLight->getData()), sizeof(DirectionalLightData), offsetof(Lights, dirLightData));
     }
-    if (spotLight->isDirty())
+    dirty = spotLight->isLightSpaceDirty();
+    if (dirty)
+    {
+        spotLight->updateLightSpace();
+    }
+    if (dirty || spotLight->isDirty())
     {
         bufferSubData(&(spotLight->getData()), sizeof(SpotLightData), offsetof(Lights, spotLightData));
     }

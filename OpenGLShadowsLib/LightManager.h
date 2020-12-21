@@ -16,6 +16,8 @@ namespace shadow
         inline GLsizei getTextureSize() const;
         inline GLuint getDirFbo() const;
         inline GLuint getSpotFbo() const;
+        inline GLuint getDirTexture() const;
+        inline GLuint getSpotTexture() const;
     private:
         LightManager() = default;
         std::shared_ptr<UboLights> uboLights{};
@@ -37,5 +39,13 @@ namespace shadow
     inline GLuint LightManager::getSpotFbo() const
     {
         return spotFbo.getFbo();
+    }
+    inline GLuint LightManager::getDirTexture() const
+    {
+        return dirFbo.getTexture();
+    }
+    inline GLuint LightManager::getSpotTexture() const
+    {
+        return spotFbo.getTexture();
     }
 }

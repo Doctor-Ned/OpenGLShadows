@@ -7,6 +7,7 @@ namespace shadow
 {
     struct SpotLightData
     {
+        glm::mat4 lightSpace{};
         glm::vec3 color{ 0.0f, 0.0f, 0.0f };
         float strength{ 0.0f };
         glm::vec3 direction{ 0.0f, 0.0f, -1.0f };
@@ -19,7 +20,8 @@ namespace shadow
     {
     public:
         SpotLight(SpotLightData& data, float nearZ, float farZ);
-        glm::mat4 getLightSpaceMatrix() override;
+        glm::mat4 getLightSpace() override;
+        void updateLightSpace() override;
         void setColor(glm::vec3 color) override;
         void setStrength(float strength) override;
         void setDirection(glm::vec3 direction) override;
@@ -28,7 +30,6 @@ namespace shadow
         void setOuterCutOff(float outerCutOff);
         void drawGui() override;
     private:
-        glm::mat4 lightSpaceMatrix{};
         float angleX{}, angleY{}, angleZ{};
     };
 }

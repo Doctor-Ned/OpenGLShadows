@@ -23,10 +23,6 @@ bool shadow::Framebuffer::initialize(bool addDepthRenderbuffer, GLenum attachmen
     {
         depthRenderbuffer = createDepthRenderbuffer(width, height);
     }
-    glGenRenderbuffers(1, &depthRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         SHADOW_ERROR("Framebuffer initialization failed!");
