@@ -24,6 +24,7 @@ namespace shadow
         SceneNode& setActiveSelf(bool activeSelf);
         SceneNode& setModel(glm::mat4 model);
         SceneNode& setMesh(std::shared_ptr<Mesh> mesh);
+        SceneNode& setPosition(glm::vec3 vec);
         SceneNode& translate(glm::vec3 vec);
         SceneNode& scale(glm::vec3 vec);
         SceneNode& rotate(float angle, glm::vec3 axis);

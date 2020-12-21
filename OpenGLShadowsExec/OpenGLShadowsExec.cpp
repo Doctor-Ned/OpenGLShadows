@@ -23,14 +23,30 @@ int main()
     std::shared_ptr<DirectionalLight> dirLight = uboLights->getDirectionalLight();
     std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
     uboLights->setAmbient(0.1f);
-    dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    //dirLight->setStrength(5.0f);
-    spotLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    //spotLight->setStrength(1.0f);
-    spotLight->setInnerCutOff(cosf(FPI * 0.125f));
-    spotLight->setOuterCutOff(cosf(FPI * 0.25f));
-    spotLight->setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+    dirLight->setColor(glm::vec3(0.5f, 1.0f, 1.0f));
+    dirLight->setStrength(3.5f);
+    dirLight->setNearZ(0.1f);
+    dirLight->setFarZ(1.5f);
+    dirLight->setProjectionSize(1.5f);
+    dirLight->setPosition(glm::vec3(0.5f, 1.0f, 0.0f));
+    dirLight->setDirection(
+        glm::quat(glm::vec3(glm::radians(-49.0f), glm::radians(15.0f), 0.0f))
+        * glm::vec3(0.0f, 0.0f, -1.0f));
+    spotLight->setColor(glm::vec3(1.0f, 0.5f, 1.0f));
+    spotLight->setStrength(5.5f);
+    spotLight->setNearZ(0.1f);
+    spotLight->setFarZ(4.5f);
+    spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
+    spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
+    spotLight->setPosition(glm::vec3(1.6f, 1.6f, 0.0f));
+    spotLight->setDirection(
+        glm::quat(glm::vec3(glm::radians(-58.0f), glm::radians(67.0f), 0.0f))
+        * glm::vec3(0.0f, 0.0f, -1.0f));
     std::shared_ptr<Camera> camera = appWindow.getCamera();
+    camera->setPosition(glm::vec3(-0.25f, 1.02f, 0.05f));
+    camera->setDirection(
+        glm::quat(glm::vec3(glm::radians(-52.0f), glm::radians(-46.0f), 0.0f))
+        * glm::vec3(0.0f, 0.0f, -1.0f));
     std::shared_ptr<PrimitiveData> planeData = Primitives::plane(5.0f, 5.0f, glm::vec2(5.0f));
     std::shared_ptr<TextureMesh> plane = std::make_shared<TextureMesh>(
         planeData->toTextureVertex(), planeData->getIndices(),
@@ -40,52 +56,45 @@ int main()
             { TextureType::Metalness, resourceManager.getTexture("Planks/planks_metallic.png") },
             { TextureType::Normal, resourceManager.getTexture("Planks/planks_normal.png") }
     });
-    //std::shared_ptr<ModelMesh> modelFlareGun = resourceManager.getModel("FlareGun/FlareGun.obj");
-    //std::shared_ptr<ModelMesh> modelBackpack = resourceManager.getModel("Backpack/backpack.obj");
-    //std::shared_ptr<MaterialModelMesh> modelCat = resourceManager.getMaterialModel("OrigamiCat/OrigamiCat.obj", std::make_shared<Material>(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.2f));
-    std::shared_ptr<ModelMesh> modelGun = resourceManager.getModel("Gun/gun.obj");
     std::shared_ptr<ModelMesh> table = resourceManager.getModel("Table/Table.obj");
     std::shared_ptr<ModelMesh> suitcase = resourceManager.getModel("Suitcase/Vintage_Suitcase_LP.obj");
     std::shared_ptr<ModelMesh> chair = resourceManager.getModel("Chair/Chair.obj");
     std::shared_ptr<Scene> scene = appWindow.getScene();
     std::shared_ptr<SceneNode> node = scene->addNode(), suitcaseNode = scene->addNode(), chairNode = scene->addNode(), planeNode = scene->addNode(), tableNode = scene->addNode();
-    camera->setPosition(glm::vec3(0.0f, 1.0f, 1.0f));
-    camera->setDirection(glm::vec3(0.0f, -1.0f, -1.0f));
     tableNode->setMesh(table);
     tableNode->translate(glm::vec3(0.5f, 0.0f, -0.5f));
     tableNode->scale(glm::vec3(0.0035f));
     //node->setMesh(modelBackpack);
-    node->translate(glm::vec3(0.0f, 0.0f, 0.0f));
-    node->scale(glm::vec3(0.1f));
     suitcaseNode->setMesh(suitcase);
-    suitcaseNode->translate(glm::vec3(-0.2f, 0.0f, -0.4f));
-    suitcaseNode->scale(glm::vec3(0.0075f));
-    suitcaseNode->rotate(FPI * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f));
+    suitcaseNode->scale(glm::vec3(0.0055f));
+    suitcaseNode->rotate(-FPI * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f));
+    suitcaseNode->setPosition(glm::vec3(0.6f, 0.267f, -0.6f));
     chairNode->setMesh(chair);
     chairNode->scale(glm::vec3(0.5f));
-    chairNode->translate(glm::vec3(-1.0f, 0.0f, 0.0f));
+    chairNode->rotate(FPI * 0.85f, glm::vec3(0.0f, 1.0f, 0.0f));
+    chairNode->setPosition(glm::vec3(0.5f, 0.0f, -0.1f));
     planeNode->setMesh(plane);
     planeNode->translate(glm::vec3(0.0f, -0.0f, 0.0f));
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
-    float camX{}, camY{}, camZ{};
-    glm::vec3 position = camera->getPosition();
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
-        dirLight->drawGui();
-        spotLight->drawGui();
-        static glm::vec3 pos(0.0f, 0.0f, 0.0f);
-        ImGui::DragFloat3("Suitcase pos", &pos[0], 0.1f);
-        glm::mat4 mod = suitcaseNode->getModel();
-        mod[3] = glm::vec4(pos, 1.0f);
-        suitcaseNode->setModel(mod);
-        ImGui::SliderAngle("CamX", &camX);
-        ImGui::SliderAngle("CamY", &camY);
-        ImGui::SliderAngle("CamZ", &camZ);
-        camera->setDirection(glm::quat(glm::vec3(camX, camY, camZ)) * glm::vec3(0.0f, 0.0f, -1.0f));
-        ImGui::DragFloat3("CamPos", &position[0], 0.25f);
-        camera->setPosition(position);
+        //dirLight->drawGui();
+        //spotLight->drawGui();
+        //static glm::vec3 pos = chairNode->getModel()[3];
+        //ImGui::DragFloat3("Chair pos", &pos[0], 0.1f);
+        //glm::mat4 mod = chairNode->getModel();
+        //mod[3] = glm::vec4(pos, 1.0f);
+        //chairNode->setModel(mod);
+        //static float camX{}, camY{}, camZ{};
+        //static glm::vec3 position = camera->getPosition();
+        //ImGui::SliderAngle("CamX", &camX);
+        //ImGui::SliderAngle("CamY", &camY);
+        //ImGui::SliderAngle("CamZ", &camZ);
+        //camera->setDirection(glm::quat(glm::vec3(camX, camY, camZ)) * glm::vec3(0.0f, 0.0f, -1.0f));
+        //ImGui::DragFloat3("CamPos", &position[0], 0.25f);
+        //camera->setPosition(position);
         ImGui::End();
     };
     while (!appWindow.shouldClose())

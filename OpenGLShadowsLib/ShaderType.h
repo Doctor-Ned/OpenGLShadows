@@ -7,7 +7,8 @@ namespace shadow
         None,
         Material,
         Texture,
-        Depth,
+        DepthDir,
+        DepthSpot,
         PostProcess,
         ShaderTypeEnd
     };

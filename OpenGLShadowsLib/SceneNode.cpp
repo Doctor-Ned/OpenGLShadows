@@ -76,6 +76,13 @@ shadow::SceneNode& shadow::SceneNode::setMesh(std::shared_ptr<Mesh> mesh)
     return *this;
 }
 
+shadow::SceneNode& shadow::SceneNode::setPosition(glm::vec3 vec)
+{
+    model[3] = glm::vec4(vec, 1.0f);
+    dirty = true;
+    return *this;
+}
+
 shadow::SceneNode& shadow::SceneNode::translate(glm::vec3 vec)
 {
     model = glm::translate(model, vec);

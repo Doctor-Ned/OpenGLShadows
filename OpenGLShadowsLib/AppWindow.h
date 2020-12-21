@@ -50,7 +50,7 @@ namespace shadow
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
-        std::shared_ptr<GLShader> ppShader{}, depthShader{};
+        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<DirectionalLight> dirLight{};
@@ -91,15 +91,14 @@ namespace shadow
         glViewport(0, 0, lightManager.getTextureSize(), lightManager.getTextureSize());
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
         glClear(GL_DEPTH_BUFFER_BIT);
-        depthShader->use();
-        depthShader->setLightSpaceMatrix(dirLight->getLightSpace());
-        scene->render(depthShader);
+        depthDirShader->use();
+        scene->render(depthSpotShader);
         GL_POP_DEBUG_GROUP();
         GL_PUSH_DEBUG_GROUP("SpotLight");
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getSpotFbo());
         glClear(GL_DEPTH_BUFFER_BIT);
-        depthShader->setLightSpaceMatrix(spotLight->getLightSpace());
-        scene->render(depthShader);
+        depthSpotShader->use();
+        scene->render(depthSpotShader);
         GL_POP_DEBUG_GROUP();
         glCullFace(GL_BACK);
         GL_PUSH_DEBUG_GROUP("Main render");

@@ -14,7 +14,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351FF80-23EA-4235-8027-8005FF5695A9}"
 	ProjectSection(SolutionItems) = preProject
 		Resources\Shaders\Depth.frag = Resources\Shaders\Depth.frag
-		Resources\Shaders\Depth.vert = Resources\Shaders\Depth.vert
+		Resources\Shaders\DepthDir.vert = Resources\Shaders\DepthDir.vert
+		Resources\Shaders\DepthSpot.vert = Resources\Shaders\DepthSpot.vert
 		Resources\Shaders\Material.frag = Resources\Shaders\Material.frag
 		Resources\Shaders\Material.vert = Resources\Shaders\Material.vert
 		Resources\Shaders\PostProcess.frag = Resources\Shaders\PostProcess.frag
