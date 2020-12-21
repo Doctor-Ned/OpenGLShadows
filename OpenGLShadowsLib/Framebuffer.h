@@ -15,7 +15,7 @@ namespace shadow
         Framebuffer(Framebuffer&&) = delete;
         Framebuffer& operator=(Framebuffer&) = delete;
         Framebuffer& operator=(Framebuffer&&) = delete;
-        bool create(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type);
+        bool initialize(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type);
         void resize(GLsizei width, GLsizei height);
         inline GLuint getTexture() const;
         inline GLuint getFbo() const;

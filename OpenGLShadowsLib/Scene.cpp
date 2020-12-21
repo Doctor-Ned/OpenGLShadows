@@ -118,19 +118,6 @@ void shadow::Scene::render()
 void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
 {
     static ResourceManager& resourceManager = ResourceManager::getInstance();
-    if (camera->isViewDirty())
-    {
-        glm::mat4 view = camera->getView();
-        glm::vec3 viewPosition = camera->getPosition();
-        uboMvp->setView(view);
-        uboMvp->setViewPosition(viewPosition);
-    }
-    if (camera->isProjectionDirty())
-    {
-        glm::mat4 projection = camera->getProjection();
-        uboMvp->setProjection(projection);
-    }
-    uboLights->update();
     if (overrideShader)
     {
         overrideShader->use();

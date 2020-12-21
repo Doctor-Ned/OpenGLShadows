@@ -46,6 +46,9 @@ namespace shadow
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
+        std::shared_ptr<GLShader> ppShader{};
+        std::shared_ptr<UboMvp> uboMvp{};
+        std::shared_ptr<UboLights> uboLights{};
         Framebuffer mainFramebuffer{};
     };
 
@@ -55,11 +58,9 @@ namespace shadow
     }
 
     template<typename F>
-    void shadow::AppWindow::loop(double& timeDelta, F& guiProc)
+    void AppWindow::loop(double& timeDelta, F& guiProc)
     {
         assert(glfwWindow);
-        static ResourceManager& resourceManager = ResourceManager::getInstance();
-        static std::shared_ptr<GLShader> ppShader = resourceManager.getShader(ShaderType::PostProcess);
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -80,6 +81,19 @@ namespace shadow
         glViewport(0, 0, width, height);
         glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (camera->isViewDirty())
+        {
+            glm::mat4 view = camera->getView();
+            glm::vec3 viewPosition = camera->getPosition();
+            uboMvp->setView(view);
+            uboMvp->setViewPosition(viewPosition);
+        }
+        if (camera->isProjectionDirty())
+        {
+            glm::mat4 projection = camera->getProjection();
+            uboMvp->setProjection(projection);
+        }
+        uboLights->update();
         scene->render();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
@@ -87,7 +101,7 @@ namespace shadow
         ppShader->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mainFramebuffer.getTexture());
-        resourceManager.renderQuad();
+        ResourceManager::getInstance().renderQuad();
         //ImGui::ShowDemoWindow();
         guiProc();
         ImGui::Render();

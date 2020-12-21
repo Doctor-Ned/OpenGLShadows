@@ -1,7 +1,12 @@
 #include "Framebuffer.h"
 
-bool shadow::Framebuffer::create(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
+bool shadow::Framebuffer::initialize(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)
 {
+    if (width <= 0 || height <= 0)
+    {
+        SHADOW_ERROR("Invalid framebuffer size ({}x{})!", width, height);
+        return false;
+    }
     SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {}, {})...", width, height, addDepthRenderbuffer, attachment, internalFormat, format, type);
     this->attachment = attachment;
     this->internalFormat = internalFormat;
@@ -9,6 +14,8 @@ bool shadow::Framebuffer::create(bool addDepthRenderbuffer, GLenum attachment, G
     this->height = height;
     this->format = format;
     this->type = type;
+    GLint previousFramebuffer;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFramebuffer);
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     texture = createTexture(attachment, internalFormat, width, height, format, type);
@@ -23,18 +30,25 @@ bool shadow::Framebuffer::create(bool addDepthRenderbuffer, GLenum attachment, G
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         SHADOW_ERROR("Framebuffer initialization failed!");
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
         return false;
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
     return true;
 }
 
 void shadow::Framebuffer::resize(GLsizei width, GLsizei height)
 {
     assert(framebuffer);
+    assert(width > 0 && height > 0);
     SHADOW_DEBUG("Resizing framebuffer to {}x{}...", width, height);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    GLint previousFramebuffer;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFramebuffer);
+    bool switchFramebuffer = previousFramebuffer != framebuffer;
+    if (switchFramebuffer)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    }
     GLuint oldTexture = texture;
     texture = createTexture(attachment, internalFormat, width, height, format, type);
     glDeleteTextures(1, &oldTexture);
@@ -46,6 +60,10 @@ void shadow::Framebuffer::resize(GLsizei width, GLsizei height)
     }
     this->width = width;
     this->height = height;
+    if (switchFramebuffer)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, previousFramebuffer);
+    }
 }
 
 GLuint shadow::Framebuffer::createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type)

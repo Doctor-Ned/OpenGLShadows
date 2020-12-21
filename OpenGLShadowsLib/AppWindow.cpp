@@ -78,16 +78,20 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);
 
-    if (!mainFramebuffer.create(true, GL_COLOR_ATTACHMENT0, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT))
+    if (!mainFramebuffer.initialize(true, GL_COLOR_ATTACHMENT0, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT))
     {
         return false;
     }
 
-    if (!ResourceManager::getInstance().initialize(resourceDirectory))
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    if (!resourceManager.initialize(resourceDirectory))
     {
         return false;
     }
 
+    this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
+    this->uboMvp = resourceManager.getUboMvp();
+    this->uboLights = resourceManager.getUboLights();
     this->width = width;
     this->height = height;
 
