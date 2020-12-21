@@ -120,7 +120,6 @@ void shadow::Scene::render(std::shared_ptr<GLShader> overrideShader)
     static ResourceManager& resourceManager = ResourceManager::getInstance();
     if (overrideShader)
     {
-        overrideShader->use();
         renderWithShader(root, overrideShader);
     } else
     {

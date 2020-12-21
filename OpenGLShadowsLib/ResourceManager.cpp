@@ -319,8 +319,8 @@ void shadow::ResourceManager::loadShaders()
     DirectionalLightData dirLightData{};
     SpotLightData spotLightData{};
     uboLights = std::make_shared<UboLights>(
-        std::make_shared<DirectionalLight>(dirLightData, 0.01f, 100.0f),
-        std::make_shared<SpotLight>(spotLightData, 0.01f, 100.0f));
+        std::make_shared<DirectionalLight>(dirLightData, 0.01f, 10.0f),
+        std::make_shared<SpotLight>(spotLightData, 0.01f, 10.0f));
 
     SHADOW_DEBUG("Loading shaders...");
     const std::filesystem::path shadersDirectory = resourceDirectory / SHADERS_DIR;

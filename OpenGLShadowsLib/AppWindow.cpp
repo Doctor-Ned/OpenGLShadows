@@ -27,7 +27,7 @@ shadow::AppWindow& shadow::AppWindow::getInstance()
     return appWindow;
 }
 
-bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesystem::path resourceDirectory)
+bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightTextureSize, std::filesystem::path resourceDirectory)
 {
     if (width <= 0 || height <= 0)
     {
@@ -77,8 +77,14 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glEnable(GL_BLEND);
+    glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 
     if (!mainFramebuffer.initialize(true, GL_COLOR_ATTACHMENT0, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT))
+    {
+        return false;
+    }
+
+    if (!LightManager::getInstance().initialize(lightTextureSize))
     {
         return false;
     }
@@ -90,8 +96,11 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, std::filesyste
     }
 
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
+    this->depthShader = resourceManager.getShader(ShaderType::Depth);
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
+    this->dirLight = uboLights->getDirectionalLight();
+    this->spotLight = uboLights->getSpotLight();
     this->width = width;
     this->height = height;
 

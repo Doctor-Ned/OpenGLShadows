@@ -13,7 +13,7 @@ int main()
     using namespace shadow;
     AppWindow& appWindow = AppWindow::getInstance();
     ResourceManager& resourceManager = ResourceManager::getInstance();
-    if (!appWindow.initialize(1920, 1080, "../../Resources"))
+    if (!appWindow.initialize(1920, 1080, 1024, "../../Resources"))
     {
         return 1;
     }

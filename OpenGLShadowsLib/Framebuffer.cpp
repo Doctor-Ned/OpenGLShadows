@@ -81,6 +81,7 @@ GLuint shadow::Framebuffer::createTexture(GLenum attachment, GLint internalForma
     if (attachment == GL_DEPTH_ATTACHMENT)
     {
         glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
     } else
     {
         glDrawBuffer(attachment);

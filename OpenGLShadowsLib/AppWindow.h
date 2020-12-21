@@ -1,10 +1,12 @@
 #pragma once
 
 #include "ShadowLog.h"
+#include "GLDebug.h"
 #include "Camera.h"
 #include "Scene.h"
 #include "Framebuffer.h"
 #include "ResourceManager.h"
+#include "LightManager.h"
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -24,7 +26,7 @@ namespace shadow
         AppWindow& operator=(AppWindow&) = delete;
         AppWindow& operator=(AppWindow&&) = delete;
         static AppWindow& getInstance();
-        bool initialize(GLsizei width, GLsizei height, std::filesystem::path resourceDirectory);
+        bool initialize(GLsizei width, GLsizei height, GLsizei lightTextureSize, std::filesystem::path resourceDirectory);
         bool isInitialized() const;
         void deinitialize();
         inline bool shouldClose() const;
@@ -46,9 +48,11 @@ namespace shadow
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
-        std::shared_ptr<GLShader> ppShader{};
+        std::shared_ptr<GLShader> ppShader{}, depthShader{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
+        std::shared_ptr<DirectionalLight> dirLight{};
+        std::shared_ptr<SpotLight> spotLight{};
         Framebuffer mainFramebuffer{};
     };
 
@@ -61,6 +65,8 @@ namespace shadow
     void AppWindow::loop(double& timeDelta, F& guiProc)
     {
         assert(glfwWindow);
+        ResourceManager& resourceManager = ResourceManager::getInstance();
+        LightManager& lightManager = LightManager::getInstance();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -76,10 +82,24 @@ namespace shadow
             ++fpsCounter;
         }
         lastTime = currentTime;
-        glBindFramebuffer(GL_FRAMEBUFFER, mainFramebuffer.getFbo());
         glEnable(GL_DEPTH_TEST);
+        GL_PUSH_DEBUG_GROUP("DirLight");
+        glViewport(0, 0, lightManager.getTextureSize(), lightManager.getTextureSize());
+        glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
+        glClear(GL_DEPTH_BUFFER_BIT);
+        depthShader->use();
+        depthShader->setLightSpaceMatrix(dirLight->getLightSpaceMatrix());
+        scene->render(depthShader);
+        GL_POP_DEBUG_GROUP();
+        GL_PUSH_DEBUG_GROUP("SpotLight");
+        glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getSpotFbo());
+        glClear(GL_DEPTH_BUFFER_BIT);
+        depthShader->setLightSpaceMatrix(spotLight->getLightSpaceMatrix());
+        scene->render(depthShader);
+        GL_POP_DEBUG_GROUP();
+        GL_PUSH_DEBUG_GROUP("Main render");
         glViewport(0, 0, width, height);
-        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+        glBindFramebuffer(GL_FRAMEBUFFER, mainFramebuffer.getFbo());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if (camera->isViewDirty())
         {
@@ -95,17 +115,22 @@ namespace shadow
         }
         uboLights->update();
         scene->render();
+        GL_POP_DEBUG_GROUP();
+        GL_PUSH_DEBUG_GROUP("PostProcess");
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT);
         ppShader->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mainFramebuffer.getTexture());
-        ResourceManager::getInstance().renderQuad();
+        resourceManager.renderQuad();
+        GL_POP_DEBUG_GROUP();
+        GL_PUSH_DEBUG_GROUP("GUI");
         //ImGui::ShowDemoWindow();
         guiProc();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        GL_POP_DEBUG_GROUP();
         glfwSwapBuffers(glfwWindow);
         glfwPollEvents();
     }

@@ -14,6 +14,7 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)GLDebug.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)LightManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Vertex2D.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)AppWindow.h" />
