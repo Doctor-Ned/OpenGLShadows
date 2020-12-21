@@ -25,8 +25,8 @@ int main()
     //dirLight->setStrength(5.0f);
     spotLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     //spotLight->setStrength(1.0f);
-    spotLight->setInnerCutOff(cosf(FPI * 0.5f));
-    spotLight->setOuterCutOff(cosf(FPI));
+    spotLight->setInnerCutOff(cosf(FPI * 0.125f));
+    spotLight->setOuterCutOff(cosf(FPI * 0.25f));
     spotLight->setPosition(glm::vec3(0.0f, 5.0f, 0.0f));
     std::shared_ptr<Camera> camera = appWindow.getCamera();
     std::shared_ptr<PrimitiveData> planeData = Primitives::plane(5.0f, 5.0f, glm::vec2(5.0f));
