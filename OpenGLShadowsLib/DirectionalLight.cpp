@@ -3,8 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-shadow::DirectionalLight::DirectionalLight(DirectionalLightData& data, float nearZ, float farZ)
-    : DirectedLight<DirectionalLightData>(data, nearZ, farZ)
+shadow::DirectionalLight::DirectionalLight(DirectionalLightData& data) : DirectedLight<DirectionalLightData>(data)
 {}
 
 glm::mat4 shadow::DirectionalLight::getLightSpace()
@@ -16,7 +15,7 @@ void shadow::DirectionalLight::updateLightSpace()
 {
     float projSizeHalf = projectionSize * 0.5f;
     lightData.lightSpace =
-        glm::ortho(-projSizeHalf, projSizeHalf, -projSizeHalf, projSizeHalf, nearZ, farZ)
+        glm::ortho(-projSizeHalf, projSizeHalf, -projSizeHalf, projSizeHalf, lightData.nearZ, lightData.farZ)
         * lookAt(position, position + lightData.direction, glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceDirty = false;
 }
@@ -46,6 +45,26 @@ void shadow::DirectionalLight::setDirection(glm::vec3 direction)
     lightSpaceDirty = true;
 }
 
+
+
+void shadow::DirectionalLight::setNearZ(float nearZ)
+{
+    lightData.nearZ = nearZ;
+    dirty = lightSpaceDirty = true;
+}
+
+void shadow::DirectionalLight::setFarZ(float farZ)
+{
+    lightData.farZ = farZ;
+    dirty = lightSpaceDirty = true;
+}
+
+void shadow::DirectionalLight::setLightSize(float lightSize)
+{
+    lightData.lightSize = lightSize;
+    dirty = true;
+}
+
 void shadow::DirectionalLight::setProjectionSize(float projectionSize)
 {
     this->projectionSize = projectionSize;
@@ -65,7 +84,7 @@ void shadow::DirectionalLight::drawGui()
     glm::vec3 position = this->position;
     float strength = lightData.strength;
     float aX = angleX, aY = angleY, aZ = angleZ;
-    float nearZ = this->nearZ, farZ = this->farZ, projectionSize = this->projectionSize;
+    float nearZ = lightData.nearZ, farZ = lightData.farZ, projectionSize = this->projectionSize;
     ImGui::ColorPicker3("Color", value_ptr(color));
     ImGui::DragFloat("Near Z", &nearZ, 0.1f);
     ImGui::DragFloat("Far Z", &farZ, 0.1f);
@@ -78,11 +97,11 @@ void shadow::DirectionalLight::drawGui()
     glm::vec3 direction =
         glm::quat(glm::vec3(aX, aY, aZ)) * glm::vec3(0.0f, 0.0f, -1.0f);
     ImGui::TextWrapped("Direction: [%.1f, %.1f, %.1f]", direction[0], direction[1], direction[2]);
-    if (nearZ != this->nearZ)
+    if (nearZ != lightData.nearZ)
     {
         setNearZ(nearZ);
     }
-    if (farZ != this->farZ)
+    if (farZ != lightData.farZ)
     {
         setFarZ(farZ);
     }

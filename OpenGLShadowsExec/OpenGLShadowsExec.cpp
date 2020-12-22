@@ -75,7 +75,8 @@ int main()
     DirectionalLightData& dirData = dirLight->getData();
     SpotLightData& spotData = spotLight->getData();
     float dirStrength = dirData.strength, spotStrength = spotData.strength;
-    glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(spotLight->getNearZ(), spotLight->getFarZ());
+    glm::vec2 dirClip(dirData.nearZ, dirData.farZ), spotClip(spotData.nearZ, spotData.farZ);
+    float dirSize = dirData.lightSize, spotSize = spotData.lightSize;
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
     enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
@@ -93,6 +94,8 @@ int main()
             ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
+            ImGui::DragFloat("Directional light size", &dirSize, 0.05f, 0.0f, 10.0f);
+            ImGui::DragFloat("Spot light size", &spotSize, 0.05f, 0.0f, 10.0f);
             ImGui::ColorPicker3("Directional light color", value_ptr(dirColor));
             ImGui::ColorPicker3("Spot light color", value_ptr(spotColor));
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
@@ -128,6 +131,14 @@ int main()
             {
                 spotLight->setStrength(spotStrength);
             }
+            if (dirData.lightSize != dirSize)
+            {
+                dirLight->setLightSize(dirSize);
+            }
+            if (spotData.lightSize != spotSize)
+            {
+                spotLight->setLightSize(spotSize);
+            }
             if (dirData.color != dirColor)
             {
                 dirLight->setColor(dirColor);
@@ -140,19 +151,19 @@ int main()
             {
                 dirLight->setProjectionSize(projectionSize);
             }
-            if (dirLight->getNearZ() != dirClip.x)
+            if (dirData.nearZ != dirClip.x)
             {
                 dirLight->setNearZ(dirClip.x);
             }
-            if (dirLight->getFarZ() != dirClip.y)
+            if (dirData.farZ != dirClip.y)
             {
                 dirLight->setFarZ(dirClip.y);
             }
-            if (spotLight->getNearZ() != spotClip.x)
+            if (spotData.nearZ != spotClip.x)
             {
                 spotLight->setNearZ(spotClip.x);
             }
-            if (spotLight->getFarZ() != spotClip.y)
+            if (spotData.farZ != spotClip.y)
             {
                 spotLight->setFarZ(spotClip.y);
             }

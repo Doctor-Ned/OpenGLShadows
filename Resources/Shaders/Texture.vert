@@ -20,7 +20,10 @@ struct DirectionalLightData
     vec3 color;
     float strength;
     vec3 direction;
-    float padding;
+    float nearZ;
+    vec2 padding;
+    float farZ;
+    float lightSize;
 };
 
 struct SpotLightData
@@ -32,6 +35,10 @@ struct SpotLightData
     float innerCutOff;
     vec3 position;
     float outerCutOff;
+    float nearZ;
+    float farZ;
+    float lightSize;
+    float padding;
 };
 
 layout (std140, binding = 2) uniform Lights

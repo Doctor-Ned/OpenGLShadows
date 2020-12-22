@@ -5,8 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-shadow::SpotLight::SpotLight(SpotLightData& data, float nearZ, float farZ)
-    : DirectedLight(data, nearZ, farZ)
+shadow::SpotLight::SpotLight(SpotLightData& data) : DirectedLight(data)
 {}
 
 glm::mat4 shadow::SpotLight::getLightSpace()
@@ -16,7 +15,7 @@ glm::mat4 shadow::SpotLight::getLightSpace()
 
 void shadow::SpotLight::updateLightSpace()
 {
-    lightData.lightSpace = glm::perspective(FPI * 0.5f, 1.0f, nearZ, farZ)
+    lightData.lightSpace = glm::perspective(FPI * 0.5f, 1.0f, lightData.nearZ, lightData.farZ)
         * lookAt(lightData.position, lightData.position + lightData.direction, glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceDirty = false;
 }
@@ -47,6 +46,24 @@ void shadow::SpotLight::setPosition(glm::vec3 position)
     lightSpaceDirty = true;
 }
 
+void shadow::SpotLight::setNearZ(float nearZ)
+{
+    lightData.nearZ = nearZ;
+    dirty = lightSpaceDirty = true;
+}
+
+void shadow::SpotLight::setFarZ(float farZ)
+{
+    lightData.farZ = farZ;
+    dirty = lightSpaceDirty = true;
+}
+
+void shadow::SpotLight::setLightSize(float lightSize)
+{
+    lightData.lightSize = lightSize;
+    dirty = true;
+}
+
 void shadow::SpotLight::setInnerCutOff(float innerCutOff)
 {
     lightData.innerCutOff = innerCutOff;
@@ -67,7 +84,7 @@ void shadow::SpotLight::drawGui()
     float strength = lightData.strength;
     float aX = angleX, aY = angleY, aZ = angleZ;
     float innerAngle = std::acosf(lightData.innerCutOff), outerAngle = std::acosf(lightData.outerCutOff);
-    float nearZ = this->nearZ, farZ = this->farZ;
+    float nearZ = lightData.nearZ, farZ = lightData.farZ;
     ImGui::ColorPicker3("Color", value_ptr(color));
     ImGui::DragFloat("Near Z", &nearZ, 0.1f);
     ImGui::DragFloat("Far Z", &farZ, 0.1f);
@@ -81,11 +98,11 @@ void shadow::SpotLight::drawGui()
     ImGui::TextWrapped("Direction: [%.1f, %.1f, %.1f]", direction[0], direction[1], direction[2]);
     ImGui::SliderAngle("Inner cutoff angle", &innerAngle, 0.0f, 180.0f);
     ImGui::SliderAngle("Outer cutoff angle", &outerAngle, 0.0f, 180.0f);
-    if (nearZ != this->nearZ)
+    if (nearZ != lightData.nearZ)
     {
         setNearZ(nearZ);
     }
-    if (farZ != this->farZ)
+    if (farZ != lightData.farZ)
     {
         setFarZ(farZ);
     }
