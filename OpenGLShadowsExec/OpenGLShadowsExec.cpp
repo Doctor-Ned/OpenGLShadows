@@ -24,8 +24,8 @@ int main()
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     dirLight->setStrength(3.5f);
-    dirLight->setNearZ(0.1f);
-    dirLight->setFarZ(6.75f);
+    dirLight->setNearZ(0.2f);
+    dirLight->setFarZ(10.0f);
     dirLight->setProjectionSize(1.5f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
     dirLight->setDirection(
@@ -33,8 +33,8 @@ int main()
         * glm::vec3(0.0f, 0.0f, -1.0f));
     spotLight->setColor(glm::vec3(1.0f, 0.7f, 0.28f));
     spotLight->setStrength(5.5f);
-    spotLight->setNearZ(0.1f);
-    spotLight->setFarZ(4.5f);
+    spotLight->setNearZ(0.18f);
+    spotLight->setFarZ(2.5f);
     spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
     spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
     spotLight->setPosition(glm::vec3(1.07f, 1.6f, 0.4f));

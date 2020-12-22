@@ -102,7 +102,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
     {
         float closestDepth = texture(text, projCoords.xy).r;
         float currentDepth = projCoords.z;
-        float bias = max(0.005 * (1.0 - worldNdotL), 0.0005);
+        float bias = max(0.005 * (1.0 - worldNdotL), 0.0009);
         if(currentDepth - bias > closestDepth)
         {
             return 1.0;
