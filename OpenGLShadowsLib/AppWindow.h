@@ -39,8 +39,6 @@ namespace shadow
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
         std::shared_ptr<Camera> getCamera() const;
-        void setBlurPasses(int blurPasses);
-        int getBlurPasses() const;
     private:
         AppWindow();
         void updateLightShadowSamplers();
@@ -48,11 +46,11 @@ namespace shadow
         GLsizei width{}, height{};
         glm::vec4 clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
         double currentTime{ 0.0 }, lastTime{ 0.0 };
-        unsigned int fpsCounter{ 0U }, fpsSecond{ 1U }, measuredFps{ 0U }, blurPasses{ 1 };
+        unsigned int fpsCounter{ 0U }, fpsSecond{ 1U }, measuredFps{ 0U };
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
-        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{}, blurShader{};
+        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<DirectionalLight> dirLight{};
@@ -107,40 +105,7 @@ namespace shadow
 
         glCullFace(GL_BACK);
 
-        GL_PUSH_DEBUG_GROUP("Gaussian blur (DirLight)");
-        glDisable(GL_DEPTH_TEST);
-        blurShader->use();
-        glActiveTexture(GL_TEXTURE12);
-        for (unsigned int i = 0; i < blurPasses; ++i)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getTempFbo());
-            blurShader->setVec2("direction", glm::vec2(1.0f, 0.0f));
-            glBindTexture(GL_TEXTURE_2D, lightManager.getDirTexture());
-            resourceManager.renderQuad();
-            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
-            blurShader->setVec2("direction", glm::vec2(0.0f, 1.0f));
-            glBindTexture(GL_TEXTURE_2D, lightManager.getTempTexture());
-            resourceManager.renderQuad();
-        }
-        GL_POP_DEBUG_GROUP();
-
-        GL_PUSH_DEBUG_GROUP("Gaussian blur (SpotLight)");
-        for (unsigned int i = 0; i < blurPasses; ++i)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getTempFbo());
-            blurShader->setVec2("direction", glm::vec2(1.0f, 0.0f));
-            glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
-            resourceManager.renderQuad();
-            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getSpotFbo());
-            blurShader->setVec2("direction", glm::vec2(0.0f, 1.0f));
-            glBindTexture(GL_TEXTURE_2D, lightManager.getTempTexture());
-            resourceManager.renderQuad();
-        }
-        glActiveTexture(GL_TEXTURE0);
-        GL_POP_DEBUG_GROUP();
-
         GL_PUSH_DEBUG_GROUP("Main render");
-        glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, width, height);
         glBindFramebuffer(GL_FRAMEBUFFER, mainFramebuffer.getFbo());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

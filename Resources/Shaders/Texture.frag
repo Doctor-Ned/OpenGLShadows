@@ -92,24 +92,20 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
-float linstep(float low, float high, float v)
-{
-    return clamp((v-low)/(high-low), 0.0, 1.0);
-}
-
 float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
 {
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
-    if(projCoords.z > 0.999)
+    if(projCoords.z <= 1.0)
     {
-        return 0.0;
+        float closestDepth = texture(text, projCoords.xy).r;
+        float currentDepth = projCoords.z;
+        float bias = max(0.005 * (1.0 - worldNdotL), 0.0009);
+        if(currentDepth - bias > closestDepth)
+        {
+            return 1.0;
+        }
     }
-    vec2 moments = texture(text, projCoords.xy).rg;
-    float p = step(projCoords.z, moments.x);
-    float variance = max(moments.y - moments.x*moments.x, 0.0002);
-    float d = projCoords.z - moments.x;
-    float pMax = linstep(0.25, 1.0, variance / (variance + d*d));
-    return 1.0-min(max(p, pMax), 1.0);
+    return 0.0;
 }
 
 vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float roughness, float metallic)

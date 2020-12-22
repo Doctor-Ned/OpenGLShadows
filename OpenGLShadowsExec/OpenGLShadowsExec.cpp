@@ -24,17 +24,17 @@ int main()
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     dirLight->setStrength(3.5f);
-    dirLight->setNearZ(0.05f);
-    dirLight->setFarZ(2.25f);
+    dirLight->setNearZ(0.2f);
+    dirLight->setFarZ(8.0f);
     dirLight->setProjectionSize(1.45f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
     dirLight->setDirection(
         glm::quat(glm::vec3(glm::radians(-49.0f), glm::radians(15.0f), 0.0f))
         * glm::vec3(0.0f, 0.0f, -1.0f));
     spotLight->setColor(glm::vec3(1.0f, 0.7f, 0.28f));
-    spotLight->setStrength(5.5f);
-    spotLight->setNearZ(0.8f);
-    spotLight->setFarZ(2.4f);
+    spotLight->setStrength(8.5f);
+    spotLight->setNearZ(0.35f);
+    spotLight->setFarZ(2.5f);
     spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
     spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
     spotLight->setPosition(glm::vec3(1.07f, 1.6f, 0.4f));
@@ -88,8 +88,6 @@ int main()
         ImGui::Checkbox("Show settings", &showingSettings);
         if (showingSettings)
         {
-            int blurPasses = appWindow.getBlurPasses();
-            ImGui::DragInt("Blur passes", &blurPasses, 1, 1, 25);
             int mapSize = currentMapSize;
             const char* MAP_SIZE_NAME = MAP_SIZES[currentMapSize];
             ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
@@ -100,10 +98,6 @@ int main()
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
             ImGui::DragFloat2("Directional clipping", value_ptr(dirClip), 0.05f, 0.0f, 10.0f);
             ImGui::DragFloat2("Spot clipping", value_ptr(spotClip), 0.05f, 0.0f, 10.0f);
-            if (blurPasses != appWindow.getBlurPasses())
-            {
-                appWindow.setBlurPasses(blurPasses);
-            }
             if (currentMapSize != mapSize)
             {
                 currentMapSize = mapSize;
