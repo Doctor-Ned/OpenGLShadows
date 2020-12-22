@@ -92,25 +92,43 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
+const int PCF_KERNEL_SIZE = 3, PCF_MAX = PCF_KERNEL_SIZE/2, PCF_MIN = -PCF_MAX;
+const float PCF_KERNEL_SQUARED = PCF_KERNEL_SIZE*PCF_KERNEL_SIZE;
+
+float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
+{
+    vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
+    if(projCoords.z <= 1.0)
+    {
+        float closestDepth = texture(text, projCoords.xy).r;
+        float currentDepth = projCoords.z;
+        float bias = max(0.005 * (1.0 - worldNdotL), 0.0005);
+        if(currentDepth - bias > closestDepth)
+        {
+            return 1.0;
+        }
+        vec2 texelSize = 1.0 / textureSize(text, 0);
+        float shadow = 0.0;
+        for(int x=PCF_MIN;x<=PCF_MAX;++x)
+        {
+            for(int y=PCF_MIN;y<=PCF_MAX;++y)
+            {
+                float pcfDepth = texture(text, projCoords.xy + vec2(x,y) * texelSize).r;
+                shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+            }
+        }
+        return shadow / PCF_KERNEL_SQUARED;
+    }
+    return 0.0;
+}
+
 vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float roughness, float metallic)
 {
     if(dirLightData.strength == 0.0)
     {
         return vec3(0.0);
     }
-
-    vec3 projCoords = (fs_in.dirSpacePos.xyz / fs_in.dirSpacePos.w) * 0.5 + 0.5;
-    if(projCoords.z <= 1.0)
-    {
-        float closestDepth = texture(directionalShadow, projCoords.xy).r;
-        float currentDepth = projCoords.z;
-        float bias = max(0.005 * (1.0 - dot(fs_in.normal, -dirLightData.direction)), 0.0005);
-        if(currentDepth - bias > closestDepth)
-        {
-            return vec3(0.0);
-        }
-    }
-    
+    float shadow = calcShadow(dot(fs_in.normal, -dirLightData.direction), fs_in.dirSpacePos, directionalShadow);
     vec3 L = normalize(-fs_in.tangentDirLightDirection);
     float NdotL = max(dot(N, L), 0.0);
     vec3 H = normalize(V + L);
@@ -121,7 +139,7 @@ vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo,
     vec3 specular = (F*D*G) / max(4.0 * NdotV * NdotL, 0.00001);
     vec3 kD = (vec3(1.0) - specular) * (1.0 - metallic);
     vec3 diffuse = kD * albedo / PI;
-    return (diffuse + specular) * dirLightData.color * dirLightData.strength * NdotL;
+    return (diffuse + specular) * dirLightData.color * dirLightData.strength * NdotL * (1.0-shadow);
 }
 
 vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float roughness, float metallic)
@@ -130,19 +148,7 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float 
     {
         return vec3(0.0);
     }
-
-    vec3 projCoords = (fs_in.spotSpacePos.xyz / fs_in.spotSpacePos.w) * 0.5 + 0.5;
-    if(projCoords.z <= 1.0)
-    {
-        float closestDepth = texture(spotShadow, projCoords.xy).r;
-        float currentDepth = projCoords.z;
-        float bias = max(0.005 * (1.0 - dot(fs_in.normal, spotLightData.position - fs_in.pos)), 0.0005);
-        if(currentDepth - bias > closestDepth)
-        {
-            return vec3(0.0);
-        }
-    }
-    
+    float shadow = calcShadow(dot(fs_in.normal, normalize(spotLightData.position - fs_in.pos)), fs_in.spotSpacePos, spotShadow);
     vec3 L = normalize(fs_in.tangentSpotLightPosition - fs_in.tangentFragPos);
     float NdotL = max(dot(N, L), 0.0);
     vec3 toLight = normalize(-fs_in.tangentSpotLightDirection);
@@ -159,7 +165,7 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float 
     vec3 specular = (F*D*G) / max(4.0 * NdotV * NdotL, 0.00001);
     vec3 kD = (vec3(1.0) - specular) * (1.0 - metallic);
     vec3 diffuse = kD * albedo / PI;
-    return (diffuse + specular) * spotLightData.color * spotLightData.strength * attenuation * intensity * NdotL;
+    return (diffuse + specular) * spotLightData.color * spotLightData.strength * attenuation * intensity * NdotL * (1.0-shadow);
 }
 
 void main()
