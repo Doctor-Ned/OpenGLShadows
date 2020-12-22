@@ -99,6 +99,8 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
+// reference: http://developer.download.nvidia.com/whitepapers/2008/PCSS_Integration.pdf
+
 const vec2 POISSON_DISK[16] =
 {
     vec2(-0.94201624, -0.39906216),
