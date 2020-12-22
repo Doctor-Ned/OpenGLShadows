@@ -96,8 +96,8 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     }
 
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
-    this->depthDirShader = resourceManager.getShader(ShaderType::DepthDir);
-    this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpot);
+    this->depthDirShader = resourceManager.getShader(ShaderType::DepthDirVSM);
+    this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpotVSM);
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
     this->dirLight = uboLights->getDirectionalLight();

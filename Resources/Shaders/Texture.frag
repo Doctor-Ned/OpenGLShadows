@@ -92,34 +92,24 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
 
-const int PCF_KERNEL_SIZE = 3, PCF_MAX = PCF_KERNEL_SIZE/2, PCF_MIN = -PCF_MAX;
-const float PCF_KERNEL_SQUARED = PCF_KERNEL_SIZE*PCF_KERNEL_SIZE;
+float linstep(float low, float high, float v)
+{
+    return clamp((v-low)/(high-low), 0.0, 1.0);
+}
 
 float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
 {
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
-    if(projCoords.z <= 1.0)
+    if(projCoords.z > 0.999)
     {
-        float closestDepth = texture(text, projCoords.xy).r;
-        float currentDepth = projCoords.z;
-        float bias = max(0.005 * (1.0 - worldNdotL), 0.0009);
-        if(currentDepth - bias > closestDepth)
-        {
-            return 1.0;
-        }
-        vec2 texelSize = 1.0 / textureSize(text, 0);
-        float shadow = 0.0;
-        for(int x=PCF_MIN;x<=PCF_MAX;++x)
-        {
-            for(int y=PCF_MIN;y<=PCF_MAX;++y)
-            {
-                float pcfDepth = texture(text, projCoords.xy + vec2(x,y) * texelSize).r;
-                shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-            }
-        }
-        return shadow / PCF_KERNEL_SQUARED;
+        return 0.0;
     }
-    return 0.0;
+    vec2 moments = texture(text, projCoords.xy).rg;
+    float p = step(projCoords.z, moments.x);
+    float variance = max(moments.y - moments.x*moments.x, 0.0002);
+    float d = projCoords.z - moments.x;
+    float pMax = linstep(0.0001, 1.0, variance / (variance + d*d));
+    return 1.0-min(max(p, pMax), 1.0);
 }
 
 vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float roughness, float metallic)

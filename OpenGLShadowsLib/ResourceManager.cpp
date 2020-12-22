@@ -329,6 +329,8 @@ void shadow::ResourceManager::loadShaders()
     shaders.emplace(ShaderType::Material, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Material")));
     shaders.emplace(ShaderType::DepthDir, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "Depth.frag")));
     shaders.emplace(ShaderType::DepthSpot, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "Depth.frag")));
+    shaders.emplace(ShaderType::DepthDirVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "DepthVSM.frag")));
+    shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
 
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)

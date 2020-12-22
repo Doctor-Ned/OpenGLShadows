@@ -9,6 +9,8 @@ namespace shadow
         Texture,
         DepthDir,
         DepthSpot,
+        DepthDirVSM,
+        DepthSpotVSM,
         PostProcess,
         ShaderTypeEnd
     };

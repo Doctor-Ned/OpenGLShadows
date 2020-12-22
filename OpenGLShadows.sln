@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\Depth.frag = Resources\Shaders\Depth.frag
 		Resources\Shaders\DepthDir.vert = Resources\Shaders\DepthDir.vert
 		Resources\Shaders\DepthSpot.vert = Resources\Shaders\DepthSpot.vert
+		Resources\Shaders\DepthVSM.frag = Resources\Shaders\DepthVSM.frag
 		Resources\Shaders\Material.frag = Resources\Shaders\Material.frag
 		Resources\Shaders\Material.vert = Resources\Shaders\Material.vert
 		Resources\Shaders\PostProcess.frag = Resources\Shaders\PostProcess.frag
