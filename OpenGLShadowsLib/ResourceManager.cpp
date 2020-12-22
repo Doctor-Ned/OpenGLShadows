@@ -331,6 +331,7 @@ void shadow::ResourceManager::loadShaders()
     shaders.emplace(ShaderType::DepthSpot, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "Depth.frag")));
     shaders.emplace(ShaderType::DepthDirVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
+    shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
 
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)

@@ -98,6 +98,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
     this->depthDirShader = resourceManager.getShader(ShaderType::DepthDirVSM);
     this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpotVSM);
+    this->blurShader = resourceManager.getShader(ShaderType::GaussianBlur);
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
     this->dirLight = uboLights->getDirectionalLight();
@@ -186,6 +187,16 @@ std::shared_ptr<shadow::Camera> shadow::AppWindow::getCamera() const
     return camera;
 }
 
+void shadow::AppWindow::setBlurPasses(int blurPasses)
+{
+    this->blurPasses = blurPasses;
+}
+
+int shadow::AppWindow::getBlurPasses() const
+{
+    return blurPasses;
+}
+
 shadow::AppWindow::AppWindow()
 {
     SHADOW_DEBUG("Initializing GLFW...");
@@ -212,5 +223,8 @@ void shadow::AppWindow::updateLightShadowSamplers()
         glActiveTexture(GL_TEXTURE11);
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
     }
+
+    this->blurShader->use();
+    this->blurShader->setVec2("resolution", glm::vec2(lightManager.getTextureSize(), lightManager.getTextureSize()));
     glActiveTexture(GL_TEXTURE0);
 }

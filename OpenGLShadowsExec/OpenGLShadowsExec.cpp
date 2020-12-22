@@ -88,6 +88,8 @@ int main()
         ImGui::Checkbox("Show settings", &showingSettings);
         if (showingSettings)
         {
+            int blurPasses = appWindow.getBlurPasses();
+            ImGui::DragInt("Blur passes", &blurPasses, 1, 1, 25);
             int mapSize = currentMapSize;
             const char* MAP_SIZE_NAME = MAP_SIZES[currentMapSize];
             ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
@@ -98,6 +100,10 @@ int main()
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
             ImGui::DragFloat2("Directional clipping", value_ptr(dirClip), 0.05f, 0.0f, 10.0f);
             ImGui::DragFloat2("Spot clipping", value_ptr(spotClip), 0.05f, 0.0f, 10.0f);
+            if (blurPasses != appWindow.getBlurPasses())
+            {
+                appWindow.setBlurPasses(blurPasses);
+            }
             if (currentMapSize != mapSize)
             {
                 currentMapSize = mapSize;

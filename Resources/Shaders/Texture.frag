@@ -108,7 +108,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
     float p = step(projCoords.z, moments.x);
     float variance = max(moments.y - moments.x*moments.x, 0.0002);
     float d = projCoords.z - moments.x;
-    float pMax = linstep(0.0001, 1.0, variance / (variance + d*d));
+    float pMax = linstep(0.25, 1.0, variance / (variance + d*d));
     return 1.0-min(max(p, pMax), 1.0);
 }
 

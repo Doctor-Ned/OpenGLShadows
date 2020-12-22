@@ -26,6 +26,11 @@ bool shadow::LightManager::initialize(GLsizei textureSize)
     {
         return false;
     }
+    if (!tempFbo.initialize(false, GL_COLOR_ATTACHMENT0, GL_RG32F,
+                            textureSize, textureSize, GL_RG, GL_FLOAT, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+    {
+        return false;
+    }
     return true;
 }
 
@@ -38,5 +43,6 @@ void shadow::LightManager::resize(GLsizei textureSize)
     }
     dirFbo.resize(textureSize, textureSize);
     spotFbo.resize(textureSize, textureSize);
+    tempFbo.resize(textureSize, textureSize);
     this->textureSize = textureSize;
 }
