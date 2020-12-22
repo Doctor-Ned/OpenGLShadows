@@ -23,18 +23,20 @@ int main()
     std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-    dirLight->setStrength(3.5f);
+    dirLight->setStrength(1.8f);
+    dirLight->setLightSize(0.09f);
     dirLight->setNearZ(0.2f);
-    dirLight->setFarZ(8.0f);
+    dirLight->setFarZ(1.5f);
     dirLight->setProjectionSize(1.45f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
     dirLight->setDirection(
         glm::quat(glm::vec3(glm::radians(-49.0f), glm::radians(15.0f), 0.0f))
         * glm::vec3(0.0f, 0.0f, -1.0f));
     spotLight->setColor(glm::vec3(1.0f, 0.7f, 0.28f));
-    spotLight->setStrength(8.5f);
-    spotLight->setNearZ(0.35f);
-    spotLight->setFarZ(2.5f);
+    spotLight->setStrength(6.8f);
+    spotLight->setLightSize(0.09f);
+    spotLight->setNearZ(0.95f);
+    spotLight->setFarZ(2.35f);
     spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
     spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
     spotLight->setPosition(glm::vec3(1.07f, 1.6f, 0.4f));
