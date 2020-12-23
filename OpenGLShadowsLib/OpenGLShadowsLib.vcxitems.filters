@@ -101,9 +101,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)UboLights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)GUIDrawable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)Framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

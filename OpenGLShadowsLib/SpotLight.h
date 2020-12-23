@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DirectedLight.h"
-#include "GUIDrawable.h"
 
 namespace shadow
 {
@@ -20,7 +19,7 @@ namespace shadow
         float padding;
     };
 
-    class SpotLight final : public DirectedLight<SpotLightData>, public GUIDrawable
+    class SpotLight final : public DirectedLight<SpotLightData>
     {
     public:
         SpotLight(SpotLightData& data);
@@ -35,7 +34,6 @@ namespace shadow
         void setLightSize(float lightSize) override;
         void setInnerCutOff(float innerCutOff);
         void setOuterCutOff(float outerCutOff);
-        void drawGui() override;
     private:
         float angleX{}, angleY{}, angleZ{};
     };

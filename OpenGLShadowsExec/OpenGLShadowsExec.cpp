@@ -9,6 +9,15 @@
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GUI_UPDATE(value,oldValue,setter)     \
+    do                                        \
+    {                                         \
+        if((oldValue) != (value))             \
+        {                                     \
+            setter(value);                    \
+        }                                     \
+    } while(false)
+
 int main()
 {
     using namespace shadow;
@@ -86,6 +95,7 @@ int main()
     glm::vec3 spotPosition = spotData.position;
 
     const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
+    GLsizei MAP_SIZES_INT[] = { 256,512,1024,2048,4096 };
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
@@ -108,73 +118,20 @@ int main()
             if (currentMapSize != mapSize)
             {
                 currentMapSize = mapSize;
-                switch (currentMapSize)
-                {
-                    case Small256:
-                        appWindow.resizeLights(256);
-                        break;
-                    case Medium512:
-                        appWindow.resizeLights(512);
-                        break;
-                    case Big1024:
-                        appWindow.resizeLights(1024);
-                        break;
-                    case Huge2048:
-                        appWindow.resizeLights(2048);
-                        break;
-                    case Enormous4096:
-                        appWindow.resizeLights(4096);
-                        break;
-                }
+                appWindow.resizeLights(MAP_SIZES_INT[currentMapSize]);
             }
-            if (dirData.strength != dirStrength)
-            {
-                dirLight->setStrength(dirStrength);
-            }
-            if (spotData.strength != spotStrength)
-            {
-                spotLight->setStrength(spotStrength);
-            }
-            if (dirData.lightSize != dirSize)
-            {
-                dirLight->setLightSize(dirSize);
-            }
-            if (spotData.lightSize != spotSize)
-            {
-                spotLight->setLightSize(spotSize);
-            }
-            if (spotData.position != spotPosition)
-            {
-                spotLight->setPosition(spotPosition);
-            }
-            if (dirData.color != dirColor)
-            {
-                dirLight->setColor(dirColor);
-            }
-            if (spotData.color != spotColor)
-            {
-                spotLight->setColor(spotColor);
-            }
-            if (dirLight->getProjectionSize() != projectionSize)
-            {
-                dirLight->setProjectionSize(projectionSize);
-            }
-            if (dirData.nearZ != dirClip.x)
-            {
-                dirLight->setNearZ(dirClip.x);
-            }
-            if (dirData.farZ != dirClip.y)
-            {
-                dirLight->setFarZ(dirClip.y);
-            }
-            if (spotData.nearZ != spotClip.x)
-            {
-                spotLight->setNearZ(spotClip.x);
-            }
-            if (spotData.farZ != spotClip.y)
-            {
-                spotLight->setFarZ(spotClip.y);
-            }
+            GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
+            GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
+            GUI_UPDATE(dirSize, dirData.lightSize, dirLight->setLightSize);
+            GUI_UPDATE(spotSize, spotData.lightSize, spotLight->setLightSize);
+            GUI_UPDATE(spotPosition, spotData.position, spotLight->setPosition);
+            GUI_UPDATE(dirColor, dirData.color, dirLight->setColor);
+            GUI_UPDATE(spotColor, spotData.color, spotLight->setColor);
+            GUI_UPDATE(projectionSize, dirLight->getProjectionSize(), dirLight->setProjectionSize);
+            GUI_UPDATE(dirClip.x, dirData.nearZ, dirLight->setNearZ);
+            GUI_UPDATE(dirClip.y, dirData.farZ, dirLight->setFarZ);
+            GUI_UPDATE(spotClip.x, spotData.nearZ, spotLight->setNearZ);
+            GUI_UPDATE(spotClip.y, spotData.farZ, spotLight->setFarZ);
         }
         ImGui::End();
     };

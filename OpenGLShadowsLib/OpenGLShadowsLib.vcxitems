@@ -22,7 +22,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DirectedLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DirectionalLight.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Framebuffer.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)GUIDrawable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Light.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MaterialMesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GLShader.h" />
