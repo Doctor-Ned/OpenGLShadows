@@ -539,6 +539,7 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
         std::ofstream output(path, std::ios::trunc);
         output << it->second.content;
         output.flush();
+        it->second.timestamp = last_write_time(path);
     }
     return true;
 }
