@@ -177,9 +177,10 @@ bool shadow::ResourceManager::reworkShaderFiles()
     // rework modified status basing on references
     for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
     {
-        if (!pair.second.modified)
+        if (!pair.second.modified && isShaderFileModified(pair.first))
         {
-            pair.second.modified = isShaderFileModified(pair.first);
+            pair.second.modified = true;
+            pair.second.content.clear();
         }
     }
     // rebuild files if needed
