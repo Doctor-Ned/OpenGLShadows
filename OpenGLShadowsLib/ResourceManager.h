@@ -32,7 +32,7 @@ namespace shadow
         ResourceManager& operator=(ResourceManager&&) = delete;
         static ResourceManager& getInstance();
         bool initialize(std::filesystem::path resourceDirectory);
-        void reworkShaderFiles();
+        bool reworkShaderFiles();
         void updateShaders() const;
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path);
         std::shared_ptr<ModelMesh> getModel(const std::filesystem::path& path);
@@ -58,6 +58,7 @@ namespace shadow
         const std::filesystem::path MODELS_TEXTURES_DIR{ "ModelsTextures" }, SHADERS_DIR{ "Shaders" };
         const char* INCLUDE_TEXT = "#include ", * INCLUDED_FROM_TEXT = "#includedfrom ", * END_INCLUDE_TEXT = "#endinclude";
         const size_t INCLUDE_LENGTH = strlen(INCLUDE_TEXT), INCLUDED_FROM_LENGTH = strlen(INCLUDED_FROM_TEXT), END_INCLUDE_LENGTH = strlen(END_INCLUDE_TEXT);
+        const std::vector<std::string> SHADER_EXTENSIONS{ ".glsl", ".vert", ".frag" };
         std::filesystem::path resourceDirectory{}, modelsTexturesDirectory{}, shadersDirectory{};
         std::map<std::filesystem::path, std::shared_ptr<Texture>> textures{};
         std::map<std::filesystem::path, std::shared_ptr<ModelData>> modelData{};

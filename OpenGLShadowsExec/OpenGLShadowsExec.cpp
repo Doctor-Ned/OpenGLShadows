@@ -176,8 +176,10 @@ int main()
     {
         appWindow.loop(timeDelta, guiProc);
         node->rotate(static_cast<float>(timeDelta) * 0.25f, glm::vec3(0.0f, 1.0f, 0.0f));
-        resourceManager.reworkShaderFiles();
-        resourceManager.updateShaders();
+        if (resourceManager.reworkShaderFiles())
+        {
+            resourceManager.updateShaders();
+        }
         double time = appWindow.getTime();
         if (static_cast<unsigned int>(time) > secondCounter)
         {

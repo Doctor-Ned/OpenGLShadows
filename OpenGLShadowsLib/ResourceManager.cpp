@@ -5,7 +5,6 @@
 #include "Vertex2D.h"
 
 #include <fstream>
-#include <streambuf>
 #include <sstream>
 
 shadow::ResourceManager::~ResourceManager()
@@ -77,8 +76,9 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     return true;
 }
 
-void shadow::ResourceManager::reworkShaderFiles()
+bool shadow::ResourceManager::reworkShaderFiles()
 {
+    bool changed = false;
     // check for files that were modified
     for (const std::filesystem::directory_entry& file : std::filesystem::directory_iterator(shadersDirectory))
     {
@@ -88,19 +88,43 @@ void shadow::ResourceManager::reworkShaderFiles()
             std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
             if (it != shaderFileInfos.end())
             {
-                std::filesystem::file_time_type timestamp = last_write_time(path);
-                if (it->second.timestamp != timestamp)
+                try
                 {
-                    it->second.timestamp = timestamp;
-                    it->second.content.clear();
-                    it->second.references.clear();
-                    it->second.modified = true;
-                }
+                    std::filesystem::file_time_type timestamp = last_write_time(path);
+                    if (it->second.timestamp != timestamp)
+                    {
+                        changed = true;
+                        it->second.timestamp = timestamp;
+                        it->second.content.clear();
+                        it->second.references.clear();
+                        it->second.modified = true;
+                    }
+                } catch (std::exception&) {}
             } else
             {
-                shaderFileInfos.emplace(path, ShaderFileInfo{ {}, last_write_time(path), {}, true });
+                std::string extension = path.filename().generic_string();
+                size_t dotIndex = extension.find_last_of('.');
+                if (dotIndex != std::string::npos)
+                {
+                    extension = extension.substr(dotIndex);
+                    std::transform(extension.begin(), extension.end(), extension.begin(), [](auto c) { return std::tolower(c); });
+                    for (const std::string& refExt : SHADER_EXTENSIONS)
+                    {
+                        if (refExt == extension)
+                        {
+                            changed = true;
+                            SHADOW_DEBUG("Adding shader file '{}' to pool...", path.generic_string());
+                            shaderFileInfos.emplace(path, ShaderFileInfo{ {}, last_write_time(path), {}, true });
+                            break;
+                        }
+                    }
+                }
             }
         }
+    }
+    if (!changed)
+    {
+        return false;
     }
     // gather references for modified files
     for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
@@ -170,6 +194,7 @@ void shadow::ResourceManager::reworkShaderFiles()
     {
         pair.second.modified = false;
     }
+    return true;
 }
 
 void shadow::ResourceManager::updateShaders() const
