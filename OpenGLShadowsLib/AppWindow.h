@@ -86,7 +86,7 @@ namespace shadow
         lastTime = currentTime;
         uboLights->update();
         glEnable(GL_DEPTH_TEST);
-        glCullFace(GL_FRONT_AND_BACK);
+        glCullFace(GL_FRONT);
 
         GL_PUSH_DEBUG_GROUP("DirLight");
         glViewport(0, 0, lightManager.getTextureSize(), lightManager.getTextureSize());

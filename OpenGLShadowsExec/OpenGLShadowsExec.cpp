@@ -96,8 +96,8 @@ int main()
             ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
-            ImGui::DragFloat("Directional light size", &dirSize, 0.05f, 0.0f, 10.0f);
-            ImGui::DragFloat("Spot light size", &spotSize, 0.05f, 0.0f, 10.0f);
+            ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
+            ImGui::DragFloat("Spot light size", &spotSize, 0.005f, 0.0f, 5.0f);
             ImGui::ColorPicker3("Directional light color", value_ptr(dirColor));
             ImGui::ColorPicker3("Spot light color", value_ptr(spotColor));
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
