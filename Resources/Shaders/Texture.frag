@@ -1,5 +1,6 @@
 #version 430 core
 
+//SHADOW>includedfrom LightStructs.glsl
 struct DirectionalLightData
 {
     mat4 lightSpace;
@@ -26,7 +27,9 @@ struct SpotLightData
     float lightSize;
     float padding;
 };
+//SHADOW>endinclude LightStructs.glsl
 
+//SHADOW>includedfrom UboLights.glsl
 layout (std140, binding = 2) uniform Lights
 {
     DirectionalLightData dirLightData;
@@ -34,6 +37,7 @@ layout (std140, binding = 2) uniform Lights
     vec3 paddingL;
     float ambient;
 };
+//SHADOW>endinclude UboLights.glsl
 
 layout(binding = 10) uniform sampler2D directionalShadow;
 layout(binding = 11) uniform sampler2D spotShadow;
@@ -60,6 +64,7 @@ layout(binding = 3) uniform sampler2D normalTexture;
 
 out vec4 outColor;
 
+//SHADOW>includedfrom PBRFunctions.glsl
 const float PI = 3.14159265359;
   
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -98,6 +103,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }
+//SHADOW>endinclude PBRFunctions.glsl
 
 // reference: http://developer.download.nvidia.com/whitepapers/2008/PCSS_Integration.pdf
 // 32 or 16

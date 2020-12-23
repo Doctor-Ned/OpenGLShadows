@@ -5,6 +5,7 @@ layout (location = 2) in vec2 texCoords;
 layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 bitangent;
 
+//SHADOW>includedfrom UboMvp.glsl
 layout (std140, binding = 0) uniform ModelViewProjection
 {
     mat4 model;
@@ -13,7 +14,9 @@ layout (std140, binding = 0) uniform ModelViewProjection
     vec3 viewPosition;
     float paddingMvp;
 };
+//SHADOW>endinclude UboMvp.glsl
 
+//SHADOW>includedfrom LightStructs.glsl
 struct DirectionalLightData
 {
     mat4 lightSpace;
@@ -40,7 +43,9 @@ struct SpotLightData
     float lightSize;
     float padding;
 };
+//SHADOW>endinclude LightStructs.glsl
 
+//SHADOW>includedfrom UboLights.glsl
 layout (std140, binding = 2) uniform Lights
 {
     DirectionalLightData dirLightData;
@@ -48,6 +53,7 @@ layout (std140, binding = 2) uniform Lights
     vec3 paddingL;
     float ambient;
 };
+//SHADOW>endinclude UboLights.glsl
 
 out VS_OUT
 {

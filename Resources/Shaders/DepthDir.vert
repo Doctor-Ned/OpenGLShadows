@@ -1,6 +1,7 @@
 #version 430 core
 layout (location = 0) in vec3 pos;
 
+//SHADOW>includedfrom UboMvp.glsl
 layout (std140, binding = 0) uniform ModelViewProjection
 {
     mat4 model;
@@ -9,7 +10,9 @@ layout (std140, binding = 0) uniform ModelViewProjection
     vec3 viewPosition;
     float paddingMvp;
 };
+//SHADOW>endinclude UboMvp.glsl
 
+//SHADOW>includedfrom LightStructs.glsl
 struct DirectionalLightData
 {
     mat4 lightSpace;
@@ -36,7 +39,9 @@ struct SpotLightData
     float lightSize;
     float padding;
 };
+//SHADOW>endinclude LightStructs.glsl
 
+//SHADOW>includedfrom UboLights.glsl
 layout (std140, binding = 2) uniform Lights
 {
     DirectionalLightData dirLightData;
@@ -44,6 +49,7 @@ layout (std140, binding = 2) uniform Lights
     vec3 paddingL;
     float ambient;
 };
+//SHADOW>endinclude UboLights.glsl
 
 void main()
 {
