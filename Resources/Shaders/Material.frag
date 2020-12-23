@@ -105,6 +105,8 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 }
 //SHADOW>endinclude PBRFunctions.glsl
 
+//SHADOW>includedfrom ShadowCalculations.glsl
+// reference: http://developer.download.nvidia.com/whitepapers/2008/PCSS_Integration.pdf
 // 32 or 16
 #define PCSS_BLOCKERS 32
 
@@ -209,6 +211,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     shadow /= PCSS_BLOCKERS;
     return shadow;
 }
+//SHADOW>endinclude ShadowCalculations.glsl
 
 vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
 {

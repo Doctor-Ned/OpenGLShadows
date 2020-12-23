@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\PBRFunctions.glsl = Resources\Shaders\PBRFunctions.glsl
 		Resources\Shaders\PostProcess.frag = Resources\Shaders\PostProcess.frag
 		Resources\Shaders\PostProcess.vert = Resources\Shaders\PostProcess.vert
+		Resources\Shaders\ShadowCalculations.glsl = Resources\Shaders\ShadowCalculations.glsl
 		Resources\Shaders\Texture.frag = Resources\Shaders\Texture.frag
 		Resources\Shaders\Texture.vert = Resources\Shaders\Texture.vert
 		Resources\Shaders\UboLights.glsl = Resources\Shaders\UboLights.glsl
