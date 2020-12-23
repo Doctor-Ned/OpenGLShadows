@@ -18,12 +18,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\DepthSpot.vert = Resources\Shaders\DepthSpot.vert
 		Resources\Shaders\DepthVSM.frag = Resources\Shaders\DepthVSM.frag
 		Resources\Shaders\GaussianBlur.frag = Resources\Shaders\GaussianBlur.frag
+		Resources\Shaders\LightStructs.glsl = Resources\Shaders\LightStructs.glsl
 		Resources\Shaders\Material.frag = Resources\Shaders\Material.frag
 		Resources\Shaders\Material.vert = Resources\Shaders\Material.vert
+		Resources\Shaders\PBRFunctions.glsl = Resources\Shaders\PBRFunctions.glsl
 		Resources\Shaders\PostProcess.frag = Resources\Shaders\PostProcess.frag
 		Resources\Shaders\PostProcess.vert = Resources\Shaders\PostProcess.vert
 		Resources\Shaders\Texture.frag = Resources\Shaders\Texture.frag
 		Resources\Shaders\Texture.vert = Resources\Shaders\Texture.vert
+		Resources\Shaders\UboLights.glsl = Resources\Shaders\UboLights.glsl
+		Resources\Shaders\UboMaterial.glsl = Resources\Shaders\UboMaterial.glsl
+		Resources\Shaders\UboMvp.glsl = Resources\Shaders\UboMvp.glsl
 	EndProjectSection
 EndProject
 Global

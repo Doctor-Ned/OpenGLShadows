@@ -56,7 +56,7 @@ namespace shadow
         static std::filesystem::path reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath);
         bool initialised = false;
         const std::filesystem::path MODELS_TEXTURES_DIR{ "ModelsTextures" }, SHADERS_DIR{ "Shaders" };
-        const char* INCLUDE_TEXT = "#include ", * INCLUDED_FROM_TEXT = "#includedfrom ", * END_INCLUDE_TEXT = "#endinclude";
+        const char* INCLUDE_TEXT = "//SHADOW>include ", * INCLUDED_FROM_TEXT = "//SHADOW>includedfrom ", * END_INCLUDE_TEXT = "//SHADOW>endinclude ";
         const size_t INCLUDE_LENGTH = strlen(INCLUDE_TEXT), INCLUDED_FROM_LENGTH = strlen(INCLUDED_FROM_TEXT), END_INCLUDE_LENGTH = strlen(END_INCLUDE_TEXT);
         const std::vector<std::string> SHADER_EXTENSIONS{ ".glsl", ".vert", ".frag" };
         std::filesystem::path resourceDirectory{}, modelsTexturesDirectory{}, shadersDirectory{};
