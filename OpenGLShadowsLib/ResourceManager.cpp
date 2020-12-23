@@ -135,6 +135,7 @@ bool shadow::ResourceManager::reworkShaderFiles()
             std::string line;
             while (std::getline(stream, line))
             {
+                ShadowUtils::trim(line);
                 std::string includedFile{};
                 if (line.rfind(INCLUDE_TEXT, 0) == 0)
                 {
@@ -472,9 +473,11 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
         std::stringstream ss{};
         for (size_t i = 0; i < lines.size();)
         {
-            if (lines[i].rfind(INCLUDE_TEXT, 0) == 0)
+            std::string trimmed = lines[i];
+            ShadowUtils::trim(trimmed);
+            if (trimmed.rfind(INCLUDE_TEXT, 0) == 0)
             {
-                std::string includedFile = lines[i].substr(INCLUDE_LENGTH);
+                std::string includedFile = trimmed.substr(INCLUDE_LENGTH);
                 for (const std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
                 {
                     if (pair.first.filename() == includedFile)
@@ -484,15 +487,17 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
                     }
                 }
                 ++i;
-            } else if (lines[i].rfind(INCLUDED_FROM_TEXT, 0) == 0)
+            } else if (trimmed.rfind(INCLUDED_FROM_TEXT, 0) == 0)
             {
-                std::string includedFile = lines[i].substr(INCLUDED_FROM_LENGTH);
+                std::string includedFile = trimmed.substr(INCLUDED_FROM_LENGTH);
                 size_t endIndex = std::string::npos;
                 for (size_t j = i + 1; j < lines.size(); ++j)
                 {
-                    if (lines[j].rfind(END_INCLUDE_TEXT, 0) == 0)
+                    std::string tr = lines[j];
+                    ShadowUtils::trim(tr);
+                    if (tr.rfind(END_INCLUDE_TEXT, 0) == 0)
                     {
-                        if (lines[j].substr(END_INCLUDE_LENGTH) == includedFile)
+                        if (tr.substr(END_INCLUDE_LENGTH) == includedFile)
                         {
                             endIndex = j;
                             break;
