@@ -79,9 +79,9 @@ int main()
     scene->setParent(node, suitcaseNode);
     scene->setParent(node, chairNode);
     scene->setParent(node, planeNode);
+
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
-
     bool showingSettings = false;
     DirectionalLightData& dirData = dirLight->getData();
     SpotLightData& spotData = spotLight->getData();
@@ -92,10 +92,10 @@ int main()
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
     enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
     int currentMapSize = Medium512;
-    glm::vec3 spotPosition = spotData.position;
-
     const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
     GLsizei MAP_SIZES_INT[] = { 256,512,1024,2048,4096 };
+    glm::vec3 spotPosition = spotData.position;
+
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
