@@ -11,13 +11,12 @@
 #include <memory>
 #include <filesystem>
 #include <map>
-#include <unordered_set>
 
 namespace shadow
 {
     struct ShaderFileInfo final
     {
-        std::unordered_set<std::filesystem::path> references{};
+        std::vector<std::filesystem::path> references{}; // todo: this could actually be a set of some sort
         std::filesystem::file_time_type timestamp{};
         std::string content{};
         bool modified{};

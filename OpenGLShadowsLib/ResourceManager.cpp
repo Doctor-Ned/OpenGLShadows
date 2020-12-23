@@ -92,8 +92,8 @@ void shadow::ResourceManager::reworkShaderFiles()
                 if (it->second.timestamp != timestamp)
                 {
                     it->second.timestamp = timestamp;
-                    it->second.content = {};
-                    it->second.references = {};
+                    it->second.content.clear();
+                    it->second.references.clear();
                     it->second.modified = true;
                 }
             } else
@@ -133,7 +133,10 @@ void shadow::ResourceManager::reworkShaderFiles()
                                             pair.first.generic_string(), innerPair.first.generic_string());
                             } else
                             {
-                                pair.second.references.insert(innerPair.first);
+                                if (std::find(pair.second.references.begin(), pair.second.references.end(), innerPair.first) == pair.second.references.end())
+                                {
+                                    pair.second.references.push_back(innerPair.first);
+                                }
                             }
                             break;
                         }
