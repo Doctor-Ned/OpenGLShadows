@@ -538,6 +538,7 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
         SHADOW_DEBUG("Overwriting '{}'...", path.generic_string());
         std::ofstream output(path, std::ios::trunc);
         output << it->second.content;
+        output.flush();
     }
     return true;
 }
