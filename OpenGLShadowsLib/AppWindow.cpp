@@ -79,7 +79,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     glEnable(GL_BLEND);
     glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 
-    if (!mainFramebuffer.initialize(true, GL_COLOR_ATTACHMENT0, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT, GL_REPEAT))
+    if (!mainFramebuffer.initialize(true, GL_COLOR_ATTACHMENT0, GL_RGBA16F, width, height, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_REPEAT))
     {
         return false;
     }

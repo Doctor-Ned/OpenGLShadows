@@ -1,27 +1,28 @@
 #include "Framebuffer.h"
 #include <glm/gtc/type_ptr.hpp>
 
-bool shadow::Framebuffer::initialize(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrappingTechnique, glm::vec4 border)
+bool shadow::Framebuffer::initialize(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint filter, GLint wrappingTechnique, glm::vec4 border)
 {
     if (width <= 0 || height <= 0)
     {
         SHADOW_ERROR("Invalid framebuffer size ({}x{})!", width, height);
         return false;
     }
-    SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {}, {}, {})...", width, height, addDepthRenderbuffer, attachment, internalFormat, format, type, wrappingTechnique);
+    SHADOW_DEBUG("Creating {}x{} framebuffer ({}, {}, {}, {}, {}, {}, {})...", width, height, addDepthRenderbuffer, attachment, internalFormat, format, type, filter, wrappingTechnique);
     this->attachment = attachment;
     this->internalFormat = internalFormat;
     this->width = width;
     this->height = height;
     this->format = format;
     this->type = type;
+    this->filter = filter;
     this->wrappingTechnique = wrappingTechnique;
     this->border = border;
     GLint previousFramebuffer;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFramebuffer);
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    texture = createTexture(attachment, internalFormat, width, height, format, type, wrappingTechnique, border);
+    texture = createTexture(attachment, internalFormat, width, height, format, type, filter, wrappingTechnique, border);
     if (addDepthRenderbuffer)
     {
         depthRenderbuffer = createDepthRenderbuffer(width, height);
@@ -53,7 +54,7 @@ void shadow::Framebuffer::resize(GLsizei width, GLsizei height)
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     }
     GLuint oldTexture = texture;
-    texture = createTexture(attachment, internalFormat, width, height, format, type, wrappingTechnique, border);
+    texture = createTexture(attachment, internalFormat, width, height, format, type, filter, wrappingTechnique, border);
     glDeleteTextures(1, &oldTexture);
     if (depthRenderbuffer)
     {
@@ -69,14 +70,14 @@ void shadow::Framebuffer::resize(GLsizei width, GLsizei height)
     }
 }
 
-GLuint shadow::Framebuffer::createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrappingTechnique, glm::vec4 border)
+GLuint shadow::Framebuffer::createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint filter, GLint wrappingTechnique, glm::vec4 border)
 {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrappingTechnique);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrappingTechnique);
     if (wrappingTechnique == GL_CLAMP_TO_BORDER)

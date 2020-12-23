@@ -16,15 +16,15 @@ namespace shadow
         Framebuffer(Framebuffer&&) = delete;
         Framebuffer& operator=(Framebuffer&) = delete;
         Framebuffer& operator=(Framebuffer&&) = delete;
-        bool initialize(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrappingTechnique, glm::vec4 border = glm::vec4(0.0f));
+        bool initialize(bool addDepthRenderbuffer, GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint filter, GLint wrappingTechnique, glm::vec4 border = glm::vec4(0.0f));
         void resize(GLsizei width, GLsizei height);
         inline GLuint getTexture() const;
         inline GLuint getFbo() const;
     private:
-        static GLuint createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint wrappingTechnique, glm::vec4 border);
+        static GLuint createTexture(GLenum attachment, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, GLint filter, GLint wrappingTechnique, glm::vec4 border);
         static GLuint createDepthRenderbuffer(GLsizei width, GLsizei height);
         GLuint framebuffer{}, texture{}, depthRenderbuffer{};
-        GLint internalFormat{}, wrappingTechnique{};
+        GLint internalFormat{}, filter{}, wrappingTechnique{};
         GLsizei width{}, height{};
         GLenum attachment{}, format{}, type{};
         glm::vec4 border{};

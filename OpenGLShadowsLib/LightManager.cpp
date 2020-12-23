@@ -17,12 +17,12 @@ bool shadow::LightManager::initialize(GLsizei textureSize)
     this->textureSize = textureSize;
     uboLights = ResourceManager::getInstance().getUboLights();
     if (!dirFbo.initialize(false, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT,
-                           textureSize, textureSize, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+                           textureSize, textureSize, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
     {
         return false;
     }
     if (!spotFbo.initialize(false, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT,
-                            textureSize, textureSize, GL_DEPTH_COMPONENT, GL_FLOAT, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+                            textureSize, textureSize, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
     {
         return false;
     }
