@@ -138,7 +138,6 @@ int main()
     while (!appWindow.shouldClose())
     {
         appWindow.loop(timeDelta, guiProc);
-        node->rotate(static_cast<float>(timeDelta) * 0.25f, glm::vec3(0.0f, 1.0f, 0.0f));
         if (resourceManager.reworkShaderFiles())
         {
             resourceManager.updateShaders();
