@@ -83,6 +83,7 @@ int main()
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
     enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
     int currentMapSize = Medium512;
+    glm::vec3 spotPosition = spotData.position;
 
     const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
     auto guiProc = [&]()
@@ -98,6 +99,7 @@ int main()
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
             ImGui::DragFloat("Spot light size", &spotSize, 0.005f, 0.0f, 5.0f);
+            ImGui::DragFloat3("Spot light position", value_ptr(spotPosition), 0.01f);
             ImGui::ColorPicker3("Directional light color", value_ptr(dirColor));
             ImGui::ColorPicker3("Spot light color", value_ptr(spotColor));
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
@@ -140,6 +142,10 @@ int main()
             if (spotData.lightSize != spotSize)
             {
                 spotLight->setLightSize(spotSize);
+            }
+            if (spotData.position != spotPosition)
+            {
+                spotLight->setPosition(spotPosition);
             }
             if (dirData.color != dirColor)
             {
