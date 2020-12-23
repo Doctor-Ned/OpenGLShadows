@@ -160,7 +160,7 @@ void shadow::ResourceManager::reworkShaderFiles()
     // rebuild files if needed
     for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
     {
-        if (!pair.second.modified && !rebuildShaderFile(pair.first))
+        if (pair.second.modified && !rebuildShaderFile(pair.first))
         {
             SHADOW_ERROR("Failed to rebuild shader file '{}'!", pair.first.generic_string());
         }
@@ -424,6 +424,7 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
     {
         return true;
     }
+    SHADOW_DEBUG("Rebuilding shader file '{}'...", path.generic_string());
     std::ifstream stream(it->first);
     if (it->second.references.empty())
     {
