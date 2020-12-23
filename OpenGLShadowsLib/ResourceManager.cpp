@@ -4,6 +4,10 @@
 #include "ShadowUtils.h"
 #include "Vertex2D.h"
 
+#include <fstream>
+#include <streambuf>
+#include <sstream>
+
 shadow::ResourceManager::~ResourceManager()
 {
     glDeleteBuffers(1, &quadVbo);
@@ -29,14 +33,16 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
         SHADOW_CRITICAL("Path '{}' is not a valid resource directory!", resourceDirectory.generic_string());
         return false;
     }
-    if (std::filesystem::path modelsTexturesPath = resourceDirectory / MODELS_TEXTURES_DIR; !exists(modelsTexturesPath))
+    modelsTexturesDirectory = resourceDirectory / MODELS_TEXTURES_DIR;
+    if (!exists(modelsTexturesDirectory) || !is_directory(modelsTexturesDirectory))
     {
-        SHADOW_CRITICAL("Directory '{}' not found!", modelsTexturesPath.generic_string());
+        SHADOW_CRITICAL("Directory '{}' not found!", modelsTexturesDirectory.generic_string());
         return false;
     }
-    if (std::filesystem::path shadersPath = resourceDirectory / SHADERS_DIR; !exists(shadersPath))
+    shadersDirectory = resourceDirectory / SHADERS_DIR;
+    if (!exists(shadersDirectory) || !is_directory(shadersDirectory))
     {
-        SHADOW_CRITICAL("Directory '{}' not found!", shadersPath.generic_string());
+        SHADOW_CRITICAL("Directory '{}' not found!", shadersDirectory.generic_string());
         return false;
     }
 
@@ -69,6 +75,98 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     initialised = true;
     loadShaders();
     return true;
+}
+
+void shadow::ResourceManager::reworkShaderFiles()
+{
+    // check for files that were modified
+    for (const std::filesystem::directory_entry& file : std::filesystem::directory_iterator(shadersDirectory))
+    {
+        if (is_regular_file(file))
+        {
+            const std::filesystem::path& path = file.path();
+            std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
+            if (it != shaderFileInfos.end())
+            {
+                std::filesystem::file_time_type timestamp = last_write_time(path);
+                if (it->second.timestamp != timestamp)
+                {
+                    it->second.timestamp = timestamp;
+                    it->second.content = {};
+                    it->second.references = {};
+                    it->second.modified = true;
+                }
+            } else
+            {
+                shaderFileInfos.emplace(path, ShaderFileInfo{ {}, last_write_time(path), {}, true });
+            }
+        }
+    }
+    // gather references for modified files
+    for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
+    {
+        if (pair.second.modified)
+        {
+            std::ifstream stream(pair.first);
+            std::string line;
+            while (std::getline(stream, line))
+            {
+                std::string includedFile{};
+                if (line.rfind(INCLUDE_TEXT, 0) == 0)
+                {
+                    includedFile = line.substr(INCLUDE_LENGTH);
+                } else if (line.rfind(INCLUDED_FROM_TEXT, 0) == 0)
+                {
+                    includedFile = line.substr(INCLUDED_FROM_LENGTH);
+                }
+                if (!includedFile.empty())
+                {
+                    bool fileFound = false;
+                    for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& innerPair : shaderFileInfos)
+                    {
+                        if (innerPair.first.filename() == includedFile)
+                        {
+                            fileFound = true;
+                            if (isShaderFileRecursivelyReferenced(pair.first, innerPair.first))
+                            {
+                                SHADOW_WARN("Recursive reference of '{}' found in '{}'! This reference will NOT be included.",
+                                            pair.first.generic_string(), innerPair.first.generic_string());
+                            } else
+                            {
+                                pair.second.references.insert(innerPair.first);
+                            }
+                            break;
+                        }
+                    }
+                    if (!fileFound)
+                    {
+                        SHADOW_ERROR("File '{}' referenced in '{}' was NOT found!", includedFile, pair.first.generic_string());
+                    }
+                }
+            }
+        }
+    }
+    // rework modified status basing on references
+    for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
+    {
+        if (!pair.second.modified)
+        {
+            pair.second.modified = isShaderFileModified(pair.first);
+        }
+    }
+    // rebuild files if needed
+    for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
+    {
+        if (!pair.second.modified && !rebuildShaderFile(pair.first))
+        {
+            SHADOW_ERROR("Failed to rebuild shader file '{}'!", pair.first.generic_string());
+        }
+    }
+    // clear modified status
+    for (std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
+    {
+        pair.second.modified = false;
+    }
 }
 
 void shadow::ResourceManager::updateShaders() const
@@ -311,20 +409,149 @@ std::shared_ptr<shadow::Texture> shadow::ResourceManager::loadModelTexture(Textu
     return {};
 }
 
+bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& path)
+{
+    const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
+    if (it == shaderFileInfos.end())
+    {
+        SHADOW_ERROR("File '{}' was not found in shaderFileInfos! This should NOT happen.", path.generic_string());
+        return false;
+    }
+    if (!it->second.modified || !it->second.content.empty())
+    {
+        return true;
+    }
+    std::ifstream stream(it->first);
+    if (it->second.references.empty())
+    {
+        it->second.content = std::string(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
+    } else
+    {
+        for (const std::filesystem::path& refPath : it->second.references)
+        {
+            if (!rebuildShaderFile(refPath))
+            {
+                return false;
+            }
+        }
+        std::vector<std::string> lines{};
+        std::string line;
+        while (std::getline(stream, line))
+        {
+            lines.push_back(line);
+        }
+        std::stringstream ss{};
+        for (size_t i = 0; i < lines.size();)
+        {
+            if (lines[i].rfind(INCLUDE_TEXT, 0) == 0)
+            {
+                std::string includedFile = lines[i].substr(INCLUDE_LENGTH);
+                for (const std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
+                {
+                    if (pair.first.filename() == includedFile)
+                    {
+                        ss << INCLUDED_FROM_TEXT << includedFile << std::endl << pair.second.content << std::endl << END_INCLUDE_TEXT << includedFile << std::endl;
+                        break;
+                    }
+                }
+                ++i;
+            } else if (lines[i].rfind(INCLUDED_FROM_TEXT, 0) == 0)
+            {
+                std::string includedFile = lines[i].substr(INCLUDED_FROM_LENGTH);
+                size_t endIndex = std::string::npos;
+                for (size_t j = i + 1; j < lines.size(); ++j)
+                {
+                    if (lines[j].rfind(END_INCLUDE_TEXT, 0) == 0)
+                    {
+                        if (lines[j].substr(END_INCLUDE_LENGTH) == includedFile)
+                        {
+                            endIndex = j;
+                            break;
+                        }
+                    }
+                }
+                if (endIndex == std::string::npos)
+                {
+                    SHADOW_ERROR("Unable to find inclusion end ('{}' included at line {} in '{}')!", includedFile, i + 1, path.generic_string());
+                } else
+                {
+                    lines.erase(lines.begin() + i, lines.begin() + endIndex);
+                    bool fileFound = false;
+                    for (const std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
+                    {
+                        if (pair.first.filename() == includedFile)
+                        {
+                            fileFound = true;
+                            ss << INCLUDED_FROM_TEXT << includedFile << std::endl << pair.second.content << std::endl << END_INCLUDE_TEXT << includedFile << std::endl;
+                            break;
+                        }
+                    }
+                    ++i;
+                    if (!fileFound)
+                    {
+                        ss << INCLUDE_TEXT << includedFile << std::endl;
+                    }
+                }
+            } else
+            {
+                ss << lines[i] << std::endl;
+                ++i;
+            }
+        }
+        it->second.content = ss.str();
+    }
+    return true;
+}
+
+bool shadow::ResourceManager::isShaderFileRecursivelyReferenced(const std::filesystem::path& path, const std::filesystem::path& searchPath)
+{
+    const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(searchPath);
+    if (it == shaderFileInfos.end())
+    {
+        SHADOW_ERROR("File '{}' was not found in shaderFileInfos! This should NOT happen.", searchPath.generic_string());
+        return false;
+    }
+    for (const std::filesystem::path& refPath : it->second.references)
+    {
+        if (refPath == path)
+        {
+            return true;
+        }
+        if (isShaderFileRecursivelyReferenced(path, refPath))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool shadow::ResourceManager::isShaderFileModified(const std::filesystem::path& path)
+{
+    const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
+    if (it == shaderFileInfos.end())
+    {
+        SHADOW_ERROR("File '{}' was not found in shaderFileInfos! This should NOT happen.", path.generic_string());
+        return false;
+    }
+    if (it->second.modified)
+    {
+        return true;
+    }
+    for (const std::filesystem::path& refPath : it->second.references)
+    {
+        if (isShaderFileModified(refPath))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void shadow::ResourceManager::loadShaders()
 {
-    SHADOW_DEBUG("Creating UBOs...");
-    uboMvp = std::make_shared<UboMvp>();
-    uboMaterial = std::make_shared<UboMaterial>();
-    DirectionalLightData dirLightData{};
-    SpotLightData spotLightData{};
-    uboLights = std::make_shared<UboLights>(
-        std::make_shared<DirectionalLight>(dirLightData),
-        std::make_shared<SpotLight>(spotLightData));
-
+    SHADOW_DEBUG("Reworking shader files...");
+    reworkShaderFiles();
     SHADOW_DEBUG("Loading shaders...");
-    const std::filesystem::path shadersDirectory = resourceDirectory / SHADERS_DIR;
-
     shaders.emplace(ShaderType::Texture, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Texture")));
     shaders.emplace(ShaderType::Material, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Material")));
     shaders.emplace(ShaderType::DepthDir, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "Depth.frag")));
@@ -333,7 +560,6 @@ void shadow::ResourceManager::loadShaders()
     shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
-
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {
         const std::map<ShaderType, std::shared_ptr<GLShader>>::iterator it = shaders.find(static_cast<ShaderType>(i));
@@ -345,6 +571,15 @@ void shadow::ResourceManager::loadShaders()
             }
         }
     }
+
+    SHADOW_DEBUG("Creating UBOs...");
+    uboMvp = std::make_shared<UboMvp>();
+    uboMaterial = std::make_shared<UboMaterial>();
+    DirectionalLightData dirLightData{};
+    SpotLightData spotLightData{};
+    uboLights = std::make_shared<UboLights>(
+        std::make_shared<DirectionalLight>(dirLightData),
+        std::make_shared<SpotLight>(spotLightData));
 }
 
 std::filesystem::path shadow::ResourceManager::reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath)
