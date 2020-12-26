@@ -96,9 +96,8 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     }
 
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
-    this->depthDirShader = resourceManager.getShader(ShaderType::DepthDirVSM);
-    this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpotVSM);
-    this->blurShader = resourceManager.getShader(ShaderType::GaussianBlur);
+    this->depthDirShader = resourceManager.getShader(ShaderType::DepthDir);
+    this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpot);
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
     this->dirLight = uboLights->getDirectionalLight();
@@ -167,11 +166,6 @@ void shadow::AppWindow::resizeLights(GLsizei textureSize)
     updateLightShadowSamplers();
 }
 
-void shadow::AppWindow::setBlurPasses(unsigned int blurPasses)
-{
-    this->blurPasses = blurPasses;
-}
-
 double shadow::AppWindow::getTime() const
 {
     return currentTime;
@@ -180,11 +174,6 @@ double shadow::AppWindow::getTime() const
 unsigned int shadow::AppWindow::getFps() const
 {
     return measuredFps;
-}
-
-unsigned int shadow::AppWindow::getBlurPasses() const
-{
-    return blurPasses;
 }
 
 std::shared_ptr<shadow::Scene> shadow::AppWindow::getScene() const
@@ -224,6 +213,4 @@ void shadow::AppWindow::updateLightShadowSamplers()
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
     }
     glActiveTexture(GL_TEXTURE0);
-    this->blurShader->use();
-    this->blurShader->setVec2("resolution", glm::vec2(lightManager.getTextureSize(), lightManager.getTextureSize()));
 }

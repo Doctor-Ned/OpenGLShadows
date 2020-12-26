@@ -99,24 +99,20 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 //SHADOW>endinclude PBRFunctions.glsl
 
 //SHADOW>includedfrom ShadowCalculations.glsl
-float linstep(float low, float high, float v)
-{
-    return clamp((v-low)/(high-low), 0.0, 1.0);
-}
-
-float calcShadow(vec4 lightSpacePos, sampler2D text)
+float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
 {
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
-    if(projCoords.z > 0.999)
+    if(projCoords.z <= 1.0)
     {
-        return 0.0;
+        float closestDepth = texture(text, projCoords.xy).r;
+        float currentDepth = projCoords.z;
+        float bias = max(0.005 * (1.0 - worldNdotL), 0.0009);
+        if(currentDepth - bias > closestDepth)
+        {
+            return 0.0;
+        }
     }
-    vec2 moments = texture(text, projCoords.xy).rg;
-    float p = step(projCoords.z, moments.x);
-    float variance = max(moments.y - moments.x*moments.x, 0.0002);
-    float d = projCoords.z - moments.x;
-    float pMax = linstep(0.25, 1.0, variance / (variance + d*d));
-    return min(max(p, pMax), 1.0);
+    return 1.0;
 }
 //SHADOW>endinclude ShadowCalculations.glsl
 
@@ -126,7 +122,7 @@ vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo,
     {
         return vec3(0.0);
     }
-    float shadow = calcShadow(fs_in.dirSpacePos, directionalShadow);
+    float shadow = calcShadow(dot(fs_in.normal, -dirLightData.direction), fs_in.dirSpacePos, directionalShadow);
     vec3 L = normalize(-fs_in.tangentDirLightDirection);
     float NdotL = max(dot(N, L), 0.0);
     vec3 H = normalize(V + L);
@@ -146,7 +142,7 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float 
     {
         return vec3(0.0);
     }
-    float shadow = calcShadow(fs_in.spotSpacePos, spotShadow);
+    float shadow = calcShadow(dot(fs_in.normal, normalize(spotLightData.position - fs_in.pos)), fs_in.spotSpacePos, spotShadow);
     vec3 L = normalize(fs_in.tangentSpotLightPosition - fs_in.tangentFragPos);
     float NdotL = max(dot(N, L), 0.0);
     vec3 toLight = normalize(-fs_in.tangentSpotLightDirection);

@@ -33,8 +33,8 @@ int main()
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     dirLight->setStrength(1.8f);
-    dirLight->setNearZ(0.3f);
-    dirLight->setFarZ(2.0f);
+    dirLight->setNearZ(0.2f);
+    dirLight->setFarZ(8.0f);
     dirLight->setProjectionSize(1.45f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
     dirLight->setDirection(
@@ -42,8 +42,8 @@ int main()
         * glm::vec3(0.0f, 0.0f, -1.0f));
     spotLight->setColor(glm::vec3(1.0f, 0.7f, 0.28f));
     spotLight->setStrength(6.8f);
-    spotLight->setNearZ(1.45f);
-    spotLight->setFarZ(2.5f);
+    spotLight->setNearZ(0.2f);
+    spotLight->setFarZ(2.35f);
     spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
     spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
     spotLight->setPosition(glm::vec3(1.07f, 1.6f, 0.4f));
@@ -92,7 +92,6 @@ int main()
     const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
     GLsizei MAP_SIZES_INT[] = { 256,512,1024,2048,4096 };
     glm::vec3 spotPosition = spotData.position;
-    int blurPasses = appWindow.getBlurPasses();
 
     auto guiProc = [&]()
     {
@@ -102,7 +101,6 @@ int main()
         {
             int mapSize = currentMapSize;
             const char* MAP_SIZE_NAME = MAP_SIZES[currentMapSize];
-            ImGui::SliderInt("Blur passes", &blurPasses, 0, 100);
             ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
@@ -117,7 +115,6 @@ int main()
                 currentMapSize = mapSize;
                 appWindow.resizeLights(MAP_SIZES_INT[currentMapSize]);
             }
-            GUI_UPDATE(blurPasses, appWindow.getBlurPasses(), appWindow.setBlurPasses);
             GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
             GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
             GUI_UPDATE(spotPosition, spotData.position, spotLight->setPosition);
