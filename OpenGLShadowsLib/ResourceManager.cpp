@@ -619,8 +619,8 @@ void shadow::ResourceManager::loadShaders()
     DirectionalLightData dirLightData{};
     SpotLightData spotLightData{};
     uboLights = std::make_shared<UboLights>(
-        std::make_shared<DirectionalLight>(dirLightData),
-        std::make_shared<SpotLight>(spotLightData));
+        std::make_shared<DirectionalLight>(dirLightData, 0.1f, 5.0f),
+        std::make_shared<SpotLight>(spotLightData, 0.1f, 5.0f));
 }
 
 std::filesystem::path shadow::ResourceManager::reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath)

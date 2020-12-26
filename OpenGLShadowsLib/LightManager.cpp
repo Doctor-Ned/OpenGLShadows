@@ -16,13 +16,18 @@ bool shadow::LightManager::initialize(GLsizei textureSize)
     }
     this->textureSize = textureSize;
     uboLights = ResourceManager::getInstance().getUboLights();
-    if (!dirFbo.initialize(false, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT,
-                           textureSize, textureSize, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+    if (!dirFbo.initialize(true, GL_COLOR_ATTACHMENT0, GL_RG32F,
+                           textureSize, textureSize, GL_RG, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
     {
         return false;
     }
-    if (!spotFbo.initialize(false, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT,
-                            textureSize, textureSize, GL_DEPTH_COMPONENT, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+    if (!spotFbo.initialize(true, GL_COLOR_ATTACHMENT0, GL_RG32F,
+                            textureSize, textureSize, GL_RG, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+    {
+        return false;
+    }
+    if (!tempFbo.initialize(false, GL_COLOR_ATTACHMENT0, GL_RG32F,
+                            textureSize, textureSize, GL_RG, GL_FLOAT, GL_NEAREST, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
     {
         return false;
     }
@@ -38,5 +43,6 @@ void shadow::LightManager::resize(GLsizei textureSize)
     }
     dirFbo.resize(textureSize, textureSize);
     spotFbo.resize(textureSize, textureSize);
+    tempFbo.resize(textureSize, textureSize);
     this->textureSize = textureSize;
 }

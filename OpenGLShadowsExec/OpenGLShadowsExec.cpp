@@ -33,9 +33,8 @@ int main()
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
     dirLight->setStrength(1.8f);
-    dirLight->setLightSize(0.09f);
-    dirLight->setNearZ(0.2f);
-    dirLight->setFarZ(1.5f);
+    dirLight->setNearZ(0.3f);
+    dirLight->setFarZ(2.0f);
     dirLight->setProjectionSize(1.45f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
     dirLight->setDirection(
@@ -43,9 +42,8 @@ int main()
         * glm::vec3(0.0f, 0.0f, -1.0f));
     spotLight->setColor(glm::vec3(1.0f, 0.7f, 0.28f));
     spotLight->setStrength(6.8f);
-    spotLight->setLightSize(0.09f);
-    spotLight->setNearZ(0.95f);
-    spotLight->setFarZ(2.35f);
+    spotLight->setNearZ(1.45f);
+    spotLight->setFarZ(2.5f);
     spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
     spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
     spotLight->setPosition(glm::vec3(1.07f, 1.6f, 0.4f));
@@ -86,8 +84,7 @@ int main()
     DirectionalLightData& dirData = dirLight->getData();
     SpotLightData& spotData = spotLight->getData();
     float dirStrength = dirData.strength, spotStrength = spotData.strength;
-    glm::vec2 dirClip(dirData.nearZ, dirData.farZ), spotClip(spotData.nearZ, spotData.farZ);
-    float dirSize = dirData.lightSize, spotSize = spotData.lightSize;
+    glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(dirLight->getNearZ(), dirLight->getFarZ());
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
     enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
@@ -95,6 +92,7 @@ int main()
     const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
     GLsizei MAP_SIZES_INT[] = { 256,512,1024,2048,4096 };
     glm::vec3 spotPosition = spotData.position;
+    int blurPasses = appWindow.getBlurPasses();
 
     auto guiProc = [&]()
     {
@@ -104,11 +102,10 @@ int main()
         {
             int mapSize = currentMapSize;
             const char* MAP_SIZE_NAME = MAP_SIZES[currentMapSize];
+            ImGui::SliderInt("Blur passes", &blurPasses, 0, 100);
             ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
-            ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
-            ImGui::DragFloat("Spot light size", &spotSize, 0.005f, 0.0f, 5.0f);
             ImGui::DragFloat3("Spot light position", value_ptr(spotPosition), 0.01f);
             ImGui::ColorPicker3("Directional light color", value_ptr(dirColor));
             ImGui::ColorPicker3("Spot light color", value_ptr(spotColor));
@@ -120,18 +117,17 @@ int main()
                 currentMapSize = mapSize;
                 appWindow.resizeLights(MAP_SIZES_INT[currentMapSize]);
             }
+            GUI_UPDATE(blurPasses, appWindow.getBlurPasses(), appWindow.setBlurPasses);
             GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
             GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
-            GUI_UPDATE(dirSize, dirData.lightSize, dirLight->setLightSize);
-            GUI_UPDATE(spotSize, spotData.lightSize, spotLight->setLightSize);
             GUI_UPDATE(spotPosition, spotData.position, spotLight->setPosition);
             GUI_UPDATE(dirColor, dirData.color, dirLight->setColor);
             GUI_UPDATE(spotColor, spotData.color, spotLight->setColor);
             GUI_UPDATE(projectionSize, dirLight->getProjectionSize(), dirLight->setProjectionSize);
-            GUI_UPDATE(dirClip.x, dirData.nearZ, dirLight->setNearZ);
-            GUI_UPDATE(dirClip.y, dirData.farZ, dirLight->setFarZ);
-            GUI_UPDATE(spotClip.x, spotData.nearZ, spotLight->setNearZ);
-            GUI_UPDATE(spotClip.y, spotData.farZ, spotLight->setFarZ);
+            GUI_UPDATE(dirClip.x, dirLight->getNearZ(), dirLight->setNearZ);
+            GUI_UPDATE(dirClip.y, dirLight->getFarZ(), dirLight->setFarZ);
+            GUI_UPDATE(spotClip.x, dirLight->getNearZ(), spotLight->setNearZ);
+            GUI_UPDATE(spotClip.y, dirLight->getFarZ(), spotLight->setFarZ);
         }
         ImGui::End();
     };

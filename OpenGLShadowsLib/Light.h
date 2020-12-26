@@ -8,7 +8,7 @@ namespace shadow
     class Light abstract
     {
     public:
-        Light(T& t);
+        Light(T& t, float nearZ, float farZ);
         virtual ~Light() = default;
         void setData(T& data);
         T& getData();
@@ -19,11 +19,13 @@ namespace shadow
         virtual void setColor(glm::vec3 color) = 0;
         virtual void setStrength(float strength) = 0;
         virtual void setPosition(glm::vec3 position) = 0; // even if it's a directional light, it still needs a position for view matrix
-        virtual void setNearZ(float nearZ) = 0;
-        virtual void setFarZ(float farZ) = 0;
-        virtual void setLightSize(float lightSize) = 0;
+        void setNearZ(float nearZ);
+        void setFarZ(float farZ);
+        float getNearZ() const;
+        float getFarZ() const;
     protected:
         bool dirty{ true }, lightSpaceDirty{ true };
+        float nearZ{}, farZ{};
         T lightData{};
     };
     template<typename T>
@@ -49,6 +51,28 @@ namespace shadow
         return lightSpaceDirty;
     }
     template<typename T>
-    inline Light<T>::Light(T& t) : lightData(t)
+    inline Light<T>::Light(T& t, float nearZ, float farZ) : lightData(t), nearZ(nearZ), farZ(farZ)
     {}
+    template<typename T>
+    inline void Light<T>::setNearZ(float nearZ)
+    {
+        this->nearZ = nearZ;
+        lightSpaceDirty = true;
+    }
+    template<typename T>
+    inline void Light<T>::setFarZ(float farZ)
+    {
+        this->farZ = farZ;
+        lightSpaceDirty = true;
+    }
+    template<typename T>
+    inline float Light<T>::getNearZ() const
+    {
+        return nearZ;
+    }
+    template<typename T>
+    inline float Light<T>::getFarZ() const
+    {
+        return farZ;
+    }
 }

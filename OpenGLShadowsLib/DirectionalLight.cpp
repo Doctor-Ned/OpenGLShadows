@@ -3,7 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-shadow::DirectionalLight::DirectionalLight(DirectionalLightData& data) : DirectedLight<DirectionalLightData>(data)
+shadow::DirectionalLight::DirectionalLight(DirectionalLightData& data, float nearZ, float farZ) : DirectedLight<DirectionalLightData>(data, nearZ, farZ)
 {}
 
 glm::mat4 shadow::DirectionalLight::getLightSpace()
@@ -15,7 +15,7 @@ void shadow::DirectionalLight::updateLightSpace()
 {
     float projSizeHalf = projectionSize * 0.5f;
     lightData.lightSpace =
-        glm::ortho(-projSizeHalf, projSizeHalf, -projSizeHalf, projSizeHalf, lightData.nearZ, lightData.farZ)
+        glm::ortho(-projSizeHalf, projSizeHalf, -projSizeHalf, projSizeHalf, nearZ, farZ)
         * lookAt(position, position + lightData.direction, glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceDirty = false;
 }
@@ -43,26 +43,6 @@ void shadow::DirectionalLight::setDirection(glm::vec3 direction)
     lightData.direction = normalize(direction);
     dirty = true;
     lightSpaceDirty = true;
-}
-
-
-
-void shadow::DirectionalLight::setNearZ(float nearZ)
-{
-    lightData.nearZ = nearZ;
-    dirty = lightSpaceDirty = true;
-}
-
-void shadow::DirectionalLight::setFarZ(float farZ)
-{
-    lightData.farZ = farZ;
-    dirty = lightSpaceDirty = true;
-}
-
-void shadow::DirectionalLight::setLightSize(float lightSize)
-{
-    lightData.lightSize = lightSize;
-    dirty = true;
 }
 
 void shadow::DirectionalLight::setProjectionSize(float projectionSize)

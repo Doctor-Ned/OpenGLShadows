@@ -23,10 +23,7 @@ struct DirectionalLightData
     vec3 color;
     float strength;
     vec3 direction;
-    float nearZ;
-    vec2 padding;
-    float farZ;
-    float lightSize;
+    float padding;
 };
 
 struct SpotLightData
@@ -38,10 +35,6 @@ struct SpotLightData
     float innerCutOff;
     vec3 position;
     float outerCutOff;
-    float nearZ;
-    float farZ;
-    float lightSize;
-    float padding;
 };
 //SHADOW>endinclude LightStructs.glsl
 

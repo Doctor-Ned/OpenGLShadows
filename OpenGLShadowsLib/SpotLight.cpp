@@ -5,7 +5,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-shadow::SpotLight::SpotLight(SpotLightData& data) : DirectedLight(data)
+shadow::SpotLight::SpotLight(SpotLightData& data, float nearZ, float farZ) : DirectedLight(data, nearZ, farZ)
 {}
 
 glm::mat4 shadow::SpotLight::getLightSpace()
@@ -15,7 +15,7 @@ glm::mat4 shadow::SpotLight::getLightSpace()
 
 void shadow::SpotLight::updateLightSpace()
 {
-    lightData.lightSpace = glm::perspective(FPI * 0.5f, 1.0f, lightData.nearZ, lightData.farZ)
+    lightData.lightSpace = glm::perspective(FPI * 0.5f, 1.0f, nearZ, farZ)
         * lookAt(lightData.position, lightData.position + lightData.direction, glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceDirty = false;
 }
@@ -44,24 +44,6 @@ void shadow::SpotLight::setPosition(glm::vec3 position)
     lightData.position = position;
     dirty = true;
     lightSpaceDirty = true;
-}
-
-void shadow::SpotLight::setNearZ(float nearZ)
-{
-    lightData.nearZ = nearZ;
-    dirty = lightSpaceDirty = true;
-}
-
-void shadow::SpotLight::setFarZ(float farZ)
-{
-    lightData.farZ = farZ;
-    dirty = lightSpaceDirty = true;
-}
-
-void shadow::SpotLight::setLightSize(float lightSize)
-{
-    lightData.lightSize = lightSize;
-    dirty = true;
 }
 
 void shadow::SpotLight::setInnerCutOff(float innerCutOff)
