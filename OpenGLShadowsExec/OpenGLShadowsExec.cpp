@@ -84,7 +84,7 @@ int main()
     DirectionalLightData& dirData = dirLight->getData();
     SpotLightData& spotData = spotLight->getData();
     float dirStrength = dirData.strength, spotStrength = spotData.strength;
-    glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(dirLight->getNearZ(), dirLight->getFarZ());
+    glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(spotLight->getNearZ(), spotLight->getFarZ());
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
     enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
@@ -126,8 +126,8 @@ int main()
             GUI_UPDATE(projectionSize, dirLight->getProjectionSize(), dirLight->setProjectionSize);
             GUI_UPDATE(dirClip.x, dirLight->getNearZ(), dirLight->setNearZ);
             GUI_UPDATE(dirClip.y, dirLight->getFarZ(), dirLight->setFarZ);
-            GUI_UPDATE(spotClip.x, dirLight->getNearZ(), spotLight->setNearZ);
-            GUI_UPDATE(spotClip.y, dirLight->getFarZ(), spotLight->setFarZ);
+            GUI_UPDATE(spotClip.x, spotLight->getNearZ(), spotLight->setNearZ);
+            GUI_UPDATE(spotClip.y, spotLight->getFarZ(), spotLight->setFarZ);
         }
         ImGui::End();
     };
