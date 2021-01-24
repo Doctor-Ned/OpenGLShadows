@@ -96,6 +96,7 @@ int main()
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
+        ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Show settings", &showingSettings);
         if (showingSettings)
         {
@@ -139,7 +140,7 @@ int main()
         if (static_cast<unsigned int>(time) > secondCounter)
         {
             secondCounter = static_cast<unsigned int>(time);
-            SHADOW_INFO("{} FPS", appWindow.getFps());
+            SHADOW_INFO("{} FPS", ImGui::GetIO().Framerate);
         }
     }
     return 0;
