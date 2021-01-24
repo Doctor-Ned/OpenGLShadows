@@ -107,11 +107,17 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 //SHADOW>includedfrom ShadowCalculations.glsl
 // reference: http://developer.download.nvidia.com/whitepapers/2008/PCSS_Integration.pdf
-// 32 or 16
-#define PCSS_BLOCKERS 32
 
-#if PCSS_BLOCKERS == 32
-const vec2 POISSON_DISK[PCSS_BLOCKERS] = {
+#define PCSS_MAX_BLOCKERS 32 // 16 or 32
+
+#define PCSS_BLOCKERS 32 // within range (0;PCSS_MAX_BLOCKERS]
+
+#if PCSS_BLOCKERS <= 0 || PCSS_BLOCKERS > PCSS_MAX_BLOCKERS
+#error Invalid PCSS_BLOCKERS value!
+#endif
+
+#if PCSS_MAX_BLOCKERS == 32
+vec2 POISSON_DISK[PCSS_MAX_BLOCKERS] = {
     vec2(0.06407013, 0.05409927),
     vec2(0.7366577, 0.5789394),
     vec2(-0.6270542, -0.5320278),
@@ -145,8 +151,8 @@ const vec2 POISSON_DISK[PCSS_BLOCKERS] = {
     vec2(-0.04661255, 0.7995201),
     vec2(0.4402924, 0.3640312),
 };
-#else
-const vec2 POISSON_DISK[PCSS_BLOCKERS] =
+#elif PCSS_MAX_BLOCKERS == 16
+vec2 POISSON_DISK[PCSS_MAX_BLOCKERS] =
 {
     vec2(-0.94201624, -0.39906216),
     vec2(0.94558609, -0.76890725),
@@ -165,6 +171,8 @@ const vec2 POISSON_DISK[PCSS_BLOCKERS] =
     vec2(0.19984126, 0.78641367),
     vec2(0.14383161, -0.14100790)
 };
+#else
+#error Invalid PCSS_MAX_BLOCKERS value!
 #endif
 
 float penumbraSize(float receiverDepth, float blockerDepth)
