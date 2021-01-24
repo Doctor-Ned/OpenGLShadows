@@ -78,6 +78,11 @@ int main()
     scene->setParent(node, chairNode);
     scene->setParent(node, planeNode);
 
+    bool analysing = false;
+    float analysisMaxFps = 0.0f;
+    float analysisTimer = 0.0f;
+    const float ANALYSIS_TIME = 10.0f;
+
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
     bool showingSettings = false;
@@ -97,6 +102,10 @@ int main()
     appWindow.resizeLights(mapSize);
     auto guiProc = [&]()
     {
+        if (analysing)
+        {
+            return;
+        }
         ImGui::Begin("Settings");
         ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
         maxFps = std::max(maxFps, ImGui::GetIO().Framerate);
@@ -105,6 +114,15 @@ int main()
         if (ImGui::Button("Reset"))
         {
             maxFps = 0.0f;
+        }
+        if (ImGui::Button("Run analysis"))
+        {
+            analysisMaxFps = 0.0f;
+            analysisTimer = 0.0f;
+            currMapSizeIndex = MAP_SIZE_COUNT - 1;
+            mapSize = MAP_SIZES[currMapSizeIndex];
+            appWindow.resizeLights(mapSize);
+            analysing = true;
         }
         ImGui::Checkbox("Show settings", &showingSettings);
         if (showingSettings)
@@ -141,15 +159,37 @@ int main()
     while (!appWindow.shouldClose())
     {
         appWindow.loop(timeDelta, guiProc);
-        if (resourceManager.reworkShaderFiles())
+        if (analysing)
         {
-            resourceManager.updateShaders();
-        }
-        double time = appWindow.getTime();
-        if (static_cast<unsigned int>(time) > secondCounter)
+            analysisMaxFps = std::max(analysisMaxFps, ImGui::GetIO().Framerate);
+            analysisTimer += static_cast<float>(timeDelta);
+            if (analysisTimer >= ANALYSIS_TIME)
+            {
+                SHADOW_INFO("{}, {}", mapSize, analysisMaxFps);
+                analysisMaxFps = 0.0f;
+                analysisTimer = 0.0f;
+                if (currMapSizeIndex == 0)
+                {
+                    analysing = false;
+                } else
+                {
+                    --currMapSizeIndex;
+                    mapSize = MAP_SIZES[currMapSizeIndex];
+                    appWindow.resizeLights(mapSize);
+                }
+            }
+        } else
         {
-            secondCounter = static_cast<unsigned int>(time);
-            SHADOW_INFO("{} FPS", ImGui::GetIO().Framerate);
+            if (resourceManager.reworkShaderFiles())
+            {
+                resourceManager.updateShaders();
+            }
+            double time = appWindow.getTime();
+            if (static_cast<unsigned int>(time) > secondCounter)
+            {
+                secondCounter = static_cast<unsigned int>(time);
+                SHADOW_INFO("{} FPS", ImGui::GetIO().Framerate);
+            }
         }
     }
     return 0;
