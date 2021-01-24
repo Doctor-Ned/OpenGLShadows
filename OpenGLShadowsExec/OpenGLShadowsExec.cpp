@@ -87,9 +87,9 @@ int main()
     glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(spotLight->getNearZ(), spotLight->getFarZ());
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
-    const int MAP_SIZE_COUNT = 18;
+    const int MAP_SIZE_COUNT = 16;
     float maxFps = 0.0f;
-    GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 32, 64, 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
+    GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
     int currMapSizeIndex = MAP_SIZE_COUNT - 1;
     int mapSize = MAP_SIZES[currMapSizeIndex];
     glm::vec3 spotPosition = spotData.position;
