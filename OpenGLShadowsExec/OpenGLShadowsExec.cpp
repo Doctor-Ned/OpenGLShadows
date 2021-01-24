@@ -87,13 +87,13 @@ int main()
     glm::vec2 dirClip(dirLight->getNearZ(), dirLight->getFarZ()), spotClip(spotLight->getNearZ(), spotLight->getFarZ());
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
-    enum ShadowMapSize { Small256, Medium512, Big1024, Huge2048, Enormous4096 };
-    int currentMapSize = Medium512;
-    const char* MAP_SIZES[] = { "Small(256)", "Medium(512)", "Big(1024)", "Huge(2048)", "Enormous(4096)" };
-    GLsizei MAP_SIZES_INT[] = { 256,512,1024,2048,4096 };
+    const int MAP_SIZE_COUNT = 18;
+    GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 32, 64, 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
+    int currMapSizeIndex = MAP_SIZE_COUNT - 1;
+    int mapSize = MAP_SIZES[currMapSizeIndex];
     glm::vec3 spotPosition = spotData.position;
     int blurPasses = appWindow.getBlurPasses();
-
+    appWindow.resizeLights(mapSize);
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
@@ -101,10 +101,8 @@ int main()
         ImGui::Checkbox("Show settings", &showingSettings);
         if (showingSettings)
         {
-            int mapSize = currentMapSize;
-            const char* MAP_SIZE_NAME = MAP_SIZES[currentMapSize];
             ImGui::SliderInt("Blur passes", &blurPasses, 0, 100);
-            ImGui::SliderInt("Shadow map size", &mapSize, 0, 3, MAP_SIZE_NAME);
+            ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat3("Spot light position", value_ptr(spotPosition), 0.01f);
@@ -113,10 +111,10 @@ int main()
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
             ImGui::DragFloat2("Directional clipping", value_ptr(dirClip), 0.05f, 0.0f, 10.0f);
             ImGui::DragFloat2("Spot clipping", value_ptr(spotClip), 0.05f, 0.0f, 10.0f);
-            if (currentMapSize != mapSize)
+            if (mapSize != MAP_SIZES[currMapSizeIndex])
             {
-                currentMapSize = mapSize;
-                appWindow.resizeLights(MAP_SIZES_INT[currentMapSize]);
+                mapSize = MAP_SIZES[currMapSizeIndex];
+                appWindow.resizeLights(mapSize);
             }
             GUI_UPDATE(blurPasses, appWindow.getBlurPasses(), appWindow.setBlurPasses);
             GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
