@@ -1,6 +1,7 @@
 #define PCF_KERNEL_SIZE 3
 const int PCF_MAX = PCF_KERNEL_SIZE / 2, PCF_MIN = -PCF_MAX;
 const float PCF_KERNEL_SQUARED = PCF_KERNEL_SIZE*PCF_KERNEL_SIZE;
+const float TEX_SIZE_MULTIPLIER = 1.0f;
 
 float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
 {
@@ -14,7 +15,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
         {
             return 0.0;
         }
-        vec2 texelSize = 1.0/textureSize(text, 0);
+        vec2 texelSize = TEX_SIZE_MULTIPLIER/textureSize(text, 0);
         float shadow = 0.0;
         for(int x=PCF_MIN;x<=PCF_MAX;++x)
         {
