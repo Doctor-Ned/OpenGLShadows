@@ -111,9 +111,14 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 #define PCSS_MAX_BLOCKERS 32 // 16 or 32
 
 #define PCSS_BLOCKERS 32 // within range (0;PCSS_MAX_BLOCKERS]
+#define PCSS_FILTER_SIZE 32 // within range (0;PCSS_MAX_BLOCKERS]
 
 #if PCSS_BLOCKERS <= 0 || PCSS_BLOCKERS > PCSS_MAX_BLOCKERS
 #error Invalid PCSS_BLOCKERS value!
+#endif
+
+#if PCSS_FILTER_SIZE <= 0 || PCSS_FILTER_SIZE > PCSS_MAX_BLOCKERS
+#error Invalid PCSS_FILTER_SIZE value!
 #endif
 
 #if PCSS_MAX_BLOCKERS == 32
@@ -208,7 +213,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     float penumbraRatio = (projCoords.z - blockerDepth) / blockerDepth;
     float filterRadiusUV = penumbraRatio * lightSize * nearZ / projCoords.z;
     float shadow = 0.0;
-    for(int i=0;i<PCSS_BLOCKERS;++i)
+    for(int i=0;i<PCSS_FILTER_SIZE;++i)
     {
         float depth = texture(text, projCoords.xy + POISSON_DISK[i] * filterRadiusUV).r;
         if(depth < projCoords.z - 0.008)
@@ -216,7 +221,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
             shadow += 1.0;
         }
     }
-    shadow /= PCSS_BLOCKERS;
+    shadow /= PCSS_FILTER_SIZE;
     return shadow;
 }
 //SHADOW>endinclude ShadowCalculations.glsl
