@@ -95,7 +95,7 @@ namespace shadow
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
         glClear(GL_DEPTH_BUFFER_BIT);
         depthDirShader->use();
-        scene->render(depthSpotShader);
+        scene->render(depthDirShader);
         GL_POP_DEBUG_GROUP();
 
         GL_PUSH_DEBUG_GROUP("SpotLight");
