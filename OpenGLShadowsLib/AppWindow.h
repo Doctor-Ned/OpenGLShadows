@@ -34,7 +34,7 @@ namespace shadow
         void loop(double& timeDelta, F& guiProc);
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
-        void resizeLights(GLsizei textureSize);
+        void resizeLights(GLsizei textureSize, unsigned int penumbraTextureSizeDivisor);
         double getTime() const;
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
@@ -50,7 +50,7 @@ namespace shadow
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
-        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{};
+        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{}, dirPenumbraShader{}, spotPenumbraShader{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<DirectionalLight> dirLight{};
@@ -79,7 +79,8 @@ namespace shadow
             measuredFps = fpsCounter;
             fpsCounter = 0U;
             ++fpsSecond;
-        } else
+        }
+        else
         {
             ++fpsCounter;
         }
@@ -93,7 +94,7 @@ namespace shadow
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
         glClear(GL_DEPTH_BUFFER_BIT);
         depthDirShader->use();
-        scene->render(depthSpotShader);
+        scene->render(depthDirShader);
         GL_POP_DEBUG_GROUP();
 
         GL_PUSH_DEBUG_GROUP("SpotLight");
@@ -101,6 +102,21 @@ namespace shadow
         glClear(GL_DEPTH_BUFFER_BIT);
         depthSpotShader->use();
         scene->render(depthSpotShader);
+        GL_POP_DEBUG_GROUP();
+
+        GL_PUSH_DEBUG_GROUP("DirLightPenumbra");
+        glViewport(0, 0, lightManager.getPenumbraTextureWidth(), lightManager.getPenumbraTextureHeight());
+        glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirPenumbraFbo());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        dirPenumbraShader->use();
+        scene->render(dirPenumbraShader);
+        GL_POP_DEBUG_GROUP();
+
+        GL_PUSH_DEBUG_GROUP("SpotLightPenumbra");
+        glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getSpotPenumbraFbo());
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        spotPenumbraShader->use();
+        scene->render(spotPenumbraShader);
         GL_POP_DEBUG_GROUP();
 
         glCullFace(GL_BACK);

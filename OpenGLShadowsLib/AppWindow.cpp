@@ -15,7 +15,8 @@ shadow::AppWindow::~AppWindow()
         deinitialize();
         SHADOW_DEBUG("Terminating GLFW...");
         glfwTerminate();
-    } catch (std::exception& e)
+    }
+    catch (std::exception& e)
     {
         SHADOW_ERROR("Window destruction failed! {}", e.what());
     }
@@ -66,7 +67,8 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
         ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
         ImGui_ImplOpenGL3_Init(GLSL_VERSION);
         ImGui::StyleColorsDark();
-    } catch (std::exception& e)
+    }
+    catch (std::exception& e)
     {
         SHADOW_CRITICAL("ImGui initialization failed! {}", e.what());
         deinitialize();
@@ -84,7 +86,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
         return false;
     }
 
-    if (!LightManager::getInstance().initialize(lightTextureSize))
+    if (!LightManager::getInstance().initialize(lightTextureSize, width, height))
     {
         return false;
     }
@@ -98,6 +100,8 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
     this->depthDirShader = resourceManager.getShader(ShaderType::DepthDir);
     this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpot);
+    this->dirPenumbraShader = resourceManager.getShader(ShaderType::DirPenumbra);
+    this->spotPenumbraShader = resourceManager.getShader(ShaderType::SpotPenumbra);
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
     this->dirLight = uboLights->getDirectionalLight();
@@ -135,7 +139,8 @@ void shadow::AppWindow::deinitialize()
         try
         {
             glfwDestroyWindow(glfwWindow);
-        } catch (std::exception& e)
+        }
+        catch (std::exception& e)
         {
             SHADOW_ERROR("Failed to destroy GLFW context! {}", e.what());
         }
@@ -160,9 +165,10 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
 }
 
-void shadow::AppWindow::resizeLights(GLsizei textureSize)
+void shadow::AppWindow::resizeLights(GLsizei textureSize, unsigned int penumbraTextureSizeDivisor)
 {
-    LightManager::getInstance().resize(textureSize);
+    assert(penumbraTextureSizeDivisor);
+    LightManager::getInstance().resize(textureSize, width / penumbraTextureSizeDivisor, height / penumbraTextureSizeDivisor);
     updateLightShadowSamplers();
 }
 
@@ -210,7 +216,11 @@ void shadow::AppWindow::updateLightShadowSamplers()
         glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_2D, lightManager.getDirTexture());
         glActiveTexture(GL_TEXTURE11);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getDirPenumbraTexture());
+        glActiveTexture(GL_TEXTURE12);
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
+        glActiveTexture(GL_TEXTURE13);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getSpotPenumbraTexture());
     }
     glActiveTexture(GL_TEXTURE0);
 }

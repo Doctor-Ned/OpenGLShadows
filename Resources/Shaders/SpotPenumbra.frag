@@ -1,3 +1,54 @@
+#version 430 core
+
+//SHADOW>includedfrom LightStructs.glsl
+struct DirectionalLightData
+{
+    mat4 lightSpace;
+    vec3 color;
+    float strength;
+    vec3 direction;
+    float nearZ;
+    vec2 padding;
+    float farZ;
+    float lightSize;
+};
+
+struct SpotLightData
+{
+    mat4 lightSpace;
+    vec3 color;
+    float strength;
+    vec3 direction;
+    float innerCutOff;
+    vec3 position;
+    float outerCutOff;
+    float nearZ;
+    float farZ;
+    float lightSize;
+    float padding;
+};
+//SHADOW>endinclude LightStructs.glsl
+
+//SHADOW>includedfrom UboLights.glsl
+layout (std140, binding = 2) uniform Lights
+{
+    DirectionalLightData dirLightData;
+    SpotLightData spotLightData;
+    vec3 paddingL;
+    float ambient;
+};
+//SHADOW>endinclude UboLights.glsl
+
+layout(binding = 12) uniform sampler2D spotShadow;
+
+in VS_OUT
+{
+    vec4 spotSpacePos;
+} fs_in;
+
+out vec4 outColor;
+
+//SHADOW>includedfrom ShadowCalculations.glsl
 // reference: https://maxest.gct-game.net/content/chss.pdf
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/common.hlsl
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/shadow_mask_ps.hlsl
@@ -85,4 +136,10 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     }
     shadow /= VOGEL_SAMPLES_COUNT;
     return shadow;
+}
+//SHADOW>endinclude ShadowCalculations.glsl
+
+void main()
+{
+    outColor = vec4(calcPenumbra(fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow), 0.0, 0.0, 1.0);
 }

@@ -100,8 +100,10 @@ int main()
     GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
     int currMapSizeIndex = MAP_SIZE_COUNT - 1;
     int mapSize = MAP_SIZES[currMapSizeIndex];
+    int currPenumbraTextureSizeDivisor = 1;
+    unsigned int penumbraTextureSizeDivisor = currPenumbraTextureSizeDivisor;
     glm::vec3 spotPosition = spotData.position;
-    appWindow.resizeLights(mapSize);
+    appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
     auto guiProc = [&]()
     {
         if (analysing)
@@ -123,13 +125,16 @@ int main()
             analysisTimer = 0.0f;
             currMapSizeIndex = MAP_SIZE_COUNT - 1;
             mapSize = MAP_SIZES[currMapSizeIndex];
-            appWindow.resizeLights(mapSize);
+            penumbraTextureSizeDivisor = currPenumbraTextureSizeDivisor = 1;
+            appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
+            //todo: add all map size combinations to analysis? maybe something different, we'll see what's needed
             analysing = true;
         }
         ImGui::Checkbox("Show settings", &showingSettings);
         if (showingSettings)
         {
             ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
+            ImGui::SliderInt("Penumbra map size divisor", &currPenumbraTextureSizeDivisor, 1, 4, std::to_string(currPenumbraTextureSizeDivisor).c_str());
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
@@ -140,10 +145,20 @@ int main()
             ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
             ImGui::DragFloat2("Directional clipping", value_ptr(dirClip), 0.05f, 0.0f, 10.0f);
             ImGui::DragFloat2("Spot clipping", value_ptr(spotClip), 0.05f, 0.0f, 10.0f);
+            bool mapSizeChanged = false;
             if (mapSize != MAP_SIZES[currMapSizeIndex])
             {
+                mapSizeChanged = true;
                 mapSize = MAP_SIZES[currMapSizeIndex];
-                appWindow.resizeLights(mapSize);
+            }
+            if (penumbraTextureSizeDivisor != currPenumbraTextureSizeDivisor)
+            {
+                mapSizeChanged = true;
+                penumbraTextureSizeDivisor = currPenumbraTextureSizeDivisor;
+            }
+            if (mapSizeChanged)
+            {
+                appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
             }
             GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
             GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
@@ -175,14 +190,16 @@ int main()
                 if (currMapSizeIndex == 0)
                 {
                     analysing = false;
-                } else
+                }
+                else
                 {
                     --currMapSizeIndex;
                     mapSize = MAP_SIZES[currMapSizeIndex];
-                    appWindow.resizeLights(mapSize);
+                    appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
                 }
             }
-        } else
+        }
+        else
         {
             if (resourceManager.reworkShaderFiles())
             {

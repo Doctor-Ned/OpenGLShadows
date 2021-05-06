@@ -11,6 +11,8 @@ namespace shadow
         DepthSpot,
         DepthDirVSM,
         DepthSpotVSM,
+        DirPenumbra,
+        SpotPenumbra,
         GaussianBlur,
         PostProcess,
         ShaderTypeEnd
