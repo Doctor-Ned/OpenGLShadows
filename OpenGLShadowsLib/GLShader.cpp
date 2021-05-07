@@ -1,5 +1,6 @@
 #include "GLShader.h"
 #include "ShadowLog.h"
+#include "ResourceManager.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
@@ -55,32 +56,33 @@ void shadow::GLShader::update()
             GLuint shader;
             switch (buildShader(shader, GL_VERTEX_SHADER, vertexFile))
             {
-                case ShaderBuildStatus::Failed:
-                    vertexTimestamp = timestamp;
-                    SHADOW_ERROR("Failed to rebuild vertex shader, using the old build.");
-                    break;
-                case ShaderBuildStatus::Success:
+            case ShaderBuildStatus::Failed:
+                vertexTimestamp = timestamp;
+                SHADOW_ERROR("Failed to rebuild vertex shader, using the old build.");
+                break;
+            case ShaderBuildStatus::Success:
+            {
+                vertexTimestamp = timestamp;
+                GLuint program;
+                SHADOW_DEBUG("Shader rebuilt! Rebuilding program...");
+                if (buildProgram(program, shader, fragmentShader))
                 {
-                    vertexTimestamp = timestamp;
-                    GLuint program;
-                    SHADOW_DEBUG("Shader rebuilt! Rebuilding program...");
-                    if (buildProgram(program, shader, fragmentShader))
-                    {
-                        GLuint oldShader = vertexShader, oldProgram = programId;
-                        programId = program;
-                        vertexShader = shader;
-                        glDeleteShader(oldShader);
-                        glDeleteProgram(oldProgram);
-                        SHADOW_DEBUG("Program rebuilt and replaced successfully!");
-                    } else
-                    {
-                        glDeleteShader(shader);
-                        SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
-                    }
-                    break;
+                    GLuint oldShader = vertexShader, oldProgram = programId;
+                    programId = program;
+                    vertexShader = shader;
+                    glDeleteShader(oldShader);
+                    glDeleteProgram(oldProgram);
+                    SHADOW_DEBUG("Program rebuilt and replaced successfully!");
                 }
-                default:
-                    break;
+                else
+                {
+                    glDeleteShader(shader);
+                    SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
+                }
+                break;
+            }
+            default:
+                break;
             }
         }
     }
@@ -93,32 +95,33 @@ void shadow::GLShader::update()
             GLuint shader;
             switch (buildShader(shader, GL_FRAGMENT_SHADER, fragmentFile))
             {
-                case ShaderBuildStatus::Failed:
-                    fragmentTimestamp = timestamp;
-                    SHADOW_ERROR("Failed to rebuild fragment shader, using the old build.");
-                    break;
-                case ShaderBuildStatus::Success:
+            case ShaderBuildStatus::Failed:
+                fragmentTimestamp = timestamp;
+                SHADOW_ERROR("Failed to rebuild fragment shader, using the old build.");
+                break;
+            case ShaderBuildStatus::Success:
+            {
+                fragmentTimestamp = timestamp;
+                GLuint program;
+                SHADOW_DEBUG("Shader rebuilt! Rebuilding program...");
+                if (buildProgram(program, vertexShader, shader))
                 {
-                    fragmentTimestamp = timestamp;
-                    GLuint program;
-                    SHADOW_DEBUG("Shader rebuilt! Rebuilding program...");
-                    if (buildProgram(program, vertexShader, shader))
-                    {
-                        GLuint oldShader = fragmentShader, oldProgram = programId;
-                        programId = program;
-                        fragmentShader = shader;
-                        glDeleteShader(oldShader);
-                        glDeleteProgram(oldProgram);
-                        SHADOW_DEBUG("Program rebuilt as {} and replaced successfully!", programId);
-                    } else
-                    {
-                        glDeleteShader(shader);
-                        SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
-                    }
-                    break;
+                    GLuint oldShader = fragmentShader, oldProgram = programId;
+                    programId = program;
+                    fragmentShader = shader;
+                    glDeleteShader(oldShader);
+                    glDeleteProgram(oldProgram);
+                    SHADOW_DEBUG("Program rebuilt as {} and replaced successfully!", programId);
                 }
-                default:
-                    break;
+                else
+                {
+                    glDeleteShader(shader);
+                    SHADOW_ERROR("Failed to rebuild shader program, using the old build.");
+                }
+                break;
+            }
+            default:
+                break;
             }
         }
     }
@@ -150,7 +153,7 @@ GLint shadow::GLShader::getUniformLocation(gsl::cstring_span name) const
     if (result == -1)
     {
         SHADOW_ERROR("Uniform '{}' was not found in program {} ('{}', '{}')!",
-                     name.cbegin(), programId, vertexFile.generic_string(), fragmentFile.generic_string());
+            name.cbegin(), programId, vertexFile.generic_string(), fragmentFile.generic_string());
     }
     return result;
 }
@@ -257,28 +260,16 @@ bool shadow::GLShader::buildProgram(GLuint& programId, GLuint vertexShader, GLui
 shadow::ShaderBuildStatus shadow::GLShader::buildShader(GLuint& shaderId, GLuint shaderType, const std::filesystem::path& path) const
 {
     SHADOW_DEBUG("Building shader '{}' of type '{}'...", path.generic_string(), shaderType);
-    if (!exists(path))
+    std::string shaderTextString = ResourceManager::getInstance().getShaderFileContent(path);
+    if (shaderTextString.empty())
     {
-        shaderId = 0U;
-        SHADOW_ERROR("Shader file '{}' does not exist!", path.generic_string());
-        return ShaderBuildStatus::Failed;
-    }
-    shaderId = glCreateShader(shaderType);
-    std::ifstream data(path, std::ios::binary | std::ios::ate);
-    const std::streamsize fileSize = data.tellg();
-    if (fileSize <= 0)
-    {
-        SHADOW_WARN("Shader file '{}' is probably still being written, postponing rebuild...", path.generic_string());
+        SHADOW_ERROR("Provided shader file '{}' content was empty!", path.generic_string());
         return ShaderBuildStatus::Unavailable;
     }
-    const GLint textSize = static_cast<GLint>(fileSize);
-    assert(static_cast<std::streamsize>(textSize) == fileSize);
-    assert(textSize > 0);
-    data.seekg(0, std::ios::beg);
-    GLchar* text = new GLchar[textSize];
-    data.read(text, fileSize);
-    glShaderSource(shaderId, 1, &text, &textSize);
-    delete[] text;
+    shaderId = glCreateShader(shaderType);
+    const GLchar* shaderText{ shaderTextString.c_str() };
+    GLint shaderTextSize = static_cast<GLint>(shaderTextString.length());
+    glShaderSource(shaderId, 1, &shaderText, &shaderTextSize);
     glCompileShader(shaderId);
     GLint isFine;
     glGetShaderiv(shaderId, GL_COMPILE_STATUS, &isFine);

@@ -35,6 +35,7 @@ namespace shadow
         bool initialize(std::filesystem::path resourceDirectory);
         bool reworkShaderFiles();
         void updateShaders() const;
+        std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path);
         std::shared_ptr<ModelMesh> getModel(const std::filesystem::path& path);
         std::shared_ptr<MaterialModelMesh> getMaterialModel(const std::filesystem::path& path, std::shared_ptr<Material> material);
@@ -58,7 +59,7 @@ namespace shadow
         static std::filesystem::path reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath);
         bool initialised = false;
         const std::filesystem::path MODELS_TEXTURES_DIR{ "ModelsTextures" }, SHADERS_DIR{ "Shaders" };
-        const char* INCLUDE_TEXT = "//SHADOW>include ", * INCLUDED_FROM_TEXT = "//SHADOW>includedfrom ", * END_INCLUDE_TEXT = "//SHADOW>endinclude ";
+        const char* INCLUDE_TEXT = "//SHADOW>include ", * INCLUDED_FROM_TEXT = "//SHADOW>includedfrom ", * END_INCLUDE_TEXT = "//SHADOW>endinclude ", * REFILL_TEXT = "//SHADOW>refill";
         const size_t INCLUDE_LENGTH = strlen(INCLUDE_TEXT), INCLUDED_FROM_LENGTH = strlen(INCLUDED_FROM_TEXT), END_INCLUDE_LENGTH = strlen(END_INCLUDE_TEXT);
         const std::vector<std::string> SHADER_EXTENSIONS{ ".glsl", ".vert", ".frag" };
         std::filesystem::path resourceDirectory{}, modelsTexturesDirectory{}, shadersDirectory{};
