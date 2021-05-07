@@ -7,6 +7,7 @@
 #include "UboMvp.h"
 #include "UboMaterial.h"
 #include "UboLights.h"
+#include "UboWindow.h"
 
 #include <memory>
 #include <filesystem>
@@ -41,6 +42,7 @@ namespace shadow
         std::shared_ptr<UboMvp> getUboMvp() const;
         std::shared_ptr<UboMaterial> getUboMaterial() const;
         std::shared_ptr<UboLights> getUboLights() const;
+        std::shared_ptr<UboWindow> getUboWindow() const;
         void renderQuad() const;
     private:
         ResourceManager() = default;
@@ -67,6 +69,7 @@ namespace shadow
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboMaterial> uboMaterial{};
         std::shared_ptr<UboLights> uboLights{};
+        std::shared_ptr<UboWindow> uboWindow{};
         GLuint quadVao{}, quadVbo{};
     };
 }

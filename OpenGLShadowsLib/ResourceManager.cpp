@@ -277,6 +277,11 @@ std::shared_ptr<shadow::UboLights> shadow::ResourceManager::getUboLights() const
     return uboLights;
 }
 
+std::shared_ptr<shadow::UboWindow> shadow::ResourceManager::getUboWindow() const
+{
+    return uboWindow;
+}
+
 void shadow::ResourceManager::renderQuad() const
 {
     glBindVertexArray(quadVao);
@@ -623,6 +628,7 @@ void shadow::ResourceManager::loadShaders()
     uboLights = std::make_shared<UboLights>(
         std::make_shared<DirectionalLight>(dirLightData),
         std::make_shared<SpotLight>(spotLightData));
+    uboWindow = std::make_shared<UboWindow>();
 }
 
 std::filesystem::path shadow::ResourceManager::reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath)

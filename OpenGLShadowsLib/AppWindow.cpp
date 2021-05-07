@@ -104,10 +104,14 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
     this->spotPenumbraShader = resourceManager.getShader(ShaderType::SpotPenumbra);
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
+    this->uboWindow = resourceManager.getUboWindow();
     this->dirLight = uboLights->getDirectionalLight();
     this->spotLight = uboLights->getSpotLight();
     this->width = width;
     this->height = height;
+
+    glm::vec2 windowSize{ width, height };
+    uboWindow->setWindowSize(windowSize);
 
     updateLightShadowSamplers();
 
@@ -163,6 +167,8 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     this->height = height;
     mainFramebuffer.resize(width, height);
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+    glm::vec2 windowSize{ width, height };
+    uboWindow->setWindowSize(windowSize);
 }
 
 void shadow::AppWindow::resizeLights(GLsizei textureSize, unsigned int penumbraTextureSizeDivisor)

@@ -95,13 +95,15 @@ int main()
     float dirSize = dirData.lightSize, spotSize = spotData.lightSize;
     float projectionSize = dirLight->getProjectionSize();
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
-    const int MAP_SIZE_COUNT = 16;
     float maxFps = 0.0f;
+    const int MAP_SIZE_COUNT = 16;
     GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
     int currMapSizeIndex = MAP_SIZE_COUNT - 1;
     int mapSize = MAP_SIZES[currMapSizeIndex];
-    int currPenumbraTextureSizeDivisor = 1;
-    unsigned int penumbraTextureSizeDivisor = currPenumbraTextureSizeDivisor;
+    const int PENUMBRA_DIVISOR_COUNT = 5;
+    unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16 };
+    int currPenumbraDivisorIndex = 0;
+    unsigned int penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
     glm::vec3 spotPosition = spotData.position;
     appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
     auto guiProc = [&]()
@@ -125,7 +127,8 @@ int main()
             analysisTimer = 0.0f;
             currMapSizeIndex = MAP_SIZE_COUNT - 1;
             mapSize = MAP_SIZES[currMapSizeIndex];
-            penumbraTextureSizeDivisor = currPenumbraTextureSizeDivisor = 1;
+            currPenumbraDivisorIndex = 0;
+            penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
             appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
             //todo: add all map size combinations to analysis? maybe something different, we'll see what's needed
             analysing = true;
@@ -134,7 +137,7 @@ int main()
         if (showingSettings)
         {
             ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
-            ImGui::SliderInt("Penumbra map size divisor", &currPenumbraTextureSizeDivisor, 1, 4, std::to_string(currPenumbraTextureSizeDivisor).c_str());
+            ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, PENUMBRA_DIVISOR_COUNT - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
             ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
             ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
@@ -151,10 +154,10 @@ int main()
                 mapSizeChanged = true;
                 mapSize = MAP_SIZES[currMapSizeIndex];
             }
-            if (penumbraTextureSizeDivisor != currPenumbraTextureSizeDivisor)
+            if (penumbraTextureSizeDivisor != PENUMBRA_DIVISORS[currPenumbraDivisorIndex])
             {
                 mapSizeChanged = true;
-                penumbraTextureSizeDivisor = currPenumbraTextureSizeDivisor;
+                penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
             }
             if (mapSizeChanged)
             {

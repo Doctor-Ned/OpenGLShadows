@@ -2,6 +2,13 @@
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/common.hlsl
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/shadow_mask_ps.hlsl
 
+//SHADOW>includedfrom UboWindow.glsl
+layout (std140, binding = 3) uniform Window
+{
+    vec2 windowSize;
+};
+//SHADOW>endinclude UboWindow.glsl
+
 #define VOGEL_SAMPLES_COUNT 32
 #define VOGEL_PENUMBRA_SAMPLES_COUNT 16
 
@@ -32,12 +39,12 @@ float penumbraSize(float receiverDepth, float blockerDepth)
     return (receiverDepth-blockerDepth) / blockerDepth;
 }
 
-float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
+vec2 calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
 {
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
     if(projCoords.z > 1.0)
     {
-        return 0.0;
+        return vec2(0.0, 0.0);
     }
     float blockerDepth = 0.0;
     int numBlockers = 0;
@@ -45,7 +52,9 @@ float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D t
     float searchWidth = lightSize * (projCoords.z - nearZ) / projCoords.z;
     for(int i = 0; i < VOGEL_PENUMBRA_SAMPLES_COUNT; ++i)
     {
-        float depth = texture(text, texCoords + sampleVogelPenumbraDisk(i, interleavedGradientNoise(gl_FragCoord.xy)) * searchWidth).r;
+        float depth = texture(text,
+        texCoords + sampleVogelPenumbraDisk(
+            i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * searchWidth).r;
         if(depth < projCoords.z)
         {
             blockerDepth += depth;
@@ -54,10 +63,10 @@ float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D t
     }
     if(numBlockers == 0)
     {
-        return 0.0;
+        return vec2(0.0, 0.0);
     }
     blockerDepth /= numBlockers;
-    return blockerDepth;
+    return vec2((projCoords.z - blockerDepth) / blockerDepth, 1.0);
 }
 
 float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text, sampler2D penumbraText)
@@ -67,17 +76,18 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     {
         return 0.0;
     }
-    float blockerDepth = texture(penumbraText, gl_FragCoord.xy).r;
-    if(blockerDepth == 0.0)
+    vec2 penumbraRatio = texture(penumbraText, gl_FragCoord.xy / windowSize).rg;
+    if(penumbraRatio.g == 0.0)
     {
         return 0.0;
     }
-    float penumbraRatio = (projCoords.z - blockerDepth) / blockerDepth;
-    float filterRadiusUV = penumbraRatio * lightSize * nearZ / projCoords.z;
+    float filterRadiusUV = penumbraRatio.r * lightSize * nearZ / projCoords.z;
     float shadow = 0.0;
     for(int i = 0; i < VOGEL_SAMPLES_COUNT; ++i)
     {
-        float depth = texture(text, projCoords.xy + sampleVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy)) * filterRadiusUV).r;
+        float depth = texture(text,
+        projCoords.xy + sampleVogelDisk(
+            i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * filterRadiusUV).r;
         if(depth < projCoords.z - 0.008)
         {
             shadow += 1.0;

@@ -53,6 +53,7 @@ namespace shadow
         std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{}, dirPenumbraShader{}, spotPenumbraShader{};
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
+        std::shared_ptr<UboWindow> uboWindow{};
         std::shared_ptr<DirectionalLight> dirLight{};
         std::shared_ptr<SpotLight> spotLight{};
         Framebuffer mainFramebuffer{};

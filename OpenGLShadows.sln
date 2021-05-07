@@ -34,6 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\UboLights.glsl = Resources\Shaders\UboLights.glsl
 		Resources\Shaders\UboMaterial.glsl = Resources\Shaders\UboMaterial.glsl
 		Resources\Shaders\UboMvp.glsl = Resources\Shaders\UboMvp.glsl
+		Resources\Shaders\UboWindow.glsl = Resources\Shaders\UboWindow.glsl
 	EndProjectSection
 EndProject
 Global

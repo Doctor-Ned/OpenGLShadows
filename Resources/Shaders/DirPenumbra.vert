@@ -1,6 +1,5 @@
 #version 430 core
 layout (location = 0) in vec3 pos;
-layout (location = 1) in vec3 normal;
 
 //SHADOW>includedfrom UboMvp.glsl
 layout (std140, binding = 0) uniform ModelViewProjection
@@ -59,7 +58,8 @@ out VS_OUT
 
 void main()
 {
-    vec3 pos = vec3(model * vec4(pos, 1.0));
-    vs_out.dirSpacePos = dirLightData.lightSpace * vec4(pos, 1.0);
-    gl_Position = projection * view * vec4(pos, 1.0);
+    vec4 position = model * vec4(pos, 1.0);
+    position.w = 1.0;
+    vs_out.dirSpacePos = dirLightData.lightSpace * position;
+    gl_Position = projection * view * position;
 }
