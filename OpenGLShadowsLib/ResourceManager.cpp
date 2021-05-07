@@ -99,8 +99,10 @@ bool shadow::ResourceManager::reworkShaderFiles()
                         it->second.references.clear();
                         it->second.modified = true;
                     }
-                } catch (std::exception&) {}
-            } else
+                }
+                catch (std::exception&) {}
+            }
+            else
             {
                 std::string extension = path.filename().generic_string();
                 size_t dotIndex = extension.find_last_of('.');
@@ -140,7 +142,8 @@ bool shadow::ResourceManager::reworkShaderFiles()
                 if (line.rfind(INCLUDE_TEXT, 0) == 0)
                 {
                     includedFile = line.substr(INCLUDE_LENGTH);
-                } else if (line.rfind(INCLUDED_FROM_TEXT, 0) == 0)
+                }
+                else if (line.rfind(INCLUDED_FROM_TEXT, 0) == 0)
                 {
                     includedFile = line.substr(INCLUDED_FROM_LENGTH);
                 }
@@ -155,8 +158,9 @@ bool shadow::ResourceManager::reworkShaderFiles()
                             if (isShaderFileRecursivelyReferenced(pair.first, innerPair.first))
                             {
                                 SHADOW_WARN("Recursive reference of '{}' found in '{}'! This reference will NOT be included.",
-                                            pair.first.generic_string(), innerPair.first.generic_string());
-                            } else
+                                    pair.first.generic_string(), innerPair.first.generic_string());
+                            }
+                            else
                             {
                                 if (std::find(pair.second.references.begin(), pair.second.references.end(), innerPair.first) == pair.second.references.end())
                                 {
@@ -205,6 +209,16 @@ void shadow::ResourceManager::updateShaders() const
     {
         pair.second->update();
     }
+}
+
+std::string shadow::ResourceManager::getShaderFileContent(const std::filesystem::path& path)
+{
+    const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
+    if (it == shaderFileInfos.end())
+    {
+        return {};
+    }
+    return it->second.content;
 }
 
 std::shared_ptr<shadow::Texture> shadow::ResourceManager::getTexture(const std::filesystem::path& path)
@@ -360,7 +374,8 @@ shadow::ModelMeshData shadow::ResourceManager::processModelMesh(aiMesh* mesh, co
         if (mesh->mTextureCoords[0])
         {
             result.texCoords.emplace_back(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-        } else
+        }
+        else
         {
             result.texCoords.emplace_back(0.0f, 0.0f);
         }
@@ -404,26 +419,26 @@ std::shared_ptr<shadow::Texture> shadow::ResourceManager::loadModelTexture(Textu
                 ++lastUnderscore;
                 std::string type = fileName.substr(lastUnderscore, lastDot - lastUnderscore);
                 std::transform(type.begin(), type.end(), type.begin(),
-                               [](auto c) { return std::tolower(c); });
+                    [](auto c) { return std::tolower(c); });
                 bool match;
                 switch (textureType)
                 {
-                    case TextureType::Albedo:
-                        match = !strcmp(type.c_str(), "bc") || !strcmp(type.c_str(), "basecolor") || !strcmp(type.c_str(), "albedo");
-                        break;
-                    case TextureType::Metalness:
-                        match = !strcmp(type.c_str(), "m") || !strcmp(type.c_str(), "metallic") || !strcmp(type.c_str(), "metalness");
-                        break;
-                    case TextureType::Roughness:
-                        match = !strcmp(type.c_str(), "r") || !strcmp(type.c_str(), "roughness");
-                        break;
-                    case TextureType::Normal:
-                        match = !strcmp(type.c_str(), "n") || !strcmp(type.c_str(), "normal");
-                        break;
-                    default:
-                        match = false;
-                        SHADOW_ERROR("Encountered unknown texture type {}!", textureType);
-                        break;
+                case TextureType::Albedo:
+                    match = !strcmp(type.c_str(), "bc") || !strcmp(type.c_str(), "basecolor") || !strcmp(type.c_str(), "albedo");
+                    break;
+                case TextureType::Metalness:
+                    match = !strcmp(type.c_str(), "m") || !strcmp(type.c_str(), "metallic") || !strcmp(type.c_str(), "metalness");
+                    break;
+                case TextureType::Roughness:
+                    match = !strcmp(type.c_str(), "r") || !strcmp(type.c_str(), "roughness");
+                    break;
+                case TextureType::Normal:
+                    match = !strcmp(type.c_str(), "n") || !strcmp(type.c_str(), "normal");
+                    break;
+                default:
+                    match = false;
+                    SHADOW_ERROR("Encountered unknown texture type {}!", textureType);
+                    break;
                 }
                 if (match)
                 {
@@ -456,7 +471,8 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
     if (it->second.references.empty())
     {
         it->second.content = std::string(std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>());
-    } else
+    }
+    else
     {
         for (const std::filesystem::path& refPath : it->second.references)
         {
@@ -472,6 +488,8 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
             lines.push_back(line);
         }
         std::stringstream ss{};
+        std::stringstream nonContentSs{};
+        bool refillFile = false;
         for (size_t i = 0; i < lines.size();)
         {
             std::string trimmed = lines[i];
@@ -479,16 +497,24 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
             if (trimmed.rfind(INCLUDE_TEXT, 0) == 0)
             {
                 std::string includedFile = trimmed.substr(INCLUDE_LENGTH);
+                bool includedFileFound = false;
                 for (const std::map<std::filesystem::path, ShaderFileInfo>::value_type& pair : shaderFileInfos)
                 {
                     if (pair.first.filename() == includedFile)
                     {
+                        includedFileFound = true;
                         ss << INCLUDED_FROM_TEXT << includedFile << std::endl << pair.second.content << std::endl << END_INCLUDE_TEXT << includedFile << std::endl;
                         break;
                     }
                 }
+                if (!includedFileFound)
+                {
+                    SHADOW_ERROR("Include file '{}' referenced in '{}':{} was NOT found!", includedFile, path.generic_string(), i + 1);
+                }
+                nonContentSs << trimmed << std::endl;
                 ++i;
-            } else if (trimmed.rfind(INCLUDED_FROM_TEXT, 0) == 0)
+            }
+            else if (trimmed.rfind(INCLUDED_FROM_TEXT, 0) == 0)
             {
                 std::string includedFile = trimmed.substr(INCLUDED_FROM_LENGTH);
                 size_t endIndex = std::string::npos;
@@ -508,7 +534,8 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
                 if (endIndex == std::string::npos)
                 {
                     SHADOW_ERROR("Unable to find inclusion end ('{}' included at line {} in '{}')!", includedFile, i + 1, path.generic_string());
-                } else
+                }
+                else
                 {
                     lines.erase(lines.begin() + i, lines.begin() + endIndex);
                     bool fileFound = false;
@@ -521,23 +548,42 @@ bool shadow::ResourceManager::rebuildShaderFile(const std::filesystem::path& pat
                             break;
                         }
                     }
-                    ++i;
                     if (!fileFound)
                     {
+                        SHADOW_ERROR("Include file '{}' referenced in '{}':{} was NOT found!", includedFile, path.generic_string(), i + 1);
                         ss << INCLUDE_TEXT << includedFile << std::endl;
                     }
                 }
-            } else
+                nonContentSs << INCLUDE_TEXT << includedFile << std::endl;
+                ++i;
+            }
+            else if (trimmed.rfind(REFILL_TEXT, 0) == 0)
             {
                 ss << lines[i] << std::endl;
+                nonContentSs << lines[i] << std::endl;
+                refillFile = true;
+                SHADOW_DEBUG("Shader file '{}' is marked to be refilled.", path.generic_string());
+                ++i;
+            }
+            else
+            {
+                ss << lines[i] << std::endl;
+                nonContentSs << lines[i] << std::endl;
                 ++i;
             }
         }
         it->second.content = ss.str();
         stream.close();
-        SHADOW_DEBUG("Overwriting '{}'...", path.generic_string());
+        SHADOW_DEBUG("Overwriting '{}' ({})...", path.generic_string(), refillFile);
         std::ofstream output(path, std::ios::trunc);
-        output << it->second.content;
+        if (refillFile)
+        {
+            output << it->second.content;
+        }
+        else
+        {
+            output << nonContentSs.str();
+        }
         output.flush();
         it->second.timestamp = last_write_time(path);
     }
@@ -635,7 +681,7 @@ std::filesystem::path shadow::ResourceManager::reworkPath(const std::filesystem:
         isFull
         ? inputPath
         : (isMidDir
-           ? (basePath / inputPath)
-           : (basePath / midPath / inputPath)
-           );
+            ? (basePath / inputPath)
+            : (basePath / midPath / inputPath)
+            );
 }
