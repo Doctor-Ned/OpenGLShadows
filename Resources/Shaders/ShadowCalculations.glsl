@@ -39,12 +39,12 @@ float penumbraSize(float receiverDepth, float blockerDepth)
     return (receiverDepth-blockerDepth) / blockerDepth;
 }
 
-vec2 calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
+float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
 {
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
     if(projCoords.z > 1.0)
     {
-        return vec2(0.0, 0.0);
+        return 0.0;
     }
     float blockerDepth = 0.0;
     int numBlockers = 0;
@@ -63,10 +63,10 @@ vec2 calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D te
     }
     if(numBlockers == 0)
     {
-        return vec2(0.0, 0.0);
+        return 0.0;
     }
     blockerDepth /= numBlockers;
-    return vec2((projCoords.z - blockerDepth) / blockerDepth, 1.0);
+    return (projCoords.z - blockerDepth) / blockerDepth;
 }
 
 float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text, sampler2D penumbraText)
@@ -76,12 +76,12 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     {
         return 0.0;
     }
-    vec2 penumbraRatio = texture(penumbraText, gl_FragCoord.xy / windowSize).rg;
-    if(penumbraRatio.g == 0.0)
+    float penumbraRatio = texture(penumbraText, gl_FragCoord.xy / windowSize).r;
+    if(penumbraRatio == 0.0)
     {
         return 0.0;
     }
-    float filterRadiusUV = penumbraRatio.r * lightSize * nearZ / projCoords.z;
+    float filterRadiusUV = penumbraRatio * lightSize * nearZ / projCoords.z;
     float shadow = 0.0;
     for(int i = 0; i < VOGEL_SAMPLES_COUNT; ++i)
     {

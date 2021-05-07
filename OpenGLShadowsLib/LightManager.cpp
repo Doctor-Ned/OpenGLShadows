@@ -33,13 +33,13 @@ bool shadow::LightManager::initialize(GLsizei textureSize, GLsizei penumbraTextu
     {
         return false;
     }
-    if (!dirPenumbraFbo.initialize(true, GL_COLOR_ATTACHMENT0, GL_RG16F,
-        penumbraTextureWidth, penumbraTextureHeight, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+    if (!dirPenumbraFbo.initialize(true, GL_COLOR_ATTACHMENT0, GL_RED,
+        penumbraTextureWidth, penumbraTextureHeight, GL_RED, GL_UNSIGNED_BYTE, GL_LINEAR, GL_CLAMP_TO_BORDER, glm::vec4(0.0f)))
     {
         return false;
     }
-    if (!spotPenumbraFbo.initialize(true, GL_COLOR_ATTACHMENT0, GL_RG16F,
-        penumbraTextureWidth, penumbraTextureHeight, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_CLAMP_TO_BORDER, glm::vec4(1.0f)))
+    if (!spotPenumbraFbo.initialize(true, GL_COLOR_ATTACHMENT0, GL_RED,
+        penumbraTextureWidth, penumbraTextureHeight, GL_RED, GL_UNSIGNED_BYTE, GL_LINEAR, GL_CLAMP_TO_BORDER, glm::vec4(0.0f)))
     {
         return false;
     }

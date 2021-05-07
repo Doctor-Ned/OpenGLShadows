@@ -100,8 +100,8 @@ int main()
     GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
     int currMapSizeIndex = MAP_SIZE_COUNT - 1;
     int mapSize = MAP_SIZES[currMapSizeIndex];
-    const int PENUMBRA_DIVISOR_COUNT = 5;
-    unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16 };
+    const int PENUMBRA_DIVISOR_COUNT = 9;
+    unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16,32,64,128,256 };
     int currPenumbraDivisorIndex = 0;
     unsigned int penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
     glm::vec3 spotPosition = spotData.position;
