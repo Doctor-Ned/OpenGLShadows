@@ -1,46 +1,10 @@
 #version 430 core
 
-//SHADOW>includedfrom UboMaterial.glsl
-layout (std140, binding = 1) uniform Material
-{
-    vec3 albedo;
-    float roughness;
-    vec3 paddingM;
-    float metallic;
-};
-//SHADOW>endinclude UboMaterial.glsl
+//SHADOW>include UboMaterial.glsl
 
-//SHADOW>includedfrom LightStructs.glsl
-struct DirectionalLightData
-{
-    mat4 lightSpace;
-    vec3 color;
-    float strength;
-    vec3 direction;
-    float padding;
-};
+//SHADOW>include LightStructs.glsl
 
-struct SpotLightData
-{
-    mat4 lightSpace;
-    vec3 color;
-    float strength;
-    vec3 direction;
-    float innerCutOff;
-    vec3 position;
-    float outerCutOff;
-};
-//SHADOW>endinclude LightStructs.glsl
-
-//SHADOW>includedfrom UboLights.glsl
-layout (std140, binding = 2) uniform Lights
-{
-    DirectionalLightData dirLightData;
-    SpotLightData spotLightData;
-    vec3 paddingL;
-    float ambient;
-};
-//SHADOW>endinclude UboLights.glsl
+//SHADOW>include UboLights.glsl
 
 layout(binding = 10) uniform sampler2D directionalShadow;
 layout(binding = 11) uniform sampler2D spotShadow;
@@ -57,64 +21,9 @@ in VS_OUT
 
 out vec4 outColor;
 
-//SHADOW>includedfrom PBRFunctions.glsl
-const float PI = 3.14159265359;
-  
-float DistributionGGX(vec3 N, vec3 H, float roughness)
-{
-    float a      = roughness*roughness;
-    float a2     = a*a;
-    float NdotH  = max(dot(N, H), 0.0);
-    float nom   = a2;
-    float denom = (NdotH * NdotH * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
-    return nom / max(denom, 0.001);
-}
+//SHADOW>include PBRFunctions.glsl
 
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r*r) / 8.0;
-
-    float nom   = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-
-    return nom / denom;
-}
-
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
-
-    return ggx1 * ggx2;
-}
-
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
-{
-    return F0 + (1.0 - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
-}
-//SHADOW>endinclude PBRFunctions.glsl
-
-//SHADOW>includedfrom ShadowCalculations.glsl
-float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
-{
-    vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
-    if(projCoords.z <= 1.0)
-    {
-        float closestDepth = texture(text, projCoords.xy).r;
-        float currentDepth = projCoords.z;
-        float bias = max(0.005 * (1.0 - worldNdotL), 0.0009);
-        if(currentDepth - bias > closestDepth)
-        {
-            return 0.0;
-        }
-    }
-    return 1.0;
-}
-//SHADOW>endinclude ShadowCalculations.glsl
+//SHADOW>include ShadowCalculations.glsl
 
 vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
 {
