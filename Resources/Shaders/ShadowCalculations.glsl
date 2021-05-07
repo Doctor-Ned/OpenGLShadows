@@ -2,12 +2,7 @@
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/common.hlsl
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/shadow_mask_ps.hlsl
 
-//SHADOW>includedfrom UboWindow.glsl
-layout (std140, binding = 3) uniform Window
-{
-    vec2 windowSize;
-};
-//SHADOW>endinclude UboWindow.glsl
+//SHADOW>include UboWindow.glsl
 
 #define VOGEL_SAMPLES_COUNT 32
 #define VOGEL_PENUMBRA_SAMPLES_COUNT 16
