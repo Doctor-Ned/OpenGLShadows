@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)GLDebug.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)LightManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ShaderManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UboWindow.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Vertex2D.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)AppWindow.h" />
@@ -65,6 +66,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)ResourceManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Scene.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SceneNode.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ShaderManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowLog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)ShadowUtils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SpotLight.cpp" />
