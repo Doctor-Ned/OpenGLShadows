@@ -84,13 +84,13 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
         return false;
     }
 
-    if (!LightManager::getInstance().initialize(lightTextureSize))
+    ResourceManager& resourceManager = ResourceManager::getInstance();
+    if (!resourceManager.initialize(resourceDirectory))
     {
         return false;
     }
 
-    ResourceManager& resourceManager = ResourceManager::getInstance();
-    if (!resourceManager.initialize(resourceDirectory))
+    if (!LightManager::getInstance().initialize(lightTextureSize))
     {
         return false;
     }
