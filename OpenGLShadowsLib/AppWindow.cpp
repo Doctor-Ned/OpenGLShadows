@@ -92,7 +92,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
         return false;
     }
 
-    if (!LightManager::getInstance().initialize(lightTextureSize, width, height))
+    if (!LightManager::getInstance().initialize(lightTextureSize, width, height, width, height))
     {
         return false;
     }
@@ -174,7 +174,7 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
 void shadow::AppWindow::resizeLights(GLsizei textureSize, unsigned int penumbraTextureSizeDivisor)
 {
     assert(penumbraTextureSizeDivisor);
-    LightManager::getInstance().resize(textureSize, width / penumbraTextureSizeDivisor, height / penumbraTextureSizeDivisor);
+    LightManager::getInstance().resize(textureSize, width, height, width / penumbraTextureSizeDivisor, height / penumbraTextureSizeDivisor);
     updateLightShadowSamplers();
 }
 
@@ -227,6 +227,15 @@ void shadow::AppWindow::updateLightShadowSamplers()
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
         glActiveTexture(GL_TEXTURE13);
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotPenumbraTexture());
+        glActiveTexture(GL_TEXTURE14);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getIGNTexture());
     }
+    GL_PUSH_DEBUG_GROUP("IGN");
     glActiveTexture(GL_TEXTURE0);
+    glViewport(0, 0, width, height);
+    glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getIGNFbo());
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    resourceManager.getShader(ShaderType::InterleavedGradientNoise)->use();
+    resourceManager.renderQuad();
+    GL_POP_DEBUG_GROUP();
 }

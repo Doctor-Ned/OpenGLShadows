@@ -15,6 +15,7 @@ namespace shadow
         SpotPenumbra,
         GaussianBlur,
         PostProcess,
+        InterleavedGradientNoise,
         ShaderTypeEnd
     };
 }

@@ -8,6 +8,7 @@ layout(binding = 10) uniform sampler2D directionalShadow;
 layout(binding = 11) uniform sampler2D directionalPenumbra;
 layout(binding = 12) uniform sampler2D spotShadow;
 layout(binding = 13) uniform sampler2D spotPenumbra;
+layout(binding = 14) uniform sampler2D ignTexture;
 
 in VS_OUT
 {
