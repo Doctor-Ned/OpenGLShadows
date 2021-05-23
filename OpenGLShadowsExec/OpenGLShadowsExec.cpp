@@ -82,8 +82,11 @@ int main()
 
     bool analysing = false;
     float analysisMaxFps = 0.0f;
+    float analysisAvgFps = 0.0f;
     float analysisTimer = 0.0f;
-    const float ANALYSIS_TIME = 10.0f;
+    unsigned int framesAnalysed = 0U;
+    const float MIN_ANALYSIS_TIME = 10.0f;
+    const unsigned int MIN_FRAMES_ANALYSED = 10000U;
 
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
@@ -108,10 +111,6 @@ int main()
     appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
     auto guiProc = [&]()
     {
-        if (analysing)
-        {
-            return;
-        }
         ImGui::Begin("Settings");
         ImGui::Text("FPS: %f", ImGui::GetIO().Framerate);
         maxFps = std::max(maxFps, ImGui::GetIO().Framerate);
@@ -121,60 +120,67 @@ int main()
         {
             maxFps = 0.0f;
         }
-        if (ImGui::Button("Run analysis"))
+        if (analysing)
         {
-            analysisMaxFps = 0.0f;
-            analysisTimer = 0.0f;
-            currMapSizeIndex = MAP_SIZE_COUNT - 1;
-            mapSize = MAP_SIZES[currMapSizeIndex];
-            currPenumbraDivisorIndex = 0;
-            penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
-            appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
-            //todo: add all map size combinations to analysis? maybe something different, we'll see what's needed
-            analysing = true;
+            if (ImGui::Button("Stop analysis"))
+            {
+                analysing = false;
+            }
         }
-        ImGui::Checkbox("Show settings", &showingSettings);
-        if (showingSettings)
+        else
         {
-            ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
-            ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, PENUMBRA_DIVISOR_COUNT - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
-            ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
-            ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
-            ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
-            ImGui::DragFloat("Spot light size", &spotSize, 0.005f, 0.0f, 5.0f);
-            ImGui::DragFloat3("Spot light position", value_ptr(spotPosition), 0.01f);
-            ImGui::ColorPicker3("Directional light color", value_ptr(dirColor));
-            ImGui::ColorPicker3("Spot light color", value_ptr(spotColor));
-            ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
-            ImGui::DragFloat2("Directional clipping", value_ptr(dirClip), 0.05f, 0.0f, 10.0f);
-            ImGui::DragFloat2("Spot clipping", value_ptr(spotClip), 0.05f, 0.0f, 10.0f);
-            bool mapSizeChanged = false;
-            if (mapSize != MAP_SIZES[currMapSizeIndex])
+            if (ImGui::Button("Run analysis"))
             {
-                mapSizeChanged = true;
-                mapSize = MAP_SIZES[currMapSizeIndex];
+                maxFps = 0.0f;
+                analysisAvgFps = 0.0f;
+                analysisMaxFps = 0.0f;
+                analysisTimer = 0.0f;
+                framesAnalysed = 0U;
+                analysing = true;
             }
-            if (penumbraTextureSizeDivisor != PENUMBRA_DIVISORS[currPenumbraDivisorIndex])
+            ImGui::Checkbox("Show settings", &showingSettings);
+            if (showingSettings)
             {
-                mapSizeChanged = true;
-                penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
+                ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
+                ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, PENUMBRA_DIVISOR_COUNT - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
+                ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
+                ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
+                ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
+                ImGui::DragFloat("Spot light size", &spotSize, 0.005f, 0.0f, 5.0f);
+                ImGui::DragFloat3("Spot light position", value_ptr(spotPosition), 0.01f);
+                ImGui::ColorPicker3("Directional light color", value_ptr(dirColor));
+                ImGui::ColorPicker3("Spot light color", value_ptr(spotColor));
+                ImGui::DragFloat("Dir projection size", &projectionSize, 0.05f, 0.0f, 15.0f);
+                ImGui::DragFloat2("Directional clipping", value_ptr(dirClip), 0.05f, 0.0f, 10.0f);
+                ImGui::DragFloat2("Spot clipping", value_ptr(spotClip), 0.05f, 0.0f, 10.0f);
+                bool mapSizeChanged = false;
+                if (mapSize != MAP_SIZES[currMapSizeIndex])
+                {
+                    mapSizeChanged = true;
+                    mapSize = MAP_SIZES[currMapSizeIndex];
+                }
+                if (penumbraTextureSizeDivisor != PENUMBRA_DIVISORS[currPenumbraDivisorIndex])
+                {
+                    mapSizeChanged = true;
+                    penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
+                }
+                if (mapSizeChanged)
+                {
+                    appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
+                }
+                GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
+                GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
+                GUI_UPDATE(dirSize, dirData.lightSize, dirLight->setLightSize);
+                GUI_UPDATE(spotSize, spotData.lightSize, spotLight->setLightSize);
+                GUI_UPDATE(spotPosition, spotData.position, spotLight->setPosition);
+                GUI_UPDATE(dirColor, dirData.color, dirLight->setColor);
+                GUI_UPDATE(spotColor, spotData.color, spotLight->setColor);
+                GUI_UPDATE(projectionSize, dirLight->getProjectionSize(), dirLight->setProjectionSize);
+                GUI_UPDATE(dirClip.x, dirData.nearZ, dirLight->setNearZ);
+                GUI_UPDATE(dirClip.y, dirData.farZ, dirLight->setFarZ);
+                GUI_UPDATE(spotClip.x, spotData.nearZ, spotLight->setNearZ);
+                GUI_UPDATE(spotClip.y, spotData.farZ, spotLight->setFarZ);
             }
-            if (mapSizeChanged)
-            {
-                appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
-            }
-            GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
-            GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
-            GUI_UPDATE(dirSize, dirData.lightSize, dirLight->setLightSize);
-            GUI_UPDATE(spotSize, spotData.lightSize, spotLight->setLightSize);
-            GUI_UPDATE(spotPosition, spotData.position, spotLight->setPosition);
-            GUI_UPDATE(dirColor, dirData.color, dirLight->setColor);
-            GUI_UPDATE(spotColor, spotData.color, spotLight->setColor);
-            GUI_UPDATE(projectionSize, dirLight->getProjectionSize(), dirLight->setProjectionSize);
-            GUI_UPDATE(dirClip.x, dirData.nearZ, dirLight->setNearZ);
-            GUI_UPDATE(dirClip.y, dirData.farZ, dirLight->setFarZ);
-            GUI_UPDATE(spotClip.x, spotData.nearZ, spotLight->setNearZ);
-            GUI_UPDATE(spotClip.y, spotData.farZ, spotLight->setFarZ);
         }
         ImGui::End();
     };
@@ -183,23 +189,16 @@ int main()
         appWindow.loop(timeDelta, guiProc);
         if (analysing)
         {
-            analysisMaxFps = std::max(analysisMaxFps, ImGui::GetIO().Framerate);
+            float fps = ImGui::GetIO().Framerate;
+            analysisAvgFps += fps;
+            analysisMaxFps = std::max(analysisMaxFps, fps);
+            ++framesAnalysed;
             analysisTimer += static_cast<float>(timeDelta);
-            if (analysisTimer >= ANALYSIS_TIME)
+            if (analysisTimer >= MIN_ANALYSIS_TIME && framesAnalysed >= MIN_FRAMES_ANALYSED)
             {
-                SHADOW_INFO("{}, {}", mapSize, analysisMaxFps);
-                analysisMaxFps = 0.0f;
-                analysisTimer = 0.0f;
-                if (currMapSizeIndex == 0)
-                {
-                    analysing = false;
-                }
-                else
-                {
-                    --currMapSizeIndex;
-                    mapSize = MAP_SIZES[currMapSizeIndex];
-                    appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
-                }
+                analysisAvgFps /= static_cast<float>(framesAnalysed);
+                SHADOW_INFO("For map size {} -> FPS = [avg: {}, max: {}] ({} frames in {}s)", mapSize, analysisAvgFps, analysisMaxFps, framesAnalysed, analysisTimer); //todo: nicer output, maybe a file?
+                analysing = false;
             }
         }
         else
