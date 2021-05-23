@@ -43,7 +43,7 @@ namespace shadow
         void setModel(glm::mat4 model) const;
         void setLightSpaceMatrix(glm::mat4 lightSpaceMatrix) const;
     private:
-        friend class ResourceManager;
+        friend class ShaderManager;
         GLShader(std::filesystem::path shaderPath, gsl::cstring_span commonFileName);
         GLShader(std::filesystem::path shaderPath, gsl::cstring_span vertexFile, gsl::cstring_span fragmentFile);
         bool buildProgram(GLuint& programId, GLuint vertexShader, GLuint fragmentShader) const;
