@@ -38,6 +38,7 @@ namespace shadow
         ShaderManager& operator=(ShaderManager&&) = delete;
         bool reworkShaderFiles();
         void updateShaders() const;
+        void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<GLShader> getShader(ShaderType shaderType);
         std::shared_ptr<UboMvp> getUboMvp() const;
@@ -54,6 +55,8 @@ namespace shadow
         void updateInclude(const std::string& inclName, const std::string& inclContent);
         void prepareShaderIncludes();
         void addShaderInclude(const std::string& name, const std::string& content);
+        std::string getVogelIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples);
+        std::vector<glm::vec2> getVogelDisk(unsigned int size) const;
         std::map<std::filesystem::path, ShaderFileInfo> shaderFileInfos{};
         std::map<ShaderType, std::shared_ptr<GLShader>> shaders{};
         std::map<std::string, ShaderTextInclude> shaderIncludes{};
@@ -62,6 +65,7 @@ namespace shadow
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<UboWindow> uboWindow{};
         const char* INCLUDE_TEXT = "//SHADOW>include ", * INCLUDED_FROM_TEXT = "//SHADOW>includedfrom ", * END_INCLUDE_TEXT = "//SHADOW>endinclude ", * REFILL_TEXT = "//SHADOW>refill";
+        const std::string VOGEL_INCLUDE_TEXT{ "VOGEL_DISK" };
         const size_t INCLUDE_LENGTH = strlen(INCLUDE_TEXT), INCLUDED_FROM_LENGTH = strlen(INCLUDED_FROM_TEXT), END_INCLUDE_LENGTH = strlen(END_INCLUDE_TEXT), REFILL_LENGTH = strlen(REFILL_TEXT);
         const std::vector<std::string> SHADER_EXTENSIONS{ ".glsl", ".vert", ".frag" };
         std::filesystem::path shadersDirectory{};

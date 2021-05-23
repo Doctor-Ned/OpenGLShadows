@@ -176,6 +176,13 @@ void shadow::ShaderManager::updateShaders() const
     }
 }
 
+void shadow::ShaderManager::updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples)
+{
+    assert(shadowSamples);
+    assert(penumbraSamples);
+    updateInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(shadowSamples, penumbraSamples));
+}
+
 std::string shadow::ShaderManager::getShaderFileContent(const std::filesystem::path& path)
 {
     const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
@@ -494,6 +501,53 @@ void shadow::ShaderManager::addShaderInclude(const std::string& name, const std:
     shaderIncludes.emplace(name, ShaderTextInclude{ content, true });
 }
 
+std::string shadow::ShaderManager::getVogelIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples)
+{
+    std::stringstream ss{};
+    ss << "#define VOGEL_SS " << shadowSamples << std::endl;
+    ss << "#define VOGEL_PS " << penumbraSamples << std::endl << std::endl;
+    std::vector<glm::vec2> shadowVogelDisk = getVogelDisk(shadowSamples);
+    std::vector<glm::vec2> penumbraVogelDisk = getVogelDisk(penumbraSamples);
+    ss << "vec2 shadowVogelDisk[VOGEL_SS] = vec2[](" << std::endl;
+    for (unsigned int i = 0; i < shadowSamples; ++i)
+    {
+        ss << "    vec2(" << shadowVogelDisk[i].r << ", " << shadowVogelDisk[i].g << ")";
+        if (i + 1U != shadowSamples)
+        {
+            ss << ",";
+        }
+        ss << std::endl;
+    }
+    ss << "    );" << std::endl << std::endl;
+    ss << "vec2 penumbraVogelDisk[VOGEL_PS] = vec2[](" << std::endl;
+    for (unsigned int i = 0; i < penumbraSamples; ++i)
+    {
+        ss << "    vec2(" << penumbraVogelDisk[i].r << ", " << penumbraVogelDisk[i].g << ")";
+        if (i + 1U != penumbraSamples)
+        {
+            ss << ",";
+        }
+        ss << std::endl;
+    }
+    ss << "    );" << std::endl;
+    return ss.str();
+}
+
+std::vector<glm::vec2> shadow::ShaderManager::getVogelDisk(unsigned int size) const
+{
+    float sizeSqrt = std::sqrt(static_cast<float>(size));
+    std::vector<glm::vec2> result{};
+    for (unsigned int i = 0; i < size; ++i)
+    {
+        result.emplace_back(
+            std::sqrt(static_cast<float>(i) + 0.5f) / sizeSqrt,
+            static_cast<float>(i) * 2.4f
+        );
+    }
+    return result;
+}
+
 void shadow::ShaderManager::prepareShaderIncludes()
 {
+    addShaderInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(32U, 16U));
 }

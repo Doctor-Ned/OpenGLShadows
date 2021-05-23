@@ -4,23 +4,23 @@
 
 //SHADOW>include UboWindow.glsl
 
-#define VOGEL_SAMPLES_COUNT 32
-#define VOGEL_PENUMBRA_SAMPLES_COUNT 16
+//SHADOW>include VOGEL_DISK
 
-const float VOGEL_SAMPLES_COUNT_SQRT = sqrt(VOGEL_SAMPLES_COUNT);
-const float VOGEL_PENUMBRA_SAMPLES_COUNT_SQRT = sqrt(VOGEL_PENUMBRA_SAMPLES_COUNT);
+// Provided vogel disks are arrays of vec2.
+// Each vec2 consists of radius and angle (theta).
 
-vec2 sampleVogelDisk(int sampleIndex, float phi)
+vec2 sampleShadowVogelDisk(int sampleIndex, float phi)
 {
-    float r = sqrt(sampleIndex + 0.5f) / VOGEL_SAMPLES_COUNT_SQRT;
-    float theta = sampleIndex * 2.4f + phi;
-    return vec2(r * cos(theta), r * sin(theta));
+    vec2 rTheta = shadowVogelDisk[sampleIndex];
+    rTheta.g += phi;
+    return vec2(rTheta.r * cos(rTheta.g), rTheta.r * sin(rTheta.g));
 }
-vec2 sampleVogelPenumbraDisk(int sampleIndex, float phi)
+
+vec2 samplePenumbraVogelDisk(int sampleIndex, float phi)
 {
-    float r = sqrt(sampleIndex + 0.5f) / VOGEL_PENUMBRA_SAMPLES_COUNT_SQRT;
-    float theta = sampleIndex * 2.4f + phi;
-    return vec2(r * cos(theta), r * sin(theta));
+    vec2 rTheta = penumbraVogelDisk[sampleIndex];
+    rTheta.g += phi;
+    return vec2(rTheta.r * cos(rTheta.g), rTheta.r * sin(rTheta.g));
 }
 
 float interleavedGradientNoise(vec2 screenPos)
@@ -45,10 +45,10 @@ float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D t
     int numBlockers = 0;
     vec2 texCoords=projCoords.xy;
     float searchWidth = lightSize * (projCoords.z - nearZ) / projCoords.z;
-    for(int i = 0; i < VOGEL_PENUMBRA_SAMPLES_COUNT; ++i)
+    for(int i = 0; i < VOGEL_PS; ++i)
     {
         float depth = texture(text,
-        texCoords + sampleVogelPenumbraDisk(
+        texCoords + samplePenumbraVogelDisk(
             i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * searchWidth).r;
         if(depth < projCoords.z)
         {
@@ -78,16 +78,16 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     }
     float filterRadiusUV = penumbraRatio * lightSize * nearZ / projCoords.z;
     float shadow = 0.0;
-    for(int i = 0; i < VOGEL_SAMPLES_COUNT; ++i)
+    for(int i = 0; i < VOGEL_SS; ++i)
     {
         float depth = texture(text,
-        projCoords.xy + sampleVogelDisk(
+        projCoords.xy + sampleShadowVogelDisk(
             i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * filterRadiusUV).r;
         if(depth < projCoords.z - 0.008)
         {
             shadow += 1.0;
         }
     }
-    shadow /= VOGEL_SAMPLES_COUNT;
+    shadow /= VOGEL_SS;
     return shadow;
 }
