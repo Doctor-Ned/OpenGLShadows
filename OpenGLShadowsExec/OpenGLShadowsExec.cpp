@@ -107,8 +107,11 @@ int main()
     unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16,32,64,128,256 };
     int currPenumbraDivisorIndex = 0;
     unsigned int penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
+    int currShadowSamples = 32, currPenumbraSamples = 16;
+    unsigned int shadowSamples = currShadowSamples, penumbraSamples = currPenumbraSamples;
     glm::vec3 spotPosition = spotData.position;
     appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
+    resourceManager.updateVogelDisk(shadowSamples, penumbraSamples);
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
@@ -143,6 +146,8 @@ int main()
             {
                 ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
                 ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, PENUMBRA_DIVISOR_COUNT - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
+                ImGui::SliderInt("Shadow samples", &currShadowSamples, 1, 64);
+                ImGui::SliderInt("Penumbra samples", &currPenumbraSamples, 1, 64);
                 ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
                 ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
                 ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
@@ -167,6 +172,12 @@ int main()
                 if (mapSizeChanged)
                 {
                     appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
+                }
+                if (shadowSamples != static_cast<unsigned int>(currShadowSamples) || penumbraSamples != static_cast<unsigned int>(currPenumbraSamples))
+                {
+                    shadowSamples = currShadowSamples;
+                    penumbraSamples = currPenumbraSamples;
+                    resourceManager.updateVogelDisk(shadowSamples, penumbraSamples);
                 }
                 GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
                 GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);

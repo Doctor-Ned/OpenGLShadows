@@ -25,6 +25,7 @@ namespace shadow
         bool initialize(std::filesystem::path resourceDirectory);
         bool reworkShaderFiles();
         void updateShaders() const;
+        void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path);
         std::shared_ptr<ModelMesh> getModel(const std::filesystem::path& path);

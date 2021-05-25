@@ -82,6 +82,11 @@ void shadow::ResourceManager::updateShaders() const
     shaderManager->updateShaders();
 }
 
+void shadow::ResourceManager::updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples)
+{
+    shaderManager->updateVogelDisk(shadowSamples, penumbraSamples);
+}
+
 std::string shadow::ResourceManager::getShaderFileContent(const std::filesystem::path& path)
 {
     return shaderManager->getShaderFileContent(path);
