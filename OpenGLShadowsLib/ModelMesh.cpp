@@ -41,5 +41,9 @@ void shadow::ModelMesh::draw(std::shared_ptr<GLShader> shader) const
 
 shadow::ShaderType shadow::ModelMesh::getShaderType() const
 {
+#ifndef RENDER_SHADOW_ONLY
     return ShaderType::Texture;
+#else
+    return ShaderType::ShadowOnly;
+#endif
 }

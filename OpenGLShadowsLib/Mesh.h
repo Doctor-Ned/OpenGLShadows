@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#define RENDER_SHADOW_ONLY
+
 namespace shadow
 {
     class Mesh abstract

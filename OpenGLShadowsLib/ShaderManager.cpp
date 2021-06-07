@@ -461,6 +461,7 @@ void shadow::ShaderManager::loadShaders()
     shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
     shaders.emplace(ShaderType::InterleavedGradientNoise, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "InterleavedGradientNoise.frag")));
+    shaders.emplace(ShaderType::ShadowOnly, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "ShadowOnly")));
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {
         const std::map<ShaderType, std::shared_ptr<GLShader>>::iterator it = shaders.find(static_cast<ShaderType>(i));

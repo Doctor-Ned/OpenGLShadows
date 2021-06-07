@@ -16,6 +16,7 @@ namespace shadow
         GaussianBlur,
         PostProcess,
         InterleavedGradientNoise,
+        ShadowOnly,
         ShaderTypeEnd
     };
 }
