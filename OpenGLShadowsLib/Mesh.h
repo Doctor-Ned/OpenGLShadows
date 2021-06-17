@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#define RENDER_SHADOW_ONLY
+//#define RENDER_SHADOW_ONLY
 
 namespace shadow
 {

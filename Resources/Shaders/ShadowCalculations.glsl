@@ -23,12 +23,6 @@ vec2 samplePenumbraVogelDisk(int sampleIndex, float phi)
     return vec2(rTheta.r * cos(rTheta.g), rTheta.r * sin(rTheta.g));
 }
 
-float interleavedGradientNoise(vec2 screenPos)
-{
-    const vec3 factors = vec3(0.06711056f, 0.00583715f, 52.9829189f);
-    return fract(factors.z * sin(dot(screenPos.xy, factors.xy)));
-}
-
 float penumbraSize(float receiverDepth, float blockerDepth)
 {
     return (receiverDepth-blockerDepth) / blockerDepth;
