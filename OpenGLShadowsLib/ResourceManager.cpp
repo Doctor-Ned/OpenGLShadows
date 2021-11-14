@@ -14,7 +14,7 @@ shadow::ResourceManager& shadow::ResourceManager::getInstance()
     return resourceManager;
 }
 
-bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory)
+bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory, GLsizei windowWidth, GLsizei windowHeight)
 {
     assert(!initialised);
     if (!exists(resourceDirectory))
@@ -68,7 +68,7 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     this->resourceDirectory = resourceDirectory;
     shaderManager.reset(new ShaderManager(shadersDirectory));
     initialised = true;
-    shaderManager->loadShaders();
+    shaderManager->loadShaders(windowWidth, windowHeight);
     return true;
 }
 
@@ -85,6 +85,11 @@ void shadow::ResourceManager::updateShaders() const
 void shadow::ResourceManager::updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples)
 {
     shaderManager->updateVogelDisk(shadowSamples, penumbraSamples);
+}
+
+void shadow::ResourceManager::updateInterleavedGradientNoise(GLsizei windowWidth, GLsizei windowHeight)
+{
+    shaderManager->updateInterleavedGradientNoise(windowWidth, windowHeight);
 }
 
 std::string shadow::ResourceManager::getShaderFileContent(const std::filesystem::path& path)

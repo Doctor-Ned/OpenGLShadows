@@ -183,6 +183,13 @@ void shadow::ShaderManager::updateVogelDisk(unsigned int shadowSamples, unsigned
     updateInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(shadowSamples, penumbraSamples));
 }
 
+void shadow::ShaderManager::updateInterleavedGradientNoise(GLsizei windowWidth, GLsizei windowHeight)
+{
+    assert(windowWidth > 0);
+    assert(windowHeight > 0);
+    updateInclude(IGN_INCLUDE_TEXT, getIGNIncludeContent(windowWidth, windowHeight));
+}
+
 std::string shadow::ShaderManager::getShaderFileContent(const std::filesystem::path& path)
 {
     const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
@@ -443,10 +450,10 @@ bool shadow::ShaderManager::isShaderFileModified(const std::filesystem::path& pa
     return false;
 }
 
-void shadow::ShaderManager::loadShaders()
+void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeight)
 {
     SHADOW_DEBUG("Preparing shader includes...");
-    prepareShaderIncludes();
+    prepareShaderIncludes(windowWidth, windowHeight);
     SHADOW_DEBUG("Reworking shader files...");
     reworkShaderFiles();
     SHADOW_DEBUG("Loading shaders...");
@@ -460,7 +467,6 @@ void shadow::ShaderManager::loadShaders()
     shaders.emplace(ShaderType::SpotPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "SpotPenumbra.vert", "SpotPenumbra.frag")));
     shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
-    shaders.emplace(ShaderType::InterleavedGradientNoise, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "InterleavedGradientNoise.frag")));
     shaders.emplace(ShaderType::ShadowOnly, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "ShadowOnly")));
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)
     {
@@ -503,7 +509,7 @@ void shadow::ShaderManager::addShaderInclude(const std::string& name, const std:
     shaderIncludes.emplace(name, ShaderTextInclude{ content, true });
 }
 
-std::string shadow::ShaderManager::getVogelIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples)
+std::string shadow::ShaderManager::getVogelIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples) const
 {
     std::stringstream ss{};
     ss << "#define VOGEL_SS " << shadowSamples << std::endl;
@@ -549,7 +555,53 @@ std::vector<glm::vec2> shadow::ShaderManager::getVogelDisk(unsigned int size) co
     return result;
 }
 
-void shadow::ShaderManager::prepareShaderIncludes()
+std::string shadow::ShaderManager::getIGNIncludeContent(GLsizei windowWidth, GLsizei windowHeight) const
+{
+    const int VALUES_PER_LINE = 16;
+    int arrayLength = windowWidth * windowHeight;
+    std::stringstream ss{};
+    ss << "#define IGN_WIDTH " << windowWidth << std::endl;
+    ss << "#define IGN_SIZE " << arrayLength << std::endl;
+    ss << "float interleavedGradientNoise[IGN_SIZE] = float[IGN_SIZE](" << std::endl << "    ";
+    int count = 0;
+    int lineCounter = 0;
+    for (int x = 0; x < windowWidth; ++x)
+    {
+        for (int y = 0; y < windowHeight; ++y)
+        {
+            ss << getInterleavedGradientNoise(x, y, windowWidth, windowHeight);
+            if (++count != arrayLength)
+            {
+                ss << ',';
+                if (++lineCounter == VALUES_PER_LINE)
+                {
+                    ss << std::endl << "    ";
+                    lineCounter = 0;
+                }
+                else
+                {
+                    ss << ' ';
+                }
+            }
+            else
+            {
+                ss << std::endl << "    );" << std::endl;
+            }
+        }
+    }
+    return ss.str();
+}
+
+float shadow::ShaderManager::getInterleavedGradientNoise(GLsizei x, GLsizei y, GLsizei windowWidth, GLsizei windowHeight) const
+{
+    static const glm::vec3 FACTORS{ 0.06711056f, 0.00583715f, 52.9829189f };
+    glm::vec2 uv = glm::vec2(x, y) / glm::vec2(windowWidth, windowHeight);
+    float noise = FACTORS.z * std::sinf(dot(uv, glm::vec2(FACTORS.x, FACTORS.y)));
+    return noise - static_cast<float>(static_cast<long>(noise));
+}
+
+void shadow::ShaderManager::prepareShaderIncludes(GLsizei windowWidth, GLsizei windowHeight)
 {
     addShaderInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(32U, 16U));
+    addShaderInclude(IGN_INCLUDE_TEXT, getIGNIncludeContent(windowWidth, windowHeight));
 }

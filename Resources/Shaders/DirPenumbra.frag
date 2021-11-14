@@ -5,7 +5,6 @@
 //SHADOW>include UboLights.glsl
 
 layout(binding = 10) uniform sampler2D directionalShadow;
-layout(binding = 14) uniform sampler2D ignTexture;
 
 in VS_OUT
 {

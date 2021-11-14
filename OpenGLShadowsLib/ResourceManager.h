@@ -22,10 +22,11 @@ namespace shadow
         ResourceManager& operator=(ResourceManager&) = delete;
         ResourceManager& operator=(ResourceManager&&) = delete;
         static ResourceManager& getInstance();
-        bool initialize(std::filesystem::path resourceDirectory);
+        bool initialize(std::filesystem::path resourceDirectory, GLsizei windowWidth, GLsizei windowHeight);
         bool reworkShaderFiles();
         void updateShaders() const;
         void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
+        void updateInterleavedGradientNoise(GLsizei windowWidth, GLsizei windowHeight);
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path);
         std::shared_ptr<ModelMesh> getModel(const std::filesystem::path& path);

@@ -5,7 +5,6 @@
 //SHADOW>include UboLights.glsl
 
 layout(binding = 12) uniform sampler2D spotShadow;
-layout(binding = 14) uniform sampler2D ignTexture;
 
 in VS_OUT
 {
