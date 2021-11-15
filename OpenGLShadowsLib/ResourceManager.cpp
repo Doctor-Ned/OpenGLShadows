@@ -69,6 +69,7 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     shaderManager.reset(new ShaderManager(shadersDirectory));
     initialised = true;
     shaderManager->loadShaders(windowWidth, windowHeight);
+    shaderManager->getSsboIgn()->resize(windowWidth, windowHeight);
     return true;
 }
 
@@ -85,11 +86,6 @@ void shadow::ResourceManager::updateShaders() const
 void shadow::ResourceManager::updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples)
 {
     shaderManager->updateVogelDisk(shadowSamples, penumbraSamples);
-}
-
-void shadow::ResourceManager::updateInterleavedGradientNoise(GLsizei windowWidth, GLsizei windowHeight)
-{
-    shaderManager->updateInterleavedGradientNoise(windowWidth, windowHeight);
 }
 
 std::string shadow::ResourceManager::getShaderFileContent(const std::filesystem::path& path)
@@ -159,6 +155,11 @@ std::shared_ptr<shadow::UboLights> shadow::ResourceManager::getUboLights() const
 std::shared_ptr<shadow::UboWindow> shadow::ResourceManager::getUboWindow() const
 {
     return shaderManager->getUboWindow();
+}
+
+std::shared_ptr<shadow::SsboIgn> shadow::ResourceManager::getSsboIgn() const
+{
+    return shaderManager->getSsboIgn();
 }
 
 void shadow::ResourceManager::renderQuad() const

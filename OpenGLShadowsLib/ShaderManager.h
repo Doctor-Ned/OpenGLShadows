@@ -7,6 +7,7 @@
 #include "UboMaterial.h"
 #include "UboLights.h"
 #include "UboWindow.h"
+#include "SsboIgn.h"
 
 #include <map>
 #include <set>
@@ -39,13 +40,13 @@ namespace shadow
         bool reworkShaderFiles();
         void updateShaders() const;
         void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
-        void updateInterleavedGradientNoise(GLsizei windowWidth, GLsizei windowHeight);
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<GLShader> getShader(ShaderType shaderType);
         std::shared_ptr<UboMvp> getUboMvp() const;
         std::shared_ptr<UboMaterial> getUboMaterial() const;
         std::shared_ptr<UboLights> getUboLights() const;
         std::shared_ptr<UboWindow> getUboWindow() const;
+        std::shared_ptr<SsboIgn> getSsboIgn() const;
     private:
         friend class ResourceManager;
         ShaderManager(const std::filesystem::path& shadersDirectory);
@@ -58,8 +59,6 @@ namespace shadow
         void addShaderInclude(const std::string& name, const std::string& content);
         std::string getVogelIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples) const;
         std::vector<glm::vec2> getVogelDisk(unsigned int size) const;
-        std::string getIGNIncludeContent(GLsizei windowWidth, GLsizei windowHeight) const;
-        float getInterleavedGradientNoise(GLsizei x, GLsizei y, GLsizei windowWidth, GLsizei windowHeight) const;
         std::map<std::filesystem::path, ShaderFileInfo> shaderFileInfos{};
         std::map<ShaderType, std::shared_ptr<GLShader>> shaders{};
         std::map<std::string, ShaderTextInclude> shaderIncludes{};
@@ -67,8 +66,9 @@ namespace shadow
         std::shared_ptr<UboMaterial> uboMaterial{};
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<UboWindow> uboWindow{};
+        std::shared_ptr<SsboIgn> ssboIgn{};
         const char* INCLUDE_TEXT = "//SHADOW>include ", * INCLUDED_FROM_TEXT = "//SHADOW>includedfrom ", * END_INCLUDE_TEXT = "//SHADOW>endinclude ", * REFILL_TEXT = "//SHADOW>refill";
-        const std::string VOGEL_INCLUDE_TEXT{ "VOGEL_DISK" }, IGN_INCLUDE_TEXT{ "INTERLEAVED_GRADIENT_NOISE" };
+        const std::string VOGEL_INCLUDE_TEXT{ "VOGEL_DISK" };
         const size_t INCLUDE_LENGTH = strlen(INCLUDE_TEXT), INCLUDED_FROM_LENGTH = strlen(INCLUDED_FROM_TEXT), END_INCLUDE_LENGTH = strlen(END_INCLUDE_TEXT), REFILL_LENGTH = strlen(REFILL_TEXT);
         const std::vector<std::string> SHADER_EXTENSIONS{ ".glsl", ".vert", ".frag" };
         std::filesystem::path shadersDirectory{};

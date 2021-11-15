@@ -2,14 +2,14 @@
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/common.hlsl
 // https://github.com/maxest/MaxestFramework/blob/5b06324aea21227fbbebd3257d41b75f76135578/samples/shadows/data/shadow_mask_ps.hlsl
 
-//SHADOW>include UboWindow.glsl
-
-//SHADOW>include INTERLEAVED_GRADIENT_NOISE
+//SHADOW>include SsboIgn.glsl
 
 float sampleInterleavedGradientNoise()
 {
-    return interleavedGradientNoise[int(gl_FragCoord.x) * IGN_WIDTH + int(gl_FragCoord.y)];
+    return interleavedGradientNoise[int(gl_FragCoord.x) * ignDimensions.x + int(gl_FragCoord.y)];
 }
+
+//SHADOW>include UboWindow.glsl
 
 //SHADOW>include VOGEL_DISK
 

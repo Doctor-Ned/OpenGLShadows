@@ -15,9 +15,9 @@ namespace shadow
     protected:
         UniformBufferObject(gsl::cstring_span blockName, GLuint binding);
         void bufferSubData(void* data, GLsizeiptr size, GLintptr offset);
+        gsl::cstring_span blockName{};
         GLuint binding{};
         GLuint uboId{};
-        gsl::cstring_span blockName{};
     };
 
     template<typename T>
@@ -51,9 +51,10 @@ namespace shadow
         glGenBuffers(1, &uboId);
         glBindBuffer(GL_UNIFORM_BUFFER, uboId);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(T), nullptr, GL_STATIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
         glBindBufferBase(GL_UNIFORM_BUFFER, binding, uboId);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
+
     template<typename T>
     inline void UniformBufferObject<T>::bufferSubData(void* data, GLsizeiptr size, GLintptr offset)
     {

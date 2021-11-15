@@ -31,6 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\ShadowOnly.vert = Resources\Shaders\ShadowOnly.vert
 		Resources\Shaders\SpotPenumbra.frag = Resources\Shaders\SpotPenumbra.frag
 		Resources\Shaders\SpotPenumbra.vert = Resources\Shaders\SpotPenumbra.vert
+		Resources\Shaders\SsboIgn.glsl = Resources\Shaders\SsboIgn.glsl
 		Resources\Shaders\Texture.frag = Resources\Shaders\Texture.frag
 		Resources\Shaders\Texture.vert = Resources\Shaders\Texture.vert
 		Resources\Shaders\UboLights.glsl = Resources\Shaders\UboLights.glsl

@@ -183,13 +183,6 @@ void shadow::ShaderManager::updateVogelDisk(unsigned int shadowSamples, unsigned
     updateInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(shadowSamples, penumbraSamples));
 }
 
-void shadow::ShaderManager::updateInterleavedGradientNoise(GLsizei windowWidth, GLsizei windowHeight)
-{
-    assert(windowWidth > 0);
-    assert(windowHeight > 0);
-    updateInclude(IGN_INCLUDE_TEXT, getIGNIncludeContent(windowWidth, windowHeight));
-}
-
 std::string shadow::ShaderManager::getShaderFileContent(const std::filesystem::path& path)
 {
     const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
@@ -234,6 +227,11 @@ std::shared_ptr<shadow::UboLights> shadow::ShaderManager::getUboLights() const
 std::shared_ptr<shadow::UboWindow> shadow::ShaderManager::getUboWindow() const
 {
     return uboWindow;
+}
+
+std::shared_ptr<shadow::SsboIgn> shadow::ShaderManager::getSsboIgn() const
+{
+    return ssboIgn;
 }
 
 bool shadow::ShaderManager::rebuildShaderFile(const std::filesystem::path& path)
@@ -489,6 +487,9 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
         std::make_shared<DirectionalLight>(dirLightData),
         std::make_shared<SpotLight>(spotLightData));
     uboWindow = std::make_shared<UboWindow>();
+
+    SHADOW_DEBUG("Creating SSBOs...");
+    ssboIgn = std::make_shared<SsboIgn>(windowWidth, windowHeight);
 }
 
 void shadow::ShaderManager::updateInclude(const std::string& inclName, const std::string& inclContent)
@@ -555,53 +556,7 @@ std::vector<glm::vec2> shadow::ShaderManager::getVogelDisk(unsigned int size) co
     return result;
 }
 
-std::string shadow::ShaderManager::getIGNIncludeContent(GLsizei windowWidth, GLsizei windowHeight) const
-{
-    const int VALUES_PER_LINE = 16;
-    int arrayLength = windowWidth * windowHeight;
-    std::stringstream ss{};
-    ss << "#define IGN_WIDTH " << windowWidth << std::endl;
-    ss << "#define IGN_SIZE " << arrayLength << std::endl;
-    ss << "float interleavedGradientNoise[IGN_SIZE] = float[IGN_SIZE](" << std::endl << "    ";
-    int count = 0;
-    int lineCounter = 0;
-    for (int x = 0; x < windowWidth; ++x)
-    {
-        for (int y = 0; y < windowHeight; ++y)
-        {
-            ss << getInterleavedGradientNoise(x, y, windowWidth, windowHeight);
-            if (++count != arrayLength)
-            {
-                ss << ',';
-                if (++lineCounter == VALUES_PER_LINE)
-                {
-                    ss << std::endl << "    ";
-                    lineCounter = 0;
-                }
-                else
-                {
-                    ss << ' ';
-                }
-            }
-            else
-            {
-                ss << std::endl << "    );" << std::endl;
-            }
-        }
-    }
-    return ss.str();
-}
-
-float shadow::ShaderManager::getInterleavedGradientNoise(GLsizei x, GLsizei y, GLsizei windowWidth, GLsizei windowHeight) const
-{
-    static const glm::vec3 FACTORS{ 0.06711056f, 0.00583715f, 52.9829189f };
-    glm::vec2 uv = glm::vec2(x, y) / glm::vec2(windowWidth, windowHeight);
-    float noise = FACTORS.z * std::sinf(dot(uv, glm::vec2(FACTORS.x, FACTORS.y)));
-    return noise - static_cast<float>(static_cast<long>(noise));
-}
-
 void shadow::ShaderManager::prepareShaderIncludes(GLsizei windowWidth, GLsizei windowHeight)
 {
     addShaderInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(32U, 16U));
-    addShaderInclude(IGN_INCLUDE_TEXT, getIGNIncludeContent(windowWidth, windowHeight));
 }
