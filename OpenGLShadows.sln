@@ -50,12 +50,18 @@ Global
 		ImGui\ImGui.vcxitems*{eeab89b3-ba21-4473-b20e-60abc3e038b5}*SharedItemsImports = 9
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug (shadows only)|x64 = Debug (shadows only)|x64
 		Debug|x64 = Debug|x64
+		Release (shadows only)|x64 = Release (shadows only)|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Debug (shadows only)|x64.ActiveCfg = Debug (shadows only)|x64
+		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Debug (shadows only)|x64.Build.0 = Debug (shadows only)|x64
 		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Debug|x64.ActiveCfg = Debug|x64
 		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Debug|x64.Build.0 = Debug|x64
+		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Release (shadows only)|x64.ActiveCfg = Release (shadows only)|x64
+		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Release (shadows only)|x64.Build.0 = Release (shadows only)|x64
 		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Release|x64.ActiveCfg = Release|x64
 		{007C720A-112C-4A48-A739-AAD6D0E4E367}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
