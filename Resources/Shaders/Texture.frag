@@ -52,7 +52,9 @@ vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo,
     float shadow = calcShadow(dot(fs_in.normal, -dirLightData.direction), fs_in.dirSpacePos, dirLightData.nearZ, dirLightData.lightSize, directionalShadow, directionalPenumbra);
 #elif SHADOW_PCSS
     float shadow = calcShadow(dot(fs_in.normal, -dirLightData.direction), fs_in.dirSpacePos, dirLightData.nearZ, dirLightData.lightSize, directionalShadow);
-#elif SHADOW_BASIC || SHADOW_PCF
+#elif SHADOW_VSM
+    float shadow = calcShadow(fs_in.dirSpacePos, directionalShadow);
+#else
     float shadow = calcShadow(dot(fs_in.normal, -dirLightData.direction), fs_in.dirSpacePos, directionalShadow);
 #endif
     vec3 L = normalize(-fs_in.tangentDirLightDirection);
@@ -78,7 +80,9 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0, vec3 albedo, float 
     float shadow = calcShadow(dot(fs_in.normal, normalize(spotLightData.position - fs_in.pos)), fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow, spotPenumbra);
 #elif SHADOW_PCSS
     float shadow = calcShadow(dot(fs_in.normal, normalize(spotLightData.position - fs_in.pos)), fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow);
-#elif SHADOW_BASIC || SHADOW_PCF
+#elif SHADOW_VSM
+    float shadow = calcShadow(fs_in.spotSpacePos, spotShadow);
+#else
     float shadow = calcShadow(dot(fs_in.normal, normalize(spotLightData.position - fs_in.pos)), fs_in.spotSpacePos, spotShadow);
 #endif
     vec3 L = normalize(fs_in.tangentSpotLightPosition - fs_in.tangentFragPos);

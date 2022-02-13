@@ -46,6 +46,10 @@ int main()
     case SHADOW_IMPL_PCF:
         dirLight->setFarZ(8.0f);
         break;
+    case SHADOW_IMPL_VSM:
+        dirLight->setNearZ(0.3f);
+        dirLight->setFarZ(2.0f);
+        break;
     }
     dirLight->setProjectionSize(1.45f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
@@ -57,6 +61,7 @@ int main()
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     spotLight->setLightSize(0.09f);
 #endif
+    spotLight->setFarZ(2.35f);
     switch (SHADOW_IMPL) {
     default:
         spotLight->setNearZ(0.95f);
@@ -65,8 +70,11 @@ int main()
     case SHADOW_IMPL_PCF:
         spotLight->setNearZ(0.2f);
         break;
+    case SHADOW_IMPL_VSM:
+        spotLight->setNearZ(1.45f);
+        spotLight->setFarZ(2.5f);
+        break;
     }
-    spotLight->setFarZ(2.35f);
     spotLight->setInnerCutOff(cosf(glm::radians(20.0f)));
     spotLight->setOuterCutOff(cosf(glm::radians(25.0f)));
     spotLight->setPosition(glm::vec3(1.07f, 1.6f, 0.4f));
@@ -134,10 +142,8 @@ int main()
     unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16,32,64,128,256 };
     int currPenumbraDivisorIndex = 0;
     unsigned int penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
-    appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
     resourceManager.updateVogelDisk(shadowSamples, penumbraSamples);
 #elif SHADOW_PCSS
-    appWindow.resizeLights(mapSize);
     resourceManager.updatePoisson(shadowSamples, penumbraSamples);
 #elif SHADOW_PCF
     const int FILTER_SIZE_COUNT = 16;
@@ -145,7 +151,11 @@ int main()
     int currFilterSizeIndex = 0;
     unsigned int filterSize = FILTER_SIZES[currFilterSizeIndex];
     resourceManager.updateFilterSize(filterSize);
-    appWindow.resizeLights(mapSize);
+#elif SHADOW_VSM
+    int blurPasses = appWindow.getBlurPasses();
+#endif
+#if SHADOW_MASTER || SHADOW_CHSS
+    appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
 #else
     appWindow.resizeLights(mapSize);
 #endif
@@ -190,6 +200,8 @@ int main()
                 ImGui::SliderInt("Penumbra samples", &currPenumbraSamples, 1, 64);
 #elif SHADOW_PCF
                 ImGui::SliderInt("Filter size", &currFilterSizeIndex, 0, FILTER_SIZE_COUNT - 1, std::to_string(FILTER_SIZES[currFilterSizeIndex]).c_str());
+#elif SHADOW_VSM
+                ImGui::SliderInt("Blur passes", &blurPasses, 0, 100);
 #endif
                 ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
                 ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
@@ -239,6 +251,8 @@ int main()
                     filterSize = FILTER_SIZES[currFilterSizeIndex];
                     resourceManager.updateFilterSize(filterSize);
                 }
+#elif SHADOW_VSM
+                GUI_UPDATE(blurPasses, appWindow.getBlurPasses(), appWindow.setBlurPasses);
 #endif
                 GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
                 GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);

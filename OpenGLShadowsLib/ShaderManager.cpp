@@ -479,12 +479,12 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
 #if SHADOW_VSM
     shaders.emplace(ShaderType::DepthDirVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
+    shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
 #endif
 #if SHADOW_MASTER || SHADOW_CHSS
     shaders.emplace(ShaderType::DirPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DirPenumbra.vert", "DirPenumbra.frag")));
     shaders.emplace(ShaderType::SpotPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "SpotPenumbra.vert", "SpotPenumbra.frag")));
 #endif
-    shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
     shaders.emplace(ShaderType::ShadowOnly, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "ShadowOnly")));
     for (unsigned int i = 0U; i != static_cast<unsigned int>(ShaderType::ShaderTypeEnd); ++i)

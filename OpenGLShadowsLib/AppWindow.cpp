@@ -105,8 +105,14 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
 #endif
 
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
+#if SHADOW_VSM
+    this->depthDirShader = resourceManager.getShader(ShaderType::DepthDirVSM);
+    this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpotVSM);
+    this->blurShader = resourceManager.getShader(ShaderType::GaussianBlur);
+#else
     this->depthDirShader = resourceManager.getShader(ShaderType::DepthDir);
     this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpot);
+#endif
 #if SHADOW_MASTER || SHADOW_CHSS
     this->dirPenumbraShader = resourceManager.getShader(ShaderType::DirPenumbra);
     this->spotPenumbraShader = resourceManager.getShader(ShaderType::SpotPenumbra);
@@ -198,6 +204,18 @@ void shadow::AppWindow::resizeLights(GLsizei textureSize)
 }
 #endif
 
+#if SHADOW_VSM
+void shadow::AppWindow::setBlurPasses(unsigned int blurPasses)
+{
+    this->blurPasses = blurPasses;
+}
+
+unsigned int shadow::AppWindow::getBlurPasses() const
+{
+    return blurPasses;
+}
+#endif
+
 double shadow::AppWindow::getTime() const
 {
     return currentTime;
@@ -255,4 +273,8 @@ void shadow::AppWindow::updateLightShadowSamplers()
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
 #endif
     }
+#if SHADOW_VSM
+    this->blurShader->use();
+    this->blurShader->setVec2("resolution", glm::vec2(lightManager.getTextureSize(), lightManager.getTextureSize()));
+#endif
 }

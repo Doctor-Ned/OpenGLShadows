@@ -26,6 +26,10 @@ namespace shadow
         bool initialize(GLsizei textureSize);
         void resize(GLsizei textureSize);
 #endif
+#if SHADOW_VSM
+        inline GLuint getTempFbo() const;
+        inline GLuint getTempTexture() const;
+#endif
         inline GLuint getDirFbo() const;
         inline GLuint getSpotFbo() const;
         inline GLuint getDirTexture() const;
@@ -38,6 +42,8 @@ namespace shadow
 #if SHADOW_MASTER || SHADOW_CHSS
         GLsizei penumbraTextureWidth{}, penumbraTextureHeight{};
         Framebuffer dirPenumbraFbo{}, spotPenumbraFbo{};
+#elif SHADOW_VSM
+        Framebuffer tempFbo{};
 #endif
     };
 
@@ -78,7 +84,19 @@ namespace shadow
     inline GLuint LightManager::getSpotPenumbraTexture() const
     {
         return spotPenumbraFbo.getTexture();
-}
+    }
+#endif
+
+#if SHADOW_VSM
+    inline GLuint LightManager::getTempFbo() const
+    {
+        return tempFbo.getFbo();
+    }
+
+    inline GLuint LightManager::getTempTexture() const
+    {
+        return tempFbo.getTexture();
+    }
 #endif
 
     inline GLuint LightManager::getDirFbo() const

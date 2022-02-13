@@ -46,7 +46,9 @@ vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
     float shadow = calcShadow(NdotL, fs_in.dirSpacePos, dirLightData.nearZ, dirLightData.lightSize, directionalShadow, directionalPenumbra);
 #elif SHADOW_PCSS
     float shadow = calcShadow(NdotL, fs_in.dirSpacePos, dirLightData.nearZ, dirLightData.lightSize, directionalShadow);
-#elif SHADOW_BASIC || SHADOW_PCF
+#elif SHADOW_VSM
+    float shadow = calcShadow(fs_in.dirSpacePos, directionalShadow);
+#else
     float shadow = calcShadow(NdotL, fs_in.dirSpacePos, directionalShadow);
 #endif
     vec3 H = normalize(V + L);
@@ -72,7 +74,9 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
     float shadow = calcShadow(NdotL, fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow, spotPenumbra);
 #elif SHADOW_PCSS
     float shadow = calcShadow(NdotL, fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow);
-#elif SHADOW_BASIC || SHADOW_PCF
+#elif SHADOW_VSM
+    float shadow = calcShadow(fs_in.spotSpacePos, spotShadow);
+#else
     float shadow = calcShadow(NdotL, fs_in.spotSpacePos, spotShadow);
 #endif
     vec3 toLight = normalize(-spotLightData.direction);

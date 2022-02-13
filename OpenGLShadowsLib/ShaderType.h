@@ -14,12 +14,12 @@ namespace shadow
 #if SHADOW_VSM
         DepthDirVSM,
         DepthSpotVSM,
+        GaussianBlur,
 #endif
 #if SHADOW_MASTER || SHADOW_CHSS
         DirPenumbra,
         SpotPenumbra,
 #endif
-        GaussianBlur,
         PostProcess,
         ShadowOnly,
         ShaderTypeEnd

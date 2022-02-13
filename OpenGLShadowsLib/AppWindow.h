@@ -39,6 +39,10 @@ namespace shadow
 #else
         void resizeLights(GLsizei textureSize);
 #endif
+#if SHADOW_VSM
+        void setBlurPasses(unsigned int blurPasses);
+        unsigned int getBlurPasses() const;
+#endif
         double getTime() const;
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
@@ -57,6 +61,9 @@ namespace shadow
         std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{};
 #if SHADOW_MASTER || SHADOW_CHSS
         std::shared_ptr<GLShader> dirPenumbraShader{}, spotPenumbraShader{};
+#elif SHADOW_VSM
+        std::shared_ptr<GLShader> blurShader{};
+        unsigned int blurPasses{ 1U };
 #endif
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
@@ -130,6 +137,42 @@ namespace shadow
 #endif
 
         glCullFace(GL_BACK);
+
+#if SHADOW_VSM
+        GL_PUSH_DEBUG_GROUP("Gaussian blur (DirLight)");
+        glDisable(GL_DEPTH_TEST);
+        blurShader->use();
+        glActiveTexture(GL_TEXTURE12);
+        for (unsigned int i = 0; i < blurPasses; ++i) {
+            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getTempFbo());
+            blurShader->setVec2("direction", glm::vec2(1.0f, 0.0f));
+            glBindTexture(GL_TEXTURE_2D, lightManager.getDirTexture());
+            resourceManager.renderQuad();
+            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirFbo());
+            blurShader->setVec2("direction", glm::vec2(0.0f, 1.0f));
+            glBindTexture(GL_TEXTURE_2D, lightManager.getTempTexture());
+            resourceManager.renderQuad();
+        }
+        GL_POP_DEBUG_GROUP();
+
+        GL_PUSH_DEBUG_GROUP("Gaussian blur (SpotLight)");
+        glDisable(GL_DEPTH_TEST);
+        blurShader->use();
+        glActiveTexture(GL_TEXTURE12);
+        for (unsigned int i = 0; i < blurPasses; ++i) {
+            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getTempFbo());
+            blurShader->setVec2("direction", glm::vec2(1.0f, 0.0f));
+            glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
+            resourceManager.renderQuad();
+            glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getSpotFbo());
+            blurShader->setVec2("direction", glm::vec2(0.0f, 1.0f));
+            glBindTexture(GL_TEXTURE_2D, lightManager.getTempTexture());
+            resourceManager.renderQuad();
+        }
+        glActiveTexture(GL_TEXTURE0);
+        GL_POP_DEBUG_GROUP();
+        glEnable(GL_DEPTH_TEST);
+#endif
 
         GL_PUSH_DEBUG_GROUP("Main render");
         glViewport(0, 0, width, height);
