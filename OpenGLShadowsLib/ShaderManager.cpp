@@ -190,6 +190,12 @@ void shadow::ShaderManager::updatePoisson(unsigned int shadowSamples, unsigned i
     assert(penumbraSamples);
     updateInclude(POISSON_INCLUDE_TEXT, getPoissonIncludeContent(shadowSamples, penumbraSamples));
 }
+#elif SHADOW_PCF
+void shadow::ShaderManager::updateFilterSize(unsigned int filterSize)
+{
+    assert(filterSize % 2 == 1);
+    updateInclude(FILTER_SIZE_INCLUDE_TEXT, getFilterSizeIncludeContent(filterSize));
+}
 #endif
 
 std::string shadow::ShaderManager::getShaderFileContent(const std::filesystem::path& path)
@@ -590,6 +596,13 @@ std::string shadow::ShaderManager::getPoissonIncludeContent(unsigned int shadowS
     ss << "#define PCSS_FILTER_SIZE " << penumbraSamples << std::endl;
     return ss.str();
 }
+#elif SHADOW_PCF
+std::string shadow::ShaderManager::getFilterSizeIncludeContent(unsigned int filterSize) const
+{
+    std::stringstream ss{};
+    ss << "#define FILTER_SIZE " << filterSize << std::endl;
+    return ss.str();
+}
 #endif
 
 void shadow::ShaderManager::prepareShaderIncludes(GLsizei windowWidth, GLsizei windowHeight)
@@ -598,6 +611,8 @@ void shadow::ShaderManager::prepareShaderIncludes(GLsizei windowWidth, GLsizei w
     addShaderInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(32U, 16U));
 #elif SHADOW_PCSS
     addShaderInclude(POISSON_INCLUDE_TEXT, getPoissonIncludeContent(32U, 16U));
+#elif SHADOW_PCF
+    addShaderInclude(FILTER_SIZE_INCLUDE_TEXT, getFilterSizeIncludeContent(3U));
 #endif
     addShaderInclude(SHADOW_IMPL_INCLUDE_TEXT, getShaderImplIncludeContent());
 }

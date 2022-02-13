@@ -95,6 +95,11 @@ void shadow::ResourceManager::updatePoisson(unsigned int shadowSamples, unsigned
 {
     shaderManager->updatePoisson(shadowSamples, penumbraSamples);
 }
+#elif SHADOW_PCF
+void shadow::ResourceManager::updateFilterSize(unsigned int filterSize)
+{
+    shaderManager->updateFilterSize(filterSize);
+}
 #endif
 
 std::string shadow::ResourceManager::getShaderFileContent(const std::filesystem::path& path)

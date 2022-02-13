@@ -44,6 +44,8 @@ namespace shadow
         void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
 #elif SHADOW_PCSS
         void updatePoisson(unsigned int shadowSamples, unsigned int penumbraSamples);
+#elif SHADOW_PCF
+        void updateFilterSize(unsigned int filterSize);
 #endif
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<GLShader> getShader(ShaderType shaderType);
@@ -70,6 +72,8 @@ namespace shadow
         std::vector<glm::vec2> getVogelDisk(unsigned int size) const;
 #elif SHADOW_PCSS
         std::string getPoissonIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples) const;
+#elif SHADOW_PCF
+        std::string getFilterSizeIncludeContent(unsigned int filterSize) const;
 #endif
         std::map<std::filesystem::path, ShaderFileInfo> shaderFileInfos{};
         std::map<ShaderType, std::shared_ptr<GLShader>> shaders{};
@@ -87,6 +91,8 @@ namespace shadow
         const std::string VOGEL_INCLUDE_TEXT{ "VOGEL_DISK" };
 #elif SHADOW_PCSS
         const std::string POISSON_INCLUDE_TEXT{ "POISSON" };
+#elif SHADOW_PCF
+        const std::string FILTER_SIZE_INCLUDE_TEXT{ "FILTER_SIZE" };
 #endif
         const size_t INCLUDE_LENGTH = strlen(INCLUDE_TEXT), INCLUDED_FROM_LENGTH = strlen(INCLUDED_FROM_TEXT), END_INCLUDE_LENGTH = strlen(END_INCLUDE_TEXT), REFILL_LENGTH = strlen(REFILL_TEXT);
         const std::vector<std::string> SHADER_EXTENSIONS{ ".glsl", ".vert", ".frag" };

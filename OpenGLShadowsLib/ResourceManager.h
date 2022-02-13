@@ -32,6 +32,8 @@ namespace shadow
 #endif
 #elif SHADOW_PCSS
         void updatePoisson(unsigned int shadowSamples, unsigned int penumbraSamples);
+#elif SHADOW_PCF
+        void updateFilterSize(unsigned int filterSize);
 #endif
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path);

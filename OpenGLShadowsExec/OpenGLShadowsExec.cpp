@@ -43,6 +43,7 @@ int main()
         dirLight->setFarZ(1.5f);
         break;
     case SHADOW_IMPL_BASIC:
+    case SHADOW_IMPL_PCF:
         dirLight->setFarZ(8.0f);
         break;
     }
@@ -61,6 +62,7 @@ int main()
         spotLight->setNearZ(0.95f);
         break;
     case SHADOW_IMPL_BASIC:
+    case SHADOW_IMPL_PCF:
         spotLight->setNearZ(0.2f);
         break;
     }
@@ -137,6 +139,13 @@ int main()
 #elif SHADOW_PCSS
     appWindow.resizeLights(mapSize);
     resourceManager.updatePoisson(shadowSamples, penumbraSamples);
+#elif SHADOW_PCF
+    const int FILTER_SIZE_COUNT = 16;
+    unsigned int FILTER_SIZES[FILTER_SIZE_COUNT] = { 1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31 };
+    int currFilterSizeIndex = 0;
+    unsigned int filterSize = FILTER_SIZES[currFilterSizeIndex];
+    resourceManager.updateFilterSize(filterSize);
+    appWindow.resizeLights(mapSize);
 #else
     appWindow.resizeLights(mapSize);
 #endif
@@ -179,6 +188,8 @@ int main()
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
                 ImGui::SliderInt("Shadow samples", &currShadowSamples, 1, 64);
                 ImGui::SliderInt("Penumbra samples", &currPenumbraSamples, 1, 64);
+#elif SHADOW_PCF
+                ImGui::SliderInt("Filter size", &currFilterSizeIndex, 0, FILTER_SIZE_COUNT - 1, std::to_string(FILTER_SIZES[currFilterSizeIndex]).c_str());
 #endif
                 ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
                 ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
@@ -222,6 +233,12 @@ int main()
                     resourceManager.updatePoisson(shadowSamples, penumbraSamples);
 #endif
                 }
+#elif SHADOW_PCF
+                if (filterSize != FILTER_SIZES[currFilterSizeIndex])
+                {
+                    filterSize = FILTER_SIZES[currFilterSizeIndex];
+                    resourceManager.updateFilterSize(filterSize);
+                }
 #endif
                 GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
                 GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
@@ -235,10 +252,10 @@ int main()
                 GUI_UPDATE(dirClip.y, dirData.farZ, dirLight->setFarZ);
                 GUI_UPDATE(spotClip.x, spotData.nearZ, spotLight->setNearZ);
                 GUI_UPDATE(spotClip.y, spotData.farZ, spotLight->setFarZ);
-                }
             }
+        }
         ImGui::End();
-        };
+    };
     while (!appWindow.shouldClose())
     {
         appWindow.loop(timeDelta, guiProc);
@@ -271,4 +288,4 @@ int main()
         }
     }
     return 0;
-    }
+}
