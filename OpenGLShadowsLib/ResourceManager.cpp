@@ -19,8 +19,17 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     assert(!initialised);
     if (!exists(resourceDirectory))
     {
-        SHADOW_CRITICAL("Resource directory '{}' was not found!", resourceDirectory.generic_string());
-        return false;
+        std::string str = resourceDirectory.generic_string();
+        if (str.substr(0, 3) == "../") {
+            resourceDirectory = str.substr(3);
+        }
+        if (!exists(resourceDirectory)) {
+            SHADOW_CRITICAL("Resource directory '{}' was not found!", str);
+            return false;
+        }
+        else {
+            SHADOW_WARN("Resource directory '{}' was not found, but I replaced it with '{}'!", str, resourceDirectory.generic_string());
+        }
     }
     if (!is_directory(resourceDirectory))
     {

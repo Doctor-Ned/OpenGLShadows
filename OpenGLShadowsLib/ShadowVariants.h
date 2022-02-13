@@ -7,8 +7,6 @@
 #define SHADOW_IMPL_PCSS 4
 #define SHADOW_IMPL_CHSS 5
 
-#define SHADOW_IMPL SHADOW_IMPL_MASTER
-
 #ifndef SHADOW_IMPL
 #error "SHADOW_IMPL is not defined!"
 #endif
