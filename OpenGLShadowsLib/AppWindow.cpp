@@ -92,16 +92,25 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
         return false;
     }
 
+#if SHADOW_MASTER || SHADOW_CHSS
     if (!LightManager::getInstance().initialize(lightTextureSize, width, height))
     {
         return false;
     }
+#else
+    if (!LightManager::getInstance().initialize(lightTextureSize))
+    {
+        return false;
+    }
+#endif
 
     this->ppShader = resourceManager.getShader(ShaderType::PostProcess);
     this->depthDirShader = resourceManager.getShader(ShaderType::DepthDir);
     this->depthSpotShader = resourceManager.getShader(ShaderType::DepthSpot);
+#if SHADOW_MASTER || SHADOW_CHSS
     this->dirPenumbraShader = resourceManager.getShader(ShaderType::DirPenumbra);
     this->spotPenumbraShader = resourceManager.getShader(ShaderType::SpotPenumbra);
+#endif
     this->uboMvp = resourceManager.getUboMvp();
     this->uboLights = resourceManager.getUboLights();
     this->uboWindow = resourceManager.getUboWindow();
@@ -169,15 +178,25 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     glm::vec2 windowSize{ width, height };
     uboWindow->setWindowSize(windowSize);
+#if SHADOW_MASTER
     ResourceManager::getInstance().getSsboIgn()->resize(width, height);
+#endif
 }
 
+#if SHADOW_MASTER || SHADOW_CHSS
 void shadow::AppWindow::resizeLights(GLsizei textureSize, unsigned int penumbraTextureSizeDivisor)
 {
     assert(penumbraTextureSizeDivisor);
     LightManager::getInstance().resize(textureSize, width / penumbraTextureSizeDivisor, height / penumbraTextureSizeDivisor);
     updateLightShadowSamplers();
 }
+#else
+void shadow::AppWindow::resizeLights(GLsizei textureSize)
+{
+    LightManager::getInstance().resize(textureSize);
+    updateLightShadowSamplers();
+}
+#endif
 
 double shadow::AppWindow::getTime() const
 {
@@ -220,6 +239,7 @@ void shadow::AppWindow::updateLightShadowSamplers()
     for (const std::shared_ptr<GLShader>& shader : shaders)
     {
         shader->use();
+#if SHADOW_MASTER || SHADOW_CHSS
         glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_2D, lightManager.getDirTexture());
         glActiveTexture(GL_TEXTURE11);
@@ -228,5 +248,11 @@ void shadow::AppWindow::updateLightShadowSamplers()
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
         glActiveTexture(GL_TEXTURE13);
         glBindTexture(GL_TEXTURE_2D, lightManager.getSpotPenumbraTexture());
+#else
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getDirTexture());
+        glActiveTexture(GL_TEXTURE11);
+        glBindTexture(GL_TEXTURE_2D, lightManager.getSpotTexture());
+#endif
     }
 }

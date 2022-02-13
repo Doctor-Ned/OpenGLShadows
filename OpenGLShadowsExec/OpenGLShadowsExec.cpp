@@ -4,6 +4,7 @@
 #include "SceneNode.h"
 #include "Primitives.h"
 #include "ShadowUtils.h"
+#include "ShadowVariants.h"
 
 #include <glm/detail/type_quat.hpp>
 #include <glm/ext/quaternion_trigonometric.hpp>
@@ -103,15 +104,25 @@ int main()
     GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
     int currMapSizeIndex = MAP_SIZE_COUNT - 1;
     int mapSize = MAP_SIZES[currMapSizeIndex];
+    glm::vec3 spotPosition = spotData.position;
+#if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
+    int currShadowSamples = 32, currPenumbraSamples = 16;
+    unsigned int shadowSamples = currShadowSamples, penumbraSamples = currPenumbraSamples;
+#endif
+#if SHADOW_MASTER || SHADOW_CHSS
     const int PENUMBRA_DIVISOR_COUNT = 9;
     unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16,32,64,128,256 };
     int currPenumbraDivisorIndex = 0;
     unsigned int penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
-    int currShadowSamples = 32, currPenumbraSamples = 16;
-    unsigned int shadowSamples = currShadowSamples, penumbraSamples = currPenumbraSamples;
-    glm::vec3 spotPosition = spotData.position;
     appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
     resourceManager.updateVogelDisk(shadowSamples, penumbraSamples);
+#elif SHADOW_PCSS
+    appWindow.resizeLights(mapSize);
+    resourceManager.updatePoisson(shadowSamples, penumbraSamples);
+#else
+    appWindow.resizeLights(mapSize);
+#error TODO
+#endif
     auto guiProc = [&]()
     {
         ImGui::Begin("Settings");
@@ -145,9 +156,13 @@ int main()
             if (showingSettings)
             {
                 ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
+#if SHADOW_MASTER || SHADOW_CHSS
                 ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, PENUMBRA_DIVISOR_COUNT - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
+#endif
+#if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
                 ImGui::SliderInt("Shadow samples", &currShadowSamples, 1, 64);
                 ImGui::SliderInt("Penumbra samples", &currPenumbraSamples, 1, 64);
+#endif
                 ImGui::DragFloat("Directional light strength", &dirStrength, 0.05f, 0.0f, 25.0f);
                 ImGui::DragFloat("Spot light strength", &spotStrength, 0.05f, 0.0f, 25.0f);
                 ImGui::DragFloat("Directional light size", &dirSize, 0.005f, 0.0f, 5.0f);
@@ -164,21 +179,33 @@ int main()
                     mapSizeChanged = true;
                     mapSize = MAP_SIZES[currMapSizeIndex];
                 }
+#if SHADOW_MASTER || SHADOW_CHSS
                 if (penumbraTextureSizeDivisor != PENUMBRA_DIVISORS[currPenumbraDivisorIndex])
                 {
                     mapSizeChanged = true;
                     penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
                 }
+#endif
                 if (mapSizeChanged)
                 {
+#if SHADOW_MASTER || SHADOW_CHSS
                     appWindow.resizeLights(mapSize, penumbraTextureSizeDivisor);
+#else
+                    appWindow.resizeLights(mapSize);
+#endif
                 }
+#if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
                 if (shadowSamples != static_cast<unsigned int>(currShadowSamples) || penumbraSamples != static_cast<unsigned int>(currPenumbraSamples))
                 {
                     shadowSamples = currShadowSamples;
                     penumbraSamples = currPenumbraSamples;
+#if SHADOW_MASTER || SHADOW_CHSS
                     resourceManager.updateVogelDisk(shadowSamples, penumbraSamples);
+#else
+                    resourceManager.updatePoisson(shadowSamples, penumbraSamples);
+#endif
                 }
+#endif
                 GUI_UPDATE(dirStrength, dirData.strength, dirLight->setStrength);
                 GUI_UPDATE(spotStrength, spotData.strength, spotLight->setStrength);
                 GUI_UPDATE(dirSize, dirData.lightSize, dirLight->setLightSize);

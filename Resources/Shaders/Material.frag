@@ -6,10 +6,17 @@
 
 //SHADOW>include UboLights.glsl
 
+//SHADOW>include ShadowVariants.glsl
+
+#if SHADOW_MASTER || SHADOW_CHSS
 layout(binding = 10) uniform sampler2D directionalShadow;
 layout(binding = 11) uniform sampler2D directionalPenumbra;
 layout(binding = 12) uniform sampler2D spotShadow;
 layout(binding = 13) uniform sampler2D spotPenumbra;
+#else
+layout(binding = 10) uniform sampler2D directionalShadow;
+layout(binding = 11) uniform sampler2D spotShadow;
+#endif
 
 in VS_OUT
 {
@@ -35,7 +42,11 @@ vec3 getDirectionalLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
     }
     vec3 L = normalize(-dirLightData.direction);
     float NdotL = max(dot(N, L), 0.0);
+#if SHADOW_MASTER || SHADOW_CHSS
     float shadow = calcShadow(NdotL, fs_in.dirSpacePos, dirLightData.nearZ, dirLightData.lightSize, directionalShadow, directionalPenumbra);
+#else
+    float shadow = calcShadow(NdotL, fs_in.dirSpacePos, dirLightData.nearZ, dirLightData.lightSize, directionalShadow);
+#endif
     vec3 H = normalize(V + L);
     float cosTheta = clamp(dot(H, V), 0.0, 1.0);
     vec3 F = fresnelSchlick(cosTheta, F0);
@@ -55,7 +66,11 @@ vec3 getSpotLightColor(vec3 N, vec3 V, float NdotV, vec3 F0)
     }
     vec3 L = normalize(spotLightData.position - fs_in.pos);
     float NdotL = max(dot(N, L), 0.0);
+#if SHADOW_MASTER || SHADOW_CHSS
     float shadow = calcShadow(NdotL, fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow, spotPenumbra);
+#else
+    float shadow = calcShadow(NdotL, fs_in.spotSpacePos, spotLightData.nearZ, spotLightData.lightSize, spotShadow);
+#endif
     vec3 toLight = normalize(-spotLightData.direction);
     float theta = dot(L, toLight);
     float epsilon = spotLightData.innerCutOff - spotLightData.outerCutOff;

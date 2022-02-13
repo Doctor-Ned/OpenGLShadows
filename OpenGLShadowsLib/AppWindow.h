@@ -34,7 +34,11 @@ namespace shadow
         void loop(double& timeDelta, F& guiProc);
         void setClearColor(const glm::vec4& clearColor);
         void resize(GLsizei width, GLsizei height);
+#if SHADOW_MASTER || SHADOW_CHSS
         void resizeLights(GLsizei textureSize, unsigned int penumbraTextureSizeDivisor);
+#else
+        void resizeLights(GLsizei textureSize);
+#endif
         double getTime() const;
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
@@ -50,7 +54,10 @@ namespace shadow
         GLFWwindow* glfwWindow{ nullptr };
         std::shared_ptr<Camera> camera{};
         std::shared_ptr<Scene> scene{};
-        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{}, dirPenumbraShader{}, spotPenumbraShader{};
+        std::shared_ptr<GLShader> ppShader{}, depthDirShader{}, depthSpotShader{};
+#if SHADOW_MASTER || SHADOW_CHSS
+        std::shared_ptr<GLShader> dirPenumbraShader{}, spotPenumbraShader{};
+#endif
         std::shared_ptr<UboMvp> uboMvp{};
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<UboWindow> uboWindow{};
@@ -105,6 +112,7 @@ namespace shadow
         scene->render(depthSpotShader);
         GL_POP_DEBUG_GROUP();
 
+#if SHADOW_MASTER || SHADOW_CHSS
         GL_PUSH_DEBUG_GROUP("DirLightPenumbra");
         glViewport(0, 0, lightManager.getPenumbraTextureWidth(), lightManager.getPenumbraTextureHeight());
         glBindFramebuffer(GL_FRAMEBUFFER, lightManager.getDirPenumbraFbo());
@@ -119,6 +127,7 @@ namespace shadow
         spotPenumbraShader->use();
         scene->render(spotPenumbraShader);
         GL_POP_DEBUG_GROUP();
+#endif
 
         glCullFace(GL_BACK);
 

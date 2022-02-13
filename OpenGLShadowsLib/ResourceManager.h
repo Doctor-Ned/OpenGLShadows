@@ -25,7 +25,14 @@ namespace shadow
         bool initialize(std::filesystem::path resourceDirectory, GLsizei windowWidth, GLsizei windowHeight);
         bool reworkShaderFiles();
         void updateShaders() const;
+#if SHADOW_MASTER || SHADOW_CHSS
         void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
+#if SHADOW_MASTER
+        std::shared_ptr<SsboIgn> getSsboIgn() const;
+#endif
+#elif SHADOW_PCSS
+        void updatePoisson(unsigned int shadowSamples, unsigned int penumbraSamples);
+#endif
         std::string getShaderFileContent(const std::filesystem::path& path);
         std::shared_ptr<Texture> getTexture(const std::filesystem::path& path);
         std::shared_ptr<ModelMesh> getModel(const std::filesystem::path& path);
@@ -35,7 +42,6 @@ namespace shadow
         std::shared_ptr<UboMaterial> getUboMaterial() const;
         std::shared_ptr<UboLights> getUboLights() const;
         std::shared_ptr<UboWindow> getUboWindow() const;
-        std::shared_ptr<SsboIgn> getSsboIgn() const;
         void renderQuad() const;
         static std::filesystem::path reworkPath(const std::filesystem::path& basePath, const std::filesystem::path& midPath, const std::filesystem::path& inputPath);
     private:

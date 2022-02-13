@@ -69,7 +69,9 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     shaderManager.reset(new ShaderManager(shadersDirectory));
     initialised = true;
     shaderManager->loadShaders(windowWidth, windowHeight);
+#if SHADOW_MASTER
     shaderManager->getSsboIgn()->resize(windowWidth, windowHeight);
+#endif
     return true;
 }
 
@@ -83,10 +85,17 @@ void shadow::ResourceManager::updateShaders() const
     shaderManager->updateShaders();
 }
 
+#if SHADOW_MASTER || SHADOW_CHSS
 void shadow::ResourceManager::updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples)
 {
     shaderManager->updateVogelDisk(shadowSamples, penumbraSamples);
 }
+#elif SHADOW_PCSS
+void shadow::ResourceManager::updatePoisson(unsigned int shadowSamples, unsigned int penumbraSamples)
+{
+    shaderManager->updatePoisson(shadowSamples, penumbraSamples);
+}
+#endif
 
 std::string shadow::ResourceManager::getShaderFileContent(const std::filesystem::path& path)
 {
@@ -157,10 +166,12 @@ std::shared_ptr<shadow::UboWindow> shadow::ResourceManager::getUboWindow() const
     return shaderManager->getUboWindow();
 }
 
+#if SHADOW_MASTER
 std::shared_ptr<shadow::SsboIgn> shadow::ResourceManager::getSsboIgn() const
 {
     return shaderManager->getSsboIgn();
 }
+#endif
 
 void shadow::ResourceManager::renderQuad() const
 {

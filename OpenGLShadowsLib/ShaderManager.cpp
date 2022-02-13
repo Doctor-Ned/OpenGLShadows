@@ -132,7 +132,7 @@ bool shadow::ShaderManager::reworkShaderFiles()
                         }
                         else
                         {
-                            SHADOW_ERROR("File '{}' referenced in '{}' (line {}) was NOT found!", includedFile, pair.first.generic_string(), lineCounter);
+                            SHADOW_WARN("File '{}' referenced in '{}' (line {}) was NOT found!", includedFile, pair.first.generic_string(), lineCounter);
                         }
                     }
                 }
@@ -176,12 +176,21 @@ void shadow::ShaderManager::updateShaders() const
     }
 }
 
+#if SHADOW_MASTER || SHADOW_CHSS
 void shadow::ShaderManager::updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples)
 {
     assert(shadowSamples);
     assert(penumbraSamples);
     updateInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(shadowSamples, penumbraSamples));
 }
+#elif SHADOW_PCSS
+void shadow::ShaderManager::updatePoisson(unsigned int shadowSamples, unsigned int penumbraSamples)
+{
+    assert(shadowSamples);
+    assert(penumbraSamples);
+    updateInclude(POISSON_INCLUDE_TEXT, getPoissonIncludeContent(shadowSamples, penumbraSamples));
+}
+#endif
 
 std::string shadow::ShaderManager::getShaderFileContent(const std::filesystem::path& path)
 {
@@ -229,10 +238,12 @@ std::shared_ptr<shadow::UboWindow> shadow::ShaderManager::getUboWindow() const
     return uboWindow;
 }
 
+#if SHADOW_MASTER
 std::shared_ptr<shadow::SsboIgn> shadow::ShaderManager::getSsboIgn() const
 {
     return ssboIgn;
 }
+#endif
 
 bool shadow::ShaderManager::rebuildShaderFile(const std::filesystem::path& path)
 {
@@ -301,7 +312,7 @@ bool shadow::ShaderManager::rebuildShaderFile(const std::filesystem::path& path)
                     }
                     if (!isTextInclude)
                     {
-                        SHADOW_ERROR("Include file '{}' referenced in '{}':{} was NOT found!", includedFile, path.generic_string(), i + 1);
+                        SHADOW_WARN("Include file '{}' referenced in '{}':{} was NOT found!", includedFile, path.generic_string(), i + 1);
                         ss << INCLUDE_TEXT << includedFile << std::endl;
                     }
                 }
@@ -459,10 +470,14 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
     shaders.emplace(ShaderType::Material, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "Material")));
     shaders.emplace(ShaderType::DepthDir, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "Depth.frag")));
     shaders.emplace(ShaderType::DepthSpot, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "Depth.frag")));
+#if SHADOW_VSM
     shaders.emplace(ShaderType::DepthDirVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthDir.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
+#endif
+#if SHADOW_MASTER || SHADOW_CHSS
     shaders.emplace(ShaderType::DirPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DirPenumbra.vert", "DirPenumbra.frag")));
     shaders.emplace(ShaderType::SpotPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "SpotPenumbra.vert", "SpotPenumbra.frag")));
+#endif
     shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
     shaders.emplace(ShaderType::PostProcess, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess")));
     shaders.emplace(ShaderType::ShadowOnly, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "ShadowOnly")));
@@ -488,8 +503,10 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
         std::make_shared<SpotLight>(spotLightData));
     uboWindow = std::make_shared<UboWindow>();
 
+#if SHADOW_MASTER
     SHADOW_DEBUG("Creating SSBOs...");
     ssboIgn = std::make_shared<SsboIgn>(windowWidth, windowHeight);
+#endif
 }
 
 void shadow::ShaderManager::updateInclude(const std::string& inclName, const std::string& inclContent)
@@ -510,11 +527,20 @@ void shadow::ShaderManager::addShaderInclude(const std::string& name, const std:
     shaderIncludes.emplace(name, ShaderTextInclude{ content, true });
 }
 
+std::string shadow::ShaderManager::getShaderImplIncludeContent() const
+{
+    std::stringstream ss{};
+    ss << "#define SHADOW_IMPL " << SHADOW_IMPL << std::endl;
+    return ss.str();
+}
+
+#if SHADOW_MASTER || SHADOW_CHSS
 std::string shadow::ShaderManager::getVogelIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples) const
 {
     std::stringstream ss{};
     ss << "#define VOGEL_SS " << shadowSamples << std::endl;
     ss << "#define VOGEL_PS " << penumbraSamples << std::endl << std::endl;
+#if SHADOW_MASTER
     std::vector<glm::vec2> shadowVogelDisk = getVogelDisk(shadowSamples);
     std::vector<glm::vec2> penumbraVogelDisk = getVogelDisk(penumbraSamples);
     ss << "vec2 shadowVogelDisk[VOGEL_SS] = vec2[](" << std::endl;
@@ -539,6 +565,7 @@ std::string shadow::ShaderManager::getVogelIncludeContent(unsigned int shadowSam
         ss << std::endl;
     }
     ss << "    );" << std::endl;
+#endif
     return ss.str();
 }
 
@@ -555,8 +582,22 @@ std::vector<glm::vec2> shadow::ShaderManager::getVogelDisk(unsigned int size) co
     }
     return result;
 }
+#elif SHADOW_PCSS
+std::string shadow::ShaderManager::getPoissonIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples) const
+{
+    std::stringstream ss{};
+    ss << "#define PCSS_BLOCKERS " << shadowSamples << std::endl;
+    ss << "#define PCSS_FILTER_SIZE " << penumbraSamples << std::endl;
+    return ss.str();
+}
+#endif
 
 void shadow::ShaderManager::prepareShaderIncludes(GLsizei windowWidth, GLsizei windowHeight)
 {
+#if SHADOW_MASTER || SHADOW_CHSS
     addShaderInclude(VOGEL_INCLUDE_TEXT, getVogelIncludeContent(32U, 16U));
+#elif SHADOW_PCSS
+    addShaderInclude(POISSON_INCLUDE_TEXT, getPoissonIncludeContent(32U, 16U));
+#endif
+    addShaderInclude(SHADOW_IMPL_INCLUDE_TEXT, getShaderImplIncludeContent());
 }
