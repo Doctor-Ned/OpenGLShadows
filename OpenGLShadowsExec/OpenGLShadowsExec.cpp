@@ -115,7 +115,6 @@ int main()
     float analysisTimer = 0.0f;
     unsigned int framesAnalysed = 0U;
     const float MIN_ANALYSIS_TIME = 10.0f;
-    const unsigned int MIN_FRAMES_ANALYSED = 10000U;
 
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
@@ -280,7 +279,7 @@ int main()
             analysisMaxFps = std::max(analysisMaxFps, fps);
             ++framesAnalysed;
             analysisTimer += static_cast<float>(timeDelta);
-            if (analysisTimer >= MIN_ANALYSIS_TIME && framesAnalysed >= MIN_FRAMES_ANALYSED)
+            if (analysisTimer >= MIN_ANALYSIS_TIME)
             {
                 analysisAvgFps /= static_cast<float>(framesAnalysed);
                 SHADOW_INFO("For map size {} -> FPS = [avg: {}, max: {}] ({} frames in {}s)", mapSize, analysisAvgFps, analysisMaxFps, framesAnalysed, analysisTimer); //todo: nicer output, maybe a file?
