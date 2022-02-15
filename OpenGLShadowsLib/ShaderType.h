@@ -16,9 +16,6 @@ namespace shadow
         DepthSpotVSM,
         GaussianBlur,
 #endif
-#if SHADOW_MASTER
-        InterleavedGradientNoise,
-#endif
 #if SHADOW_MASTER || SHADOW_CHSS
         DirPenumbra,
         SpotPenumbra,

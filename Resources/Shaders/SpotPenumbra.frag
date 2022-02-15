@@ -7,9 +7,6 @@
 //SHADOW>include ShadowVariants.glsl
 
 layout(binding = 12) uniform sampler2D spotShadow;
-#if SHADOW_MASTER
-layout(binding = 14) uniform sampler2D ignTexture;
-#endif
 
 in VS_OUT
 {
