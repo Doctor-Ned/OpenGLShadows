@@ -3,33 +3,23 @@
 //SHADOW>include UboWindow.glsl
 
 #if SHADOW_MASTER || SHADOW_CHSS
-
-#if SHADOW_MASTER
-//SHADOW>include SsboIgn.glsl
-
-float sampleInterleavedGradientNoise()
-{
-    return interleavedGradientNoise[int(gl_FragCoord.x) * ignDimensions.x + int(gl_FragCoord.y)];
-}
-#endif
-
 //SHADOW>include VOGEL_DISK
 
 #if SHADOW_MASTER
 // Provided vogel disks are arrays of vec2.
 // Each vec2 consists of radius and angle (theta).
 
-vec2 sampleShadowVogelDisk(int sampleIndex)
+vec2 sampleShadowVogelDisk(int sampleIndex, float phi)
 {
     vec2 rTheta = shadowVogelDisk[sampleIndex];
-    rTheta.g += sampleInterleavedGradientNoise();
+    rTheta.g += phi;
     return vec2(rTheta.r * cos(rTheta.g), rTheta.r * sin(rTheta.g));
 }
 
-vec2 samplePenumbraVogelDisk(int sampleIndex)
+vec2 samplePenumbraVogelDisk(int sampleIndex, float phi)
 {
     vec2 rTheta = penumbraVogelDisk[sampleIndex];
-    rTheta.g += sampleInterleavedGradientNoise();
+    rTheta.g += phi;
     return vec2(rTheta.r * cos(rTheta.g), rTheta.r * sin(rTheta.g));
 }
 #else
@@ -64,6 +54,7 @@ float penumbraSize(float receiverDepth, float blockerDepth)
 
 float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
 {
+    vec2 screenCoords = gl_FragCoord.xy / windowSize;
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
     if(projCoords.z > 1.0)
     {
@@ -76,9 +67,9 @@ float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D t
     for(int i = 0; i < VOGEL_PS; ++i)
     {
 #if SHADOW_MASTER
-        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i) * searchWidth).r;
+        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, texture(ignTexture, screenCoords).x) * searchWidth).r;
 #else
-        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * searchWidth).r;
+        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, interleavedGradientNoise(screenCoords)) * searchWidth).r;
 #endif
         if(depth < projCoords.z)
         {
@@ -112,7 +103,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     for(int i = 0; i < VOGEL_SS; ++i)
     {
 #if SHADOW_MASTER
-        float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i) * filterRadiusUV).r;
+        float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i, texture(ignTexture, screenCoords).x) * filterRadiusUV).r;
 #else
         float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * filterRadiusUV).r;
 #endif

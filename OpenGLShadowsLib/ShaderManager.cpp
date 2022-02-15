@@ -244,13 +244,6 @@ std::shared_ptr<shadow::UboWindow> shadow::ShaderManager::getUboWindow() const
     return uboWindow;
 }
 
-#if SHADOW_MASTER
-std::shared_ptr<shadow::SsboIgn> shadow::ShaderManager::getSsboIgn() const
-{
-    return ssboIgn;
-}
-#endif
-
 bool shadow::ShaderManager::rebuildShaderFile(const std::filesystem::path& path)
 {
     const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
@@ -481,6 +474,9 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
     shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
 #endif
+#if SHADOW_MASTER
+    shaders.emplace(ShaderType::InterleavedGradientNoise, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "InterleavedGradientNoise.frag")));
+#endif
 #if SHADOW_MASTER || SHADOW_CHSS
     shaders.emplace(ShaderType::DirPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DirPenumbra.vert", "DirPenumbra.frag")));
     shaders.emplace(ShaderType::SpotPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "SpotPenumbra.vert", "SpotPenumbra.frag")));
@@ -508,11 +504,6 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
         std::make_shared<DirectionalLight>(dirLightData),
         std::make_shared<SpotLight>(spotLightData));
     uboWindow = std::make_shared<UboWindow>();
-
-#if SHADOW_MASTER
-    SHADOW_DEBUG("Creating SSBOs...");
-    ssboIgn = std::make_shared<SsboIgn>(windowWidth, windowHeight);
-#endif
 }
 
 void shadow::ShaderManager::updateInclude(const std::string& inclName, const std::string& inclContent)

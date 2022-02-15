@@ -7,7 +7,6 @@
 #include "UboMaterial.h"
 #include "UboLights.h"
 #include "UboWindow.h"
-#include "SsboIgn.h"
 #include "ShadowVariants.h"
 
 #include <map>
@@ -53,9 +52,6 @@ namespace shadow
         std::shared_ptr<UboMaterial> getUboMaterial() const;
         std::shared_ptr<UboLights> getUboLights() const;
         std::shared_ptr<UboWindow> getUboWindow() const;
-#if SHADOW_MASTER
-        std::shared_ptr<SsboIgn> getSsboIgn() const;
-#endif
     private:
         friend class ResourceManager;
         ShaderManager(const std::filesystem::path& shadersDirectory);
@@ -82,9 +78,6 @@ namespace shadow
         std::shared_ptr<UboMaterial> uboMaterial{};
         std::shared_ptr<UboLights> uboLights{};
         std::shared_ptr<UboWindow> uboWindow{};
-#if SHADOW_MASTER
-        std::shared_ptr<SsboIgn> ssboIgn{};
-#endif
         const char* INCLUDE_TEXT = "//SHADOW>include ", * INCLUDED_FROM_TEXT = "//SHADOW>includedfrom ", * END_INCLUDE_TEXT = "//SHADOW>endinclude ", * REFILL_TEXT = "//SHADOW>refill";
         const std::string SHADOW_IMPL_INCLUDE_TEXT{ "SHADOW_IMPL" };
 #if SHADOW_MASTER || SHADOW_CHSS

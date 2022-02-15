@@ -78,9 +78,6 @@ bool shadow::ResourceManager::initialize(std::filesystem::path resourceDirectory
     shaderManager.reset(new ShaderManager(shadersDirectory));
     initialised = true;
     shaderManager->loadShaders(windowWidth, windowHeight);
-#if SHADOW_MASTER
-    shaderManager->getSsboIgn()->resize(windowWidth, windowHeight);
-#endif
     return true;
 }
 
@@ -179,13 +176,6 @@ std::shared_ptr<shadow::UboWindow> shadow::ResourceManager::getUboWindow() const
 {
     return shaderManager->getUboWindow();
 }
-
-#if SHADOW_MASTER
-std::shared_ptr<shadow::SsboIgn> shadow::ResourceManager::getSsboIgn() const
-{
-    return shaderManager->getSsboIgn();
-}
-#endif
 
 void shadow::ResourceManager::renderQuad() const
 {

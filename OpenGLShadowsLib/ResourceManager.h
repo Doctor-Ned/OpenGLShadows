@@ -27,9 +27,6 @@ namespace shadow
         void updateShaders() const;
 #if SHADOW_MASTER || SHADOW_CHSS
         void updateVogelDisk(unsigned int shadowSamples, unsigned int penumbraSamples);
-#if SHADOW_MASTER
-        std::shared_ptr<SsboIgn> getSsboIgn() const;
-#endif
 #elif SHADOW_PCSS
         void updatePoisson(unsigned int shadowSamples, unsigned int penumbraSamples);
 #elif SHADOW_PCF
