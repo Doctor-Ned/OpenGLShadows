@@ -92,7 +92,7 @@ bool shadow::AppWindow::initialize(GLsizei width, GLsizei height, GLsizei lightT
         return false;
     }
 
-#if SHADOW_MASTER
+#if SHADOW_MASTER || SHADOW_CHSS
     if (!LightManager::getInstance().initialize(lightTextureSize, width, height))
     {
         return false;
