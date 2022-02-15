@@ -110,11 +110,9 @@ int main()
     scene->setParent(node, planeNode);
 
     bool analysing = false;
-    float analysisMaxFps = 0.0f;
-    float analysisAvgFps = 0.0f;
+    std::vector<float> frameFps;
     float analysisTimer = 0.0f;
-    unsigned int framesAnalysed = 0U;
-    const float MIN_ANALYSIS_TIME = 10.0f;
+    const float ANALYSIS_TIME = 10.0f;
 
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
@@ -181,10 +179,7 @@ int main()
             if (ImGui::Button("Run analysis"))
             {
                 maxFps = 0.0f;
-                analysisAvgFps = 0.0f;
-                analysisMaxFps = 0.0f;
                 analysisTimer = 0.0f;
-                framesAnalysed = 0U;
                 analysing = true;
             }
             ImGui::Checkbox("Show settings", &showingSettings);
@@ -274,15 +269,23 @@ int main()
         appWindow.loop(timeDelta, guiProc);
         if (analysing)
         {
-            float fps = ImGui::GetIO().Framerate;
-            analysisAvgFps += fps;
-            analysisMaxFps = std::max(analysisMaxFps, fps);
-            ++framesAnalysed;
+            frameFps.push_back(ImGui::GetIO().Framerate);
             analysisTimer += static_cast<float>(timeDelta);
-            if (analysisTimer >= MIN_ANALYSIS_TIME)
+            if (analysisTimer >= ANALYSIS_TIME)
             {
-                analysisAvgFps /= static_cast<float>(framesAnalysed);
-                SHADOW_INFO("For map size {} -> FPS = [avg: {}, max: {}] ({} frames in {}s)", mapSize, analysisAvgFps, analysisMaxFps, framesAnalysed, analysisTimer); //todo: nicer output, maybe a file?
+                float avgFps = 0.0;
+                for (float fps : frameFps)
+                {
+                    avgFps += fps;
+                }
+                avgFps /= frameFps.size();
+                float stdevFps = 0.0f;
+                for (float fps : frameFps)
+                {
+                    stdevFps += (fps - avgFps) * (fps - avgFps);
+                }
+                stdevFps = std::sqrtf(stdevFps / frameFps.size());
+                SHADOW_INFO("FPS (avg, stdev) = [{}, {}] ({} frames in {}s)", avgFps, stdevFps, frameFps.size(), analysisTimer);
                 analysing = false;
             }
         }
