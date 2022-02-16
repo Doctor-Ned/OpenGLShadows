@@ -240,8 +240,16 @@ std::string formatCsv(const ShadowParams params) {
 }
 #endif
 
-int main()
+int main(int argc, char** argv)
 {
+    bool forceBenchmark = false;
+    for (int i = 0; i < argc; ++i)
+    {
+        std::string arg = argv[i];
+        if (arg == "benchmark") {
+            forceBenchmark = true;
+        }
+    }
     using namespace shadow;
     AppWindow& appWindow = AppWindow::getInstance();
     ResourceManager& resourceManager = ResourceManager::getInstance();
@@ -336,7 +344,7 @@ int main()
     size_t currentBenchmarkFrameCount = 0;
     unsigned int currentBenchmarkIndex = 0U;
     bool benchmarkRunning = false;
-    bool benchmarkStarting = false;
+    bool benchmarkStarting = forceBenchmark;
     bool benchmarkWaitFrame = false;
     bool closeWindowAfterBenchmark = true;
     std::ostringstream benchmarkCsv;
