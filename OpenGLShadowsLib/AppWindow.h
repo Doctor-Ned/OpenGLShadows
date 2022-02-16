@@ -29,6 +29,7 @@ namespace shadow
         bool initialize(GLsizei width, GLsizei height, GLsizei lightTextureSize, std::filesystem::path resourceDirectory);
         bool isInitialized() const;
         void deinitialize();
+        inline void close() const;
         inline bool shouldClose() const;
         template<typename F>
         void loop(double& timeDelta, F& guiProc);
@@ -43,6 +44,7 @@ namespace shadow
         void setBlurPasses(unsigned int blurPasses);
         unsigned int getBlurPasses() const;
 #endif
+        void takeScreenshot(const std::filesystem::path& filePath) const;
         double getTime() const;
         unsigned int getFps() const;
         std::shared_ptr<Scene> getScene() const;
@@ -72,6 +74,10 @@ namespace shadow
         std::shared_ptr<SpotLight> spotLight{};
         Framebuffer mainFramebuffer{};
     };
+
+    inline void AppWindow::close() const {
+        glfwSetWindowShouldClose(glfwWindow, GLFW_TRUE);
+    }
 
     inline bool AppWindow::shouldClose() const
     {

@@ -2,6 +2,8 @@
 
 #include "ShadowUtils.h"
 
+#include <stb_image_write.h>
+
 static void glfw_error_callback(int error, const char* description)
 {
     SHADOW_ERROR("GLFW error #{}: {}", error, description);
@@ -212,6 +214,37 @@ unsigned int shadow::AppWindow::getBlurPasses() const
     return blurPasses;
 }
 #endif
+
+void shadow::AppWindow::takeScreenshot(const std::filesystem::path& filePath) const
+{
+    if (!std::filesystem::exists(filePath.parent_path())) {
+        std::filesystem::create_directories(filePath.parent_path());
+    }
+    const std::string FORMAT = ".tga";
+    const int CHANNELS = 3;
+    const int cwidth = width * CHANNELS;
+    const size_t pixelCount = cwidth * height;
+    unsigned char* pixels = new unsigned char[pixelCount];
+
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadBuffer(GL_FRONT);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+    for (int i = 0; i < width; ++i)
+    {
+        for (int j = 0; j < height / 2; ++j)
+        {
+            unsigned char pix[CHANNELS];
+            int mirror = height - 1 - j;
+            memcpy(pix, pixels + j * cwidth + i * CHANNELS, CHANNELS);
+            memcpy(pixels + j * cwidth + i * CHANNELS, pixels + mirror * cwidth + i * CHANNELS, CHANNELS);
+            memcpy(pixels + mirror * cwidth + i * CHANNELS, pix, CHANNELS);
+        }
+    }
+
+    stbi_write_tga((filePath.generic_string() + FORMAT).c_str(), width, height, CHANNELS, pixels);
+    delete[] pixels;
+}
 
 double shadow::AppWindow::getTime() const
 {
