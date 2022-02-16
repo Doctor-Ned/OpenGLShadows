@@ -507,7 +507,11 @@ int main()
                 currentBenchmarkTime += timeDelta;
                 if (currentBenchmarkTime >= BENCHMARK_TIME)
                 {
-                    const std::filesystem::path screenshotPath = std::filesystem::path(getDirName()) / formatParams(benchmarkParams[currentBenchmarkIndex]);
+                    bool shadowsOnly = false;
+#ifdef RENDER_SHADOW_ONLY
+                    shadowsOnly = true;
+#endif
+                    const std::filesystem::path screenshotPath = std::filesystem::path(shadowsOnly ? getDirName() + "_Shadows" : getDirName()) / formatParams(benchmarkParams[currentBenchmarkIndex]);
                     appWindow.takeScreenshot(screenshotPath);
                     benchmarkCsv << getCsvHeader() << '\t' << getCommonCsvHeader() << std::endl;
                     benchmarkCsv << formatCsv(benchmarkParams[currentBenchmarkIndex]) << '\t' << formatCommonCsv(currentBenchmarkFrameCount, currentBenchmarkTime) << std::endl;
@@ -520,7 +524,7 @@ int main()
                         applyParameters(appWindow, resourceManager, benchmarkParams[currentBenchmarkIndex]);
                     }
                     else {
-                        FILE* file = std::fopen((std::filesystem::path(getDirName()) / (getDirName() + ".csv")).generic_string().c_str(), "w");
+                        FILE* file = std::fopen((std::filesystem::path(shadowsOnly ? getDirName() + "_Shadows" : getDirName()) / (getDirName() + ".csv")).generic_string().c_str(), "w");
                         std::string csvString = benchmarkCsv.str();
                         benchmarkCsv.clear();
                         std::fwrite(csvString.c_str(), 1, csvString.length(), file);
