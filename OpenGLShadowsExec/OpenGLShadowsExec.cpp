@@ -340,7 +340,7 @@ int main(int argc, char** argv)
     scene->setParent(node, chairNode);
     scene->setParent(node, planeNode);
 
-    constexpr double BENCHMARK_TIME = 15.0f;
+    constexpr double BENCHMARK_TIME = 10.0f;
     double currentBenchmarkTime = 0.0;
     const std::vector<ShadowParams> benchmarkParams = getAllParams<ShadowParams>();
     size_t currentBenchmarkFrameCount = 0;
@@ -521,10 +521,12 @@ int main(int argc, char** argv)
 #ifdef RENDER_SHADOW_ONLY
                     shadowsOnly = true;
 #endif
-                    const std::filesystem::path screenshotPath = std::filesystem::path(shadowsOnly ? getDirName() + "_Shadows" : getDirName()) / formatParams(benchmarkParams[currentBenchmarkIndex]);
+                    const std::string paramsFormat = formatParams(benchmarkParams[currentBenchmarkIndex]);
+                    const std::string directory = shadowsOnly ? getDirName() + "_Shadows" : getDirName();
+                    const std::filesystem::path screenshotPath = std::filesystem::path(directory) / paramsFormat;
                     appWindow.takeScreenshot(screenshotPath);
-                    benchmarkCsv << getCsvHeader() << '\t' << getCommonCsvHeader() << std::endl;
                     benchmarkCsv << formatCsv(benchmarkParams[currentBenchmarkIndex]) << '\t' << formatCommonCsv(currentBenchmarkFrameCount, currentBenchmarkTime) << std::endl;
+                    SHADOW_INFO("[BM] {}% ({}/{}): {} -> {} ({} FPS) | Screenshot: '{}'", (currentBenchmarkIndex + 1) * static_cast<size_t>(100) / benchmarkParams.size(), currentBenchmarkIndex + 1, benchmarkParams.size(), paramsFormat, currentBenchmarkFrameCount, currentBenchmarkFrameCount / currentBenchmarkTime, screenshotPath.generic_string());
                     currentBenchmarkTime = 0.0f;
                     currentBenchmarkFrameCount = 0U;
                     ++currentBenchmarkIndex;
@@ -538,13 +540,14 @@ int main(int argc, char** argv)
                         }
                     }
                     else {
-                        FILE* file = std::fopen((std::filesystem::path(shadowsOnly ? getDirName() + "_Shadows" : getDirName()) / (getDirName() + ".csv")).generic_string().c_str(), "w");
+                        const std::filesystem::path csvFile = (std::filesystem::path(directory) / (getDirName() + ".csv"));
+                        FILE* file = std::fopen(csvFile.generic_string().c_str(), "w");
                         std::string csvString = benchmarkCsv.str();
                         benchmarkCsv.clear();
                         std::fwrite(csvString.c_str(), 1, csvString.length(), file);
                         std::fclose(file);
                         benchmarkRunning = false;
-                        SHADOW_INFO("Benchmark finished!");
+                        SHADOW_INFO("[BM] Benchmark finished! CSV: '{}'", csvFile.generic_string());
                         if (closeWindowAfterBenchmark)
                         {
                             appWindow.close();
@@ -565,13 +568,14 @@ int main(int argc, char** argv)
                 currentBenchmarkIndex = 0U;
                 currentBenchmarkFrameCount = 0U;
                 benchmarkCsv.clear();
+                benchmarkCsv << getCsvHeader() << '\t' << getCommonCsvHeader() << std::endl;
                 benchmarkWaitFrame = true;
                 applyParameters(appWindow, resourceManager, benchmarkParams[currentBenchmarkIndex]);
                 if (resourceManager.reworkShaderFiles())
                 {
                     resourceManager.updateShaders();
                 }
-                SHADOW_INFO("Beginning benchmark! Estimated time: {}s ({}s benchmark, {} parameter sets)", benchmarkParams.size() * BENCHMARK_TIME, BENCHMARK_TIME, benchmarkParams.size());
+                SHADOW_INFO("[BM] Beginning benchmark! Estimated time: {}s ({}s benchmark, {} parameter sets)", benchmarkParams.size() * BENCHMARK_TIME, BENCHMARK_TIME, benchmarkParams.size());
             }
             else {
                 if (screenshotState == 2)
