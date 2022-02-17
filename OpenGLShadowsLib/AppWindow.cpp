@@ -217,7 +217,7 @@ unsigned int shadow::AppWindow::getBlurPasses() const
 
 void shadow::AppWindow::takeScreenshot(const std::filesystem::path& filePath) const
 {
-    if (!std::filesystem::exists(filePath.parent_path())) {
+    if (filePath.has_parent_path() && !std::filesystem::exists(filePath.parent_path())) {
         std::filesystem::create_directories(filePath.parent_path());
     }
     const std::string FORMAT = ".tga";
