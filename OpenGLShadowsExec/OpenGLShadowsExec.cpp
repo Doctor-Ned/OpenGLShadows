@@ -266,21 +266,25 @@ int main(int argc, char** argv)
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     dirLight->setLightSize(0.09f);
 #endif
+    dirLight->setProjectionSize(1.45f);
     dirLight->setNearZ(0.2f);
     switch (SHADOW_IMPL) {
     default:
         dirLight->setFarZ(1.5f);
         break;
     case SHADOW_IMPL_BASIC:
-    case SHADOW_IMPL_PCF:
         dirLight->setFarZ(8.0f);
+        break;
+    case SHADOW_IMPL_PCF:
+        dirLight->setProjectionSize(1.8f);
+        dirLight->setNearZ(0.2f);
+        dirLight->setFarZ(2.0f);
         break;
     case SHADOW_IMPL_VSM:
         dirLight->setNearZ(0.3f);
         dirLight->setFarZ(2.0f);
         break;
     }
-    dirLight->setProjectionSize(1.45f);
     dirLight->setPosition(glm::vec3(-0.03f, 1.0f, 0.4f));
     dirLight->setDirection(
         glm::quat(glm::vec3(glm::radians(-49.0f), glm::radians(15.0f), 0.0f))
@@ -296,8 +300,11 @@ int main(int argc, char** argv)
         spotLight->setNearZ(0.95f);
         break;
     case SHADOW_IMPL_BASIC:
-    case SHADOW_IMPL_PCF:
         spotLight->setNearZ(0.2f);
+        break;
+    case SHADOW_IMPL_PCF:
+        spotLight->setNearZ(1.2f);
+        spotLight->setFarZ(4.0f);
         break;
     case SHADOW_IMPL_VSM:
         spotLight->setNearZ(1.45f);
