@@ -51,14 +51,12 @@ struct MasterCHSSParams {
     unsigned int penumbraSamples{};
 };
 
-static const inline std::vector<unsigned int> MAP_SIZES = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
+static const inline std::vector<unsigned int> MAP_SIZES = { 256, 512, 768, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
 static const inline std::vector<unsigned int> FILTER_SIZES = { 1,3,5,7,9,11,15,19,23,27,31 };
 static const inline std::vector<unsigned int> BLUR_PASSES = { 1,2,3,4,5 };
-static const inline std::vector<unsigned int> PCSS_SHADOW_SAMPLES = { 4,6,8,12,14,16,20,24,28,32 };
-static const inline std::vector<unsigned int> PCSS_PENUMBRA_SAMPLES = { 4,6,8,12,14,16,20,24,28,32 };
-static const inline std::vector<unsigned int> SHADOW_SAMPLES = { 4,6,8,12,16,24,32,40,48,64 };
-static const inline std::vector<unsigned int> PENUMBRA_SAMPLES = { 4,6,8,12,16,24,32,40,48,64 };
-static const inline std::vector<unsigned int> PENUMBRA_MAP_DIVISORS = { 1,2,4,8,16 };
+static const inline std::vector<unsigned int> SHADOW_SAMPLES = { 4,8,12,16,32 };
+static const inline std::vector<unsigned int> PENUMBRA_SAMPLES = { 8,16,24,32 };
+static const inline std::vector<unsigned int> PENUMBRA_MAP_DIVISORS = { 1,2,4,8 };
 
 template<typename T>
 std::vector<T> getAllParams() {
@@ -106,9 +104,9 @@ std::vector<PCSSParams> getAllParams<PCSSParams>()
 {
     std::vector<PCSSParams> result;
     for (unsigned int mapSize : MAP_SIZES) {
-        for (unsigned int shadowSamples : PCSS_SHADOW_SAMPLES)
+        for (unsigned int shadowSamples : SHADOW_SAMPLES)
         {
-            for (unsigned int penumbraSamples : PCSS_PENUMBRA_SAMPLES)
+            for (unsigned int penumbraSamples : PENUMBRA_SAMPLES)
             {
                 result.push_back({ mapSize, shadowSamples, penumbraSamples });
             }
@@ -575,7 +573,12 @@ int main(int argc, char** argv)
                 {
                     resourceManager.updateShaders();
                 }
-                SHADOW_INFO("[BM] Beginning benchmark! Estimated time: {}s ({}s benchmark, {} parameter sets)", benchmarkParams.size() * BENCHMARK_TIME, BENCHMARK_TIME, benchmarkParams.size());
+                int estimatedSeconds = static_cast<int>(benchmarkParams.size() * BENCHMARK_TIME + 0.5f);
+                int estimatedMinutes = estimatedSeconds / 60;
+                estimatedSeconds %= 60;
+                int estimatedHours = estimatedMinutes / 60;
+                estimatedMinutes %= 60;
+                SHADOW_INFO("[BM] Beginning benchmark! Estimated time: [{}h:{}m:{}s] ({}s benchmark, {} parameter sets)", estimatedHours, estimatedMinutes, estimatedSeconds, BENCHMARK_TIME, benchmarkParams.size());
             }
             else {
                 if (screenshotState == 2)
