@@ -132,7 +132,7 @@ bool shadow::ShaderManager::reworkShaderFiles()
                         }
                         else
                         {
-                            SHADOW_WARN("File '{}' referenced in '{}' (line {}) was NOT found!", includedFile, pair.first.generic_string(), lineCounter);
+                            // SHADOW_WARN("File '{}' referenced in '{}' (line {}) was NOT found!", includedFile, pair.first.generic_string(), lineCounter);
                         }
                     }
                 }
@@ -311,8 +311,7 @@ bool shadow::ShaderManager::rebuildShaderFile(const std::filesystem::path& path)
                     }
                     if (!isTextInclude)
                     {
-                        SHADOW_WARN("Include file '{}' referenced in '{}':{} was NOT found!", includedFile, path.generic_string(), i + 1);
-                        ss << INCLUDE_TEXT << includedFile << std::endl;
+                        ss << "#error Include file '" << includedFile << "' was NOT found!" << std::endl;
                     }
                 }
                 nonContentSs << trimmed << std::endl;
