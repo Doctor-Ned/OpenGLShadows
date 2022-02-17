@@ -579,6 +579,7 @@ std::vector<glm::vec2> shadow::ShaderManager::getVogelDisk(unsigned int size) co
 std::string shadow::ShaderManager::getPoissonIncludeContent(unsigned int shadowSamples, unsigned int penumbraSamples) const
 {
     std::stringstream ss{};
+    ss << "#define PCSS_MAX_BLOCKERS" << (std::max(shadowSamples, penumbraSamples) > 16 ? 32 : 16) << std::endl;
     ss << "#define PCSS_BLOCKERS " << shadowSamples << std::endl;
     ss << "#define PCSS_FILTER_SIZE " << penumbraSamples << std::endl;
     return ss.str();

@@ -109,8 +109,6 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
 }
 #elif SHADOW_PCSS
 
-#define PCSS_MAX_BLOCKERS 32 // 16 or 32
-
 //SHADOW>include POISSON
 
 #if PCSS_BLOCKERS <= 0 || PCSS_BLOCKERS > PCSS_MAX_BLOCKERS
@@ -236,7 +234,7 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, sampler2D text)
     {
         float closestDepth = texture(text, projCoords.xy).r;
         float currentDepth = projCoords.z;
-        float bias = max(0.005 * (1.0 - worldNdotL), 0.00125);
+        float bias = max(0.007 * (1.0 - worldNdotL), 0.0085);
         if(currentDepth - bias > closestDepth)
         {
             return 1.0;

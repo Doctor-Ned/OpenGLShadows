@@ -53,7 +53,9 @@ struct MasterCHSSParams {
 
 static const inline std::vector<unsigned int> MAP_SIZES = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
 static const inline std::vector<unsigned int> FILTER_SIZES = { 1,3,5,7,9,11,15,19,23,27,31 };
-static const inline std::vector<unsigned int> BLUR_PASSES = { 1,2,3,4,5,10,15,20,30 };
+static const inline std::vector<unsigned int> BLUR_PASSES = { 1,2,3,4,5 };
+static const inline std::vector<unsigned int> PCSS_SHADOW_SAMPLES = { 4,6,8,12,14,16,20,24,28,32 };
+static const inline std::vector<unsigned int> PCSS_PENUMBRA_SAMPLES = { 4,6,8,12,14,16,20,24,28,32 };
 static const inline std::vector<unsigned int> SHADOW_SAMPLES = { 4,6,8,12,16,24,32,40,48,64 };
 static const inline std::vector<unsigned int> PENUMBRA_SAMPLES = { 4,6,8,12,16,24,32,40,48,64 };
 static const inline std::vector<unsigned int> PENUMBRA_MAP_DIVISORS = { 1,2,4,8,16 };
@@ -104,9 +106,9 @@ std::vector<PCSSParams> getAllParams<PCSSParams>()
 {
     std::vector<PCSSParams> result;
     for (unsigned int mapSize : MAP_SIZES) {
-        for (unsigned int shadowSamples : SHADOW_SAMPLES)
+        for (unsigned int shadowSamples : PCSS_SHADOW_SAMPLES)
         {
-            for (unsigned int penumbraSamples : PENUMBRA_SAMPLES)
+            for (unsigned int penumbraSamples : PCSS_PENUMBRA_SAMPLES)
             {
                 result.push_back({ mapSize, shadowSamples, penumbraSamples });
             }
@@ -262,7 +264,7 @@ int main(int argc, char** argv)
     std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
     uboLights->setAmbient(0.1f);
     dirLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
-    dirLight->setStrength(5.0f);
+    dirLight->setStrength(1.0f);
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     dirLight->setLightSize(0.09f);
 #endif
@@ -286,7 +288,7 @@ int main(int argc, char** argv)
         glm::quat(glm::vec3(glm::radians(-49.0f), glm::radians(15.0f), 0.0f))
         * glm::vec3(0.0f, 0.0f, -1.0f));
     spotLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
-    spotLight->setStrength(16.0f);
+    spotLight->setStrength(2.0f);
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     spotLight->setLightSize(0.09f);
 #endif
