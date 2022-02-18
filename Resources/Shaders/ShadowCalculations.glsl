@@ -52,9 +52,9 @@ float penumbraSize(float receiverDepth, float blockerDepth)
     return (receiverDepth-blockerDepth) / blockerDepth;
 }
 
+#if SHADOW_MASTER
 float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
 {
-    vec2 screenCoords = gl_FragCoord.xy / windowSize;
     vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
     if(projCoords.z > 1.0)
     {
@@ -62,11 +62,11 @@ float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D t
     }
     float blockerDepth = 0.0;
     int numBlockers = 0;
-    vec2 texCoords=projCoords.xy;
+    vec2 texCoords = projCoords.xy;
     float searchWidth = lightSize * (projCoords.z - nearZ) / projCoords.z;
     for(int i = 0; i < VOGEL_PS; ++i)
     {
-        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, interleavedGradientNoise(screenCoords)) * searchWidth).r;
+        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * searchWidth).r;
         if(depth < projCoords.z)
         {
             blockerDepth += depth;
@@ -107,6 +107,61 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     shadow /= VOGEL_SS;
     return shadow;
 }
+#else
+float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text)
+{
+    vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
+    if(projCoords.z > 1.0)
+    {
+        return 0.0;
+    }
+    float blockerDepth = 0.0;
+    int numBlockers = 0;
+    vec2 texCoords = projCoords.xy;
+    float searchWidth = lightSize * (projCoords.z - nearZ) / projCoords.z;
+    for(int i = 0; i < VOGEL_PS; ++i)
+    {
+        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * searchWidth).r;
+        if(depth < projCoords.z)
+        {
+            blockerDepth += depth;
+            ++numBlockers;
+        }
+    }
+    if(numBlockers == 0)
+    {
+        return 0.0;
+    }
+    blockerDepth /= numBlockers;
+    return (projCoords.z - blockerDepth) / blockerDepth;
+}
+
+float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightSize, sampler2D text, sampler2D penumbraText)
+{
+    vec3 projCoords = (lightSpacePos.xyz / lightSpacePos.w) * 0.5 + 0.5;
+    if(projCoords.z > 1.0)
+    {
+        return 0.0;
+    }
+    float penumbraRatio = texture(penumbraText, gl_FragCoord.xy / windowSize).r;
+    if(penumbraRatio == 0.0)
+    {
+        return 0.0;
+    }
+    float filterRadiusUV = penumbraRatio * lightSize * nearZ / projCoords.z;
+    float shadow = 0.0;
+    for(int i = 0; i < VOGEL_SS; ++i)
+    {
+        float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * filterRadiusUV).r;
+        if(depth < projCoords.z - 0.008)
+        {
+            shadow += 1.0;
+        }
+    }
+    shadow /= VOGEL_SS;
+    return shadow;
+}
+#endif
 #elif SHADOW_PCSS
 
 //SHADOW>include POISSON
