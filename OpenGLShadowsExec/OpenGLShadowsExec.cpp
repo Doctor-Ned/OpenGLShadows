@@ -47,8 +47,13 @@ int main(int argc, char** argv)
     std::shared_ptr<DirectionalLight> dirLight = uboLights->getDirectionalLight();
     std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
     uboLights->setAmbient(0.1f);
+#ifdef RENDER_SHADOW_ONLY
     dirLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
     dirLight->setStrength(1.0f);
+#else
+    dirLight->setColor(glm::vec3(1.0f, 0.5f, 0.5f));
+    dirLight->setStrength(4.0f);
+#endif
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     dirLight->setLightSize(0.09f);
 #endif
@@ -75,8 +80,13 @@ int main(int argc, char** argv)
     dirLight->setDirection(
         glm::quat(glm::vec3(glm::radians(-49.0f), glm::radians(15.0f), 0.0f))
         * glm::vec3(0.0f, 0.0f, -1.0f));
+#ifdef RENDER_SHADOW_ONLY
     spotLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
     spotLight->setStrength(2.0f);
+#else
+    spotLight->setColor(glm::vec3(0.5f, 0.5f, 1.0f));
+    spotLight->setStrength(10.0f);
+#endif
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     spotLight->setLightSize(0.09f);
 #endif
