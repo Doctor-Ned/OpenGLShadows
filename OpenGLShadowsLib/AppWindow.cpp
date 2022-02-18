@@ -241,9 +241,10 @@ void shadow::AppWindow::takeScreenshot(const std::filesystem::path& filePath) co
             memcpy(pixels + mirror * cwidth + i * CHANNELS, pix, CHANNELS);
         }
     }
-
-    stbi_write_tga((filePath.generic_string() + FORMAT).c_str(), width, height, CHANNELS, pixels);
+    const std::filesystem::path outputPath = filePath.generic_string() + FORMAT;
+    stbi_write_tga(outputPath.generic_string().c_str(), width, height, CHANNELS, pixels);
     delete[] pixels;
+    SHADOW_INFO("Screenshot saved at '{}'!", outputPath.generic_string());
 }
 
 double shadow::AppWindow::getTime() const

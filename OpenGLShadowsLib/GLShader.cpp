@@ -52,7 +52,7 @@ void shadow::GLShader::update()
         std::filesystem::file_time_type timestamp = last_write_time(vertexFile);
         if (timestamp != vertexTimestamp)
         {
-            SHADOW_INFO("Vertex shader '{}' was modified! Rebuilding...", vertexFile.generic_string());
+            SHADOW_DEBUG("Vertex shader '{}' was modified! Rebuilding...", vertexFile.generic_string());
             GLuint shader;
             switch (buildShader(shader, GL_VERTEX_SHADER, vertexFile))
             {
@@ -91,7 +91,7 @@ void shadow::GLShader::update()
         std::filesystem::file_time_type timestamp = last_write_time(fragmentFile);
         if (timestamp != fragmentTimestamp)
         {
-            SHADOW_INFO("Fragment shader '{}' was modified! Rebuilding...", fragmentFile.generic_string());
+            SHADOW_DEBUG("Fragment shader '{}' was modified! Rebuilding...", fragmentFile.generic_string());
             GLuint shader;
             switch (buildShader(shader, GL_FRAGMENT_SHADER, fragmentFile))
             {

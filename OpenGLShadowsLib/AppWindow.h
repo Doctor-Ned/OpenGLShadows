@@ -76,6 +76,7 @@ namespace shadow
     };
 
     inline void AppWindow::close() const {
+        SHADOW_INFO("Window closing requested!");
         glfwSetWindowShouldClose(glfwWindow, GLFW_TRUE);
     }
 

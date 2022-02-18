@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "AppWindow.h"
-#include "ResourceManager.h"
+#include "Benchmark.h"
 #include "MaterialModelMesh.h"
 #include "SceneNode.h"
 #include "Primitives.h"
@@ -14,7 +13,6 @@
 #include <fstream>
 #include <sstream>
 
-
 #define GUI_UPDATE(value,oldValue,setter)     \
     do                                        \
     {                                         \
@@ -24,239 +22,27 @@
         }                                     \
     } while(false)
 
-struct BasicParams {
-    unsigned int mapSize{};
-};
-
-struct PCFParams {
-    unsigned int mapSize{};
-    unsigned int filterSize{};
-};
-
-struct VSMParams {
-    unsigned int mapSize{};
-    unsigned int blurPasses{};
-};
-
-struct PCSSParams {
-    unsigned int mapSize{};
-    unsigned int shadowSamples{};
-    unsigned int penumbraSamples{};
-};
-
-struct MasterCHSSParams {
-    unsigned int mapSize{};
-    unsigned int penumbraMapDivisor{};
-    unsigned int shadowSamples{};
-    unsigned int penumbraSamples{};
-};
-
-static const inline std::vector<unsigned int> MAP_SIZES = { 256, 512, 768, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
-static const inline std::vector<unsigned int> FILTER_SIZES = { 1,3,5,7,9,11,15,19,23,27,31 };
-static const inline std::vector<unsigned int> BLUR_PASSES = { 1,2,3,4,5 };
-static const inline std::vector<unsigned int> SHADOW_SAMPLES = { 4,8,12,16,32 };
-static const inline std::vector<unsigned int> PENUMBRA_SAMPLES = { 8,16,24,32 };
-static const inline std::vector<unsigned int> PENUMBRA_MAP_DIVISORS = { 1,2,4,8 };
-
-template<typename T>
-std::vector<T> getAllParams() {
-    throw std::runtime_error("Unhandled parameter type");
-}
-
-template<>
-std::vector<BasicParams> getAllParams<BasicParams>()
-{
-    std::vector<BasicParams> result;
-    for (unsigned int mapSize : MAP_SIZES) {
-        result.push_back({ mapSize });
-    }
-    return result;
-}
-
-template<>
-std::vector<PCFParams> getAllParams<PCFParams>()
-{
-    std::vector<PCFParams> result;
-    for (unsigned int mapSize : MAP_SIZES) {
-        for (unsigned int filterSize : FILTER_SIZES)
-        {
-            result.push_back({ mapSize, filterSize });
-        }
-    }
-    return result;
-}
-
-template<>
-std::vector<VSMParams> getAllParams<VSMParams>()
-{
-    std::vector<VSMParams> result;
-    for (unsigned int mapSize : MAP_SIZES) {
-        for (unsigned int blurPasses : BLUR_PASSES)
-        {
-            result.push_back({ mapSize, blurPasses });
-        }
-    }
-    return result;
-}
-
-template<>
-std::vector<PCSSParams> getAllParams<PCSSParams>()
-{
-    std::vector<PCSSParams> result;
-    for (unsigned int mapSize : MAP_SIZES) {
-        for (unsigned int shadowSamples : SHADOW_SAMPLES)
-        {
-            for (unsigned int penumbraSamples : PENUMBRA_SAMPLES)
-            {
-                result.push_back({ mapSize, shadowSamples, penumbraSamples });
-            }
-        }
-    }
-    return result;
-}
-
-template<>
-std::vector<MasterCHSSParams> getAllParams<MasterCHSSParams>()
-{
-    std::vector<MasterCHSSParams> result;
-    for (unsigned int mapSize : MAP_SIZES) {
-        for (unsigned int penumbraMapDivisor : PENUMBRA_MAP_DIVISORS)
-        {
-            for (unsigned int shadowSamples : SHADOW_SAMPLES)
-            {
-                for (unsigned int penumbraSamples : PENUMBRA_SAMPLES)
-                {
-                    result.push_back({ mapSize, penumbraMapDivisor, shadowSamples, penumbraSamples });
-                }
-            }
-        }
-    }
-    return result;
-}
-
-std::string getCommonCsvHeader() {
-    return "Avg. FPS\tTotal frames\tBenchmark time [s]";
-}
-
-std::string formatCommonCsv(size_t frames, double benchmarkTime)
-{
-    return fmt::format("{}\t{}\t{}", frames / benchmarkTime, frames, benchmarkTime);
-}
-
-#if SHADOW_MASTER || SHADOW_CHSS
-using ShadowParams = MasterCHSSParams;
-void applyParameters(shadow::AppWindow& appWindow, shadow::ResourceManager& resourceManager, ShadowParams params) {
-    appWindow.resizeLights(params.mapSize, params.penumbraMapDivisor);
-    resourceManager.updateVogelDisk(params.shadowSamples, params.penumbraSamples);
-}
-#if SHADOW_MASTER
-std::string getDirName() {
-    return "Master";
-}
-#else
-std::string getDirName() {
-    return "CHSS";
-}
-#endif
-std::string formatParams(const ShadowParams params) {
-    return fmt::format("{}_{}_{}_{}_{}", getDirName(), params.mapSize, params.penumbraMapDivisor, params.shadowSamples, params.penumbraSamples);
-}
-std::string getCsvHeader() {
-    return "Map size\tPenumbra texture size divisor\tShadow samples\tPenumbra samples";
-}
-std::string formatCsv(const ShadowParams params) {
-    return fmt::format("{}\t{}\t{}\t{}", params.mapSize, params.penumbraMapDivisor, params.shadowSamples, params.penumbraSamples);
-}
-#elif SHADOW_PCSS
-using ShadowParams = PCSSParams;
-void applyParameters(shadow::AppWindow& appWindow, shadow::ResourceManager& resourceManager, ShadowParams params) {
-    appWindow.resizeLights(params.mapSize);
-    resourceManager.updatePoisson(params.shadowSamples, params.penumbraSamples);
-}
-std::string getDirName() {
-    return "PCSS";
-}
-std::string formatParams(const ShadowParams params) {
-    return fmt::format("{}_{}_{}_{}", getDirName(), params.mapSize, params.shadowSamples, params.penumbraSamples);
-}
-std::string getCsvHeader() {
-    return "Map size\tShadow samples\tPenumbra samples";
-}
-std::string formatCsv(const ShadowParams params) {
-    return fmt::format("{}\t{}\t{}", params.mapSize, params.shadowSamples, params.penumbraSamples);
-}
-#elif SHADOW_VSM
-using ShadowParams = VSMParams;
-void applyParameters(shadow::AppWindow& appWindow, shadow::ResourceManager& resourceManager, ShadowParams params) {
-    appWindow.resizeLights(params.mapSize);
-    appWindow.setBlurPasses(params.blurPasses);
-}
-std::string getDirName() {
-    return "VSM";
-}
-std::string formatParams(const ShadowParams params) {
-    return fmt::format("{}_{}_{}", getDirName(), params.mapSize, params.blurPasses);
-}
-std::string getCsvHeader() {
-    return "Map size\tBlur passes";
-}
-std::string formatCsv(const ShadowParams params) {
-    return fmt::format("{}\t{}", params.mapSize, params.blurPasses);
-}
-#elif SHADOW_PCF
-using ShadowParams = PCFParams;
-void applyParameters(shadow::AppWindow& appWindow, shadow::ResourceManager& resourceManager, ShadowParams params) {
-    appWindow.resizeLights(params.mapSize);
-    resourceManager.updateFilterSize(params.filterSize);
-}
-std::string getDirName() {
-    return "PCF";
-}
-std::string formatParams(const ShadowParams params) {
-    return fmt::format("{}_{}_{}", getDirName(), params.mapSize, params.filterSize);
-}
-std::string getCsvHeader() {
-    return "Map size\tFilter size";
-}
-std::string formatCsv(const ShadowParams params) {
-    return fmt::format("{}\t{}", params.mapSize, params.filterSize);
-}
-#else
-using ShadowParams = BasicParams;
-void applyParameters(shadow::AppWindow& appWindow, shadow::ResourceManager& resourceManager, ShadowParams params) {
-    appWindow.resizeLights(params.mapSize);
-}
-std::string getDirName() {
-    return "Basic";
-}
-std::string formatParams(const ShadowParams params) {
-    return fmt::format("{}_{}", getDirName(), params.mapSize);
-}
-std::string getCsvHeader() {
-    return "Map size";
-}
-std::string formatCsv(const ShadowParams params) {
-    return fmt::format("{}", params.mapSize);
-}
-#endif
-
 int main(int argc, char** argv)
 {
-    bool forceBenchmark = false;
+    using namespace shadow;
+    bool forceBenchmark = false, genScreenshots = false;
     for (int i = 0; i < argc; ++i)
     {
         std::string arg = argv[i];
         if (arg == "benchmark") {
             forceBenchmark = true;
         }
+        else if (arg == "screenshots") {
+            genScreenshots = true;
+        }
     }
-    using namespace shadow;
     AppWindow& appWindow = AppWindow::getInstance();
     ResourceManager& resourceManager = ResourceManager::getInstance();
     if (!appWindow.initialize(1920, 1080, 1024, "../../Resources"))
     {
         return 1;
     }
+    Configurator configurator(appWindow, resourceManager);
     std::shared_ptr<UboLights> uboLights = ResourceManager::getInstance().getUboLights();
     std::shared_ptr<DirectionalLight> dirLight = uboLights->getDirectionalLight();
     std::shared_ptr<SpotLight> spotLight = uboLights->getSpotLight();
@@ -347,7 +133,7 @@ int main(int argc, char** argv)
 
     constexpr double BENCHMARK_TIME = 10.0f;
     double currentBenchmarkTime = 0.0;
-    const std::vector<ShadowParams> benchmarkParams = getAllParams<ShadowParams>();
+    const std::vector<ShadowParams> benchmarkParams = configurator.getAllParams();
     size_t currentBenchmarkFrameCount = 0;
     unsigned int currentBenchmarkIndex = 0U;
     bool benchmarkRunning = false;
@@ -355,6 +141,13 @@ int main(int argc, char** argv)
     bool benchmarkWaitFrame = false;
     bool closeWindowAfterBenchmark = true;
     std::ostringstream benchmarkCsv;
+
+    unsigned int currentScreenshotIndex = 0U;
+    bool genScreenshotsRunning = false;
+    bool genScreenshotsStarting = genScreenshots;
+    bool genScreenshotsWaitFrame = true;
+    bool closeWindowAfterGenScreenshots = genScreenshots && !forceBenchmark;
+
 
     double timeDelta = 0.0;
     unsigned int secondCounter = 0U;
@@ -404,7 +197,7 @@ int main(int argc, char** argv)
 #endif
     auto guiProc = [&]()
     {
-        if (!benchmarkRunning) {
+        if (!genScreenshotsRunning && !benchmarkRunning) {
             if (screenshotState == 1) {
                 ++screenshotState;
             }
@@ -428,6 +221,12 @@ int main(int argc, char** argv)
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("Close app after benchmark", &closeWindowAfterBenchmark);
+                if (ImGui::Button("Generate screenshots"))
+                {
+                    genScreenshotsStarting = true;
+                }
+                ImGui::SameLine();
+                ImGui::Checkbox("Close app after generating screenshots", &closeWindowAfterGenScreenshots);
                 ImGui::Checkbox("Show settings", &showingSettings);
                 if (showingSettings)
                 {
@@ -514,7 +313,47 @@ int main(int argc, char** argv)
     while (!appWindow.shouldClose())
     {
         appWindow.loop(timeDelta, guiProc);
-        if (benchmarkRunning)
+        if (genScreenshotsRunning)
+        {
+            if (!genScreenshotsWaitFrame)
+            {
+                const std::filesystem::path directory = configurator.getFullShadowName();
+                appWindow.takeScreenshot(directory / configurator.formatParams(benchmarkParams[currentScreenshotIndex]));
+                if (++currentScreenshotIndex < benchmarkParams.size())
+                {
+                    genScreenshotsWaitFrame = true;
+                    configurator.applyParams(benchmarkParams[currentScreenshotIndex]);
+                    if (resourceManager.reworkShaderFiles())
+                    {
+                        resourceManager.updateShaders();
+                    }
+                }
+                else {
+                    genScreenshotsRunning = false;
+                    SHADOW_INFO("Finished generating screenshots!");
+                    if (closeWindowAfterGenScreenshots) {
+                        appWindow.close();
+                    }
+                }
+            }
+            else {
+                genScreenshotsWaitFrame = false;
+            }
+        }
+        else if (genScreenshotsStarting)
+        {
+            genScreenshotsRunning = true;
+            genScreenshotsStarting = false;
+            currentScreenshotIndex = 0U;
+            genScreenshotsWaitFrame = true;
+            SHADOW_INFO("Generating {} screenshots...", benchmarkParams.size());
+            configurator.applyParams(benchmarkParams[currentScreenshotIndex]);
+            if (resourceManager.reworkShaderFiles())
+            {
+                resourceManager.updateShaders();
+            }
+        }
+        else if (benchmarkRunning)
         {
             if (!benchmarkWaitFrame)
             {
@@ -522,30 +361,22 @@ int main(int argc, char** argv)
                 currentBenchmarkTime += timeDelta;
                 if (currentBenchmarkTime >= BENCHMARK_TIME)
                 {
-                    bool shadowsOnly = false;
-#ifdef RENDER_SHADOW_ONLY
-                    shadowsOnly = true;
-#endif
-                    const std::string paramsFormat = formatParams(benchmarkParams[currentBenchmarkIndex]);
-                    const std::string directory = shadowsOnly ? getDirName() + "_Shadows" : getDirName();
-                    const std::filesystem::path screenshotPath = std::filesystem::path(directory) / paramsFormat;
-                    appWindow.takeScreenshot(screenshotPath);
-                    benchmarkCsv << formatCsv(benchmarkParams[currentBenchmarkIndex]) << '\t' << formatCommonCsv(currentBenchmarkFrameCount, currentBenchmarkTime) << std::endl;
-                    SHADOW_INFO("[BM] {}% ({}/{}): {} -> {} ({} FPS) | Screenshot: '{}'", (currentBenchmarkIndex + 1) * static_cast<size_t>(100) / benchmarkParams.size(), currentBenchmarkIndex + 1, benchmarkParams.size(), paramsFormat, currentBenchmarkFrameCount, currentBenchmarkFrameCount / currentBenchmarkTime, screenshotPath.generic_string());
+                    benchmarkCsv << configurator.formatCsv(benchmarkParams[currentBenchmarkIndex]) << '\t' << configurator.formatCommonCsv(currentBenchmarkFrameCount, currentBenchmarkTime) << std::endl;
+                    SHADOW_INFO("[BM] {}% ({}/{}): {} -> {} ({} FPS)", (currentBenchmarkIndex + 1) * static_cast<size_t>(100) / benchmarkParams.size(), currentBenchmarkIndex + 1, benchmarkParams.size(), configurator.formatParams(benchmarkParams[currentBenchmarkIndex]), currentBenchmarkFrameCount, currentBenchmarkFrameCount / currentBenchmarkTime);
                     currentBenchmarkTime = 0.0f;
                     currentBenchmarkFrameCount = 0U;
                     ++currentBenchmarkIndex;
                     if (currentBenchmarkIndex < benchmarkParams.size())
                     {
                         benchmarkWaitFrame = true;
-                        applyParameters(appWindow, resourceManager, benchmarkParams[currentBenchmarkIndex]);
+                        configurator.applyParams(benchmarkParams[currentBenchmarkIndex]);
                         if (resourceManager.reworkShaderFiles())
                         {
                             resourceManager.updateShaders();
                         }
                     }
                     else {
-                        const std::filesystem::path csvFile = (std::filesystem::path(directory) / (getDirName() + ".csv"));
+                        const std::filesystem::path csvFile = (std::filesystem::path(configurator.getFullShadowName()) / (configurator.getShadowName() + ".csv"));
                         FILE* file = std::fopen(csvFile.generic_string().c_str(), "w");
                         std::string csvString = benchmarkCsv.str();
                         benchmarkCsv.clear();
@@ -573,9 +404,9 @@ int main(int argc, char** argv)
                 currentBenchmarkIndex = 0U;
                 currentBenchmarkFrameCount = 0U;
                 benchmarkCsv.clear();
-                benchmarkCsv << getCsvHeader() << '\t' << getCommonCsvHeader() << std::endl;
+                benchmarkCsv << configurator.getCsvHeader() << '\t' << configurator.getCommonCsvHeader() << std::endl;
                 benchmarkWaitFrame = true;
-                applyParameters(appWindow, resourceManager, benchmarkParams[currentBenchmarkIndex]);
+                configurator.applyParams(benchmarkParams[currentBenchmarkIndex]);
                 if (resourceManager.reworkShaderFiles())
                 {
                     resourceManager.updateShaders();
