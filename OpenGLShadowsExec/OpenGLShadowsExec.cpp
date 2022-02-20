@@ -49,10 +49,10 @@ int main(int argc, char** argv)
     uboLights->setAmbient(0.1f);
 #ifdef RENDER_SHADOW_ONLY
     dirLight->setColor(glm::vec3(0.0f, 0.0f, 1.0f));
-    dirLight->setStrength(1.0f);
+    dirLight->setStrength(1.25f);
 #else
-    dirLight->setColor(glm::vec3(1.0f, 0.5f, 0.5f));
-    dirLight->setStrength(4.0f);
+    dirLight->setColor(glm::vec3(0.5f, 0.5f, 1.0f));
+    dirLight->setStrength(5.0f);
 #endif
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     dirLight->setLightSize(0.09f);
@@ -82,10 +82,10 @@ int main(int argc, char** argv)
         * glm::vec3(0.0f, 0.0f, -1.0f));
 #ifdef RENDER_SHADOW_ONLY
     spotLight->setColor(glm::vec3(1.0f, 0.0f, 0.0f));
-    spotLight->setStrength(2.0f);
+    spotLight->setStrength(3.0f);
 #else
-    spotLight->setColor(glm::vec3(0.5f, 0.5f, 1.0f));
-    spotLight->setStrength(10.0f);
+    spotLight->setColor(glm::vec3(1.0f, 0.5f, 0.5f));
+    spotLight->setStrength(15.0f);
 #endif
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
     spotLight->setLightSize(0.09f);
