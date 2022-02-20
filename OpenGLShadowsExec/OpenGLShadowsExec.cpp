@@ -173,9 +173,8 @@ int main(int argc, char** argv)
     glm::vec3 dirColor = dirData.color, spotColor = spotData.color;
     glm::vec3 spotPosition = spotData.position;
 
-    const int MAP_SIZE_COUNT = 16;
-    GLsizei MAP_SIZES[MAP_SIZE_COUNT] = { 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
-    int currMapSizeIndex = MAP_SIZE_COUNT - 1;
+    std::vector<GLsizei> MAP_SIZES{ 128, 256, 384, 512, 640, 768, 896, 1024, 1280, 1536, 1792, 2048, 2560, 3072, 3584, 4096 };
+    int currMapSizeIndex = static_cast<int>(MAP_SIZES.size()) - 1;
     int mapSize = MAP_SIZES[currMapSizeIndex];
 
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
@@ -183,16 +182,14 @@ int main(int argc, char** argv)
     unsigned int shadowSamples = currShadowSamples, penumbraSamples = currPenumbraSamples;
 #endif
 #if SHADOW_MASTER || SHADOW_CHSS
-    const int PENUMBRA_DIVISOR_COUNT = 9;
-    unsigned int PENUMBRA_DIVISORS[PENUMBRA_DIVISOR_COUNT] = { 1,2,4,8,16,32,64,128,256 };
+    std::vector<unsigned int> PENUMBRA_DIVISORS{ 1,2,4,8,16,32,64,128,256 };
     int currPenumbraDivisorIndex = 0;
     unsigned int penumbraTextureSizeDivisor = PENUMBRA_DIVISORS[currPenumbraDivisorIndex];
     resourceManager.updateVogelDisk(shadowSamples, penumbraSamples);
 #elif SHADOW_PCSS
     resourceManager.updatePoisson(shadowSamples, penumbraSamples);
 #elif SHADOW_PCF
-    const int FILTER_SIZE_COUNT = 16;
-    unsigned int FILTER_SIZES[FILTER_SIZE_COUNT] = { 1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31 };
+    std::vector<unsigned int> FILTER_SIZES{ 1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31 };
     int currFilterSizeIndex = 0;
     unsigned int filterSize = FILTER_SIZES[currFilterSizeIndex];
     resourceManager.updateFilterSize(filterSize);
@@ -239,15 +236,15 @@ int main(int argc, char** argv)
                 ImGui::Checkbox("Show settings", &showingSettings);
                 if (showingSettings)
                 {
-                    ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, MAP_SIZE_COUNT - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
+                    ImGui::SliderInt("Shadow map size", &currMapSizeIndex, 0, static_cast<int>(MAP_SIZES.size()) - 1, std::to_string(MAP_SIZES[currMapSizeIndex]).c_str());
 #if SHADOW_MASTER || SHADOW_CHSS
-                    ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, PENUMBRA_DIVISOR_COUNT - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
+                    ImGui::SliderInt("Penumbra map size divisor", &currPenumbraDivisorIndex, 0, static_cast<int>(PENUMBRA_DIVISORS.size()) - 1, std::to_string(PENUMBRA_DIVISORS[currPenumbraDivisorIndex]).c_str());
 #endif
 #if SHADOW_MASTER || SHADOW_CHSS || SHADOW_PCSS
                     ImGui::SliderInt("Shadow samples", &currShadowSamples, 1, 64);
                     ImGui::SliderInt("Penumbra samples", &currPenumbraSamples, 1, 64);
 #elif SHADOW_PCF
-                    ImGui::SliderInt("Filter size", &currFilterSizeIndex, 0, FILTER_SIZE_COUNT - 1, std::to_string(FILTER_SIZES[currFilterSizeIndex]).c_str());
+                    ImGui::SliderInt("Filter size", &currFilterSizeIndex, 0, static_cast<int>(FILTER_SIZES.size()) - 1, std::to_string(FILTER_SIZES[currFilterSizeIndex]).c_str());
 #elif SHADOW_VSM
                     ImGui::SliderInt("Blur passes", &blurPasses, 0, 100);
 #endif
