@@ -24,7 +24,7 @@
 int main(int argc, char** argv)
 {
     using namespace shadow;
-    bool forceBenchmark = false, genScreenshots = false;
+    bool forceBenchmark = false, genScreenshots = false, useBestBenchmark = false;
     for (int i = 0; i < argc; ++i)
     {
         std::string arg = argv[i];
@@ -33,6 +33,9 @@ int main(int argc, char** argv)
         }
         else if (arg == "screenshots") {
             genScreenshots = true;
+        }
+        else if (arg == "best") {
+            useBestBenchmark = true;
         }
     }
     AppWindow& appWindow = AppWindow::getInstance();
@@ -142,7 +145,7 @@ int main(int argc, char** argv)
 
     constexpr double BENCHMARK_TIME = 10.0f;
     double currentBenchmarkTime = 0.0;
-    const std::vector<ShadowParams> benchmarkParams = configurator.getAllParams();
+    std::vector<ShadowParams> benchmarkParams;
     size_t currentBenchmarkFrameCount = 0;
     unsigned int currentBenchmarkIndex = 0U;
     bool benchmarkRunning = false;
@@ -227,6 +230,7 @@ int main(int argc, char** argv)
                 }
                 ImGui::SameLine();
                 ImGui::Checkbox("Close app after benchmark", &closeWindowAfterBenchmark);
+                ImGui::Checkbox("Use best params for benchmark", &useBestBenchmark);
                 if (ImGui::Button("Generate screenshots"))
                 {
                     genScreenshotsStarting = true;
@@ -352,6 +356,19 @@ int main(int argc, char** argv)
             genScreenshotsStarting = false;
             currentScreenshotIndex = 0U;
             genScreenshotsWaitFrame = true;
+            if (useBestBenchmark) {
+                SHADOW_INFO("Running screenshot gen. for best params only:");
+                benchmarkParams.clear();
+                std::map<unsigned int, ShadowParams> bestParams = configurator.getBestParams();
+                for (const auto& pair : bestParams) {
+                    SHADOW_INFO("For {} FPS -> {}", pair.first, configurator.formatParams(pair.second));
+                    benchmarkParams.push_back(pair.second);
+                }
+            }
+            else {
+                SHADOW_INFO("Running screenshot gen. for all params...");
+                benchmarkParams = configurator.getAllParams();
+            }
             SHADOW_INFO("Generating {} screenshots...", benchmarkParams.size());
             configurator.applyParams(benchmarkParams[currentScreenshotIndex]);
             if (resourceManager.reworkShaderFiles())
@@ -382,7 +399,7 @@ int main(int argc, char** argv)
                         }
                     }
                     else {
-                        const std::filesystem::path csvFile = (std::filesystem::path(configurator.getFullShadowName()) / (configurator.getShadowName() + ".csv"));
+                        const std::filesystem::path csvFile = (std::filesystem::path(configurator.getFullShadowName()) / ((useBestBenchmark ? (configurator.getShadowName() + "_Best") : configurator.getShadowName()) + ".csv"));
                         FILE* file{};
                         if (int err = fopen_s(&file, csvFile.generic_string().c_str(), "w"); err != 0) {
                             constexpr size_t BUFFER_SIZE = 256;
@@ -424,6 +441,19 @@ int main(int argc, char** argv)
                 currentBenchmarkTime = 0.0f;
                 currentBenchmarkIndex = 0U;
                 currentBenchmarkFrameCount = 0U;
+                if (useBestBenchmark) {
+                    SHADOW_INFO("Running benchmark of best params only:");
+                    benchmarkParams.clear();
+                    std::map<unsigned int, ShadowParams> bestParams = configurator.getBestParams();
+                    for (const auto& pair : bestParams) {
+                        SHADOW_INFO("For {} FPS -> {}", pair.first, configurator.formatParams(pair.second));
+                        benchmarkParams.push_back(pair.second);
+                    }
+                }
+                else {
+                    SHADOW_INFO("Running benchmark of all params...");
+                    benchmarkParams = configurator.getAllParams();
+                }
                 benchmarkCsv.clear();
                 benchmarkCsv << configurator.getCsvHeader() << '\t' << configurator.getCommonCsvHeader() << std::endl;
                 benchmarkWaitFrame = true;

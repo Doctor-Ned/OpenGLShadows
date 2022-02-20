@@ -27,6 +27,7 @@ namespace shadow {
         virtual std::string formatCsv(const Params& params) const = 0;
         virtual std::string formatParams(const Params& params) const = 0;
         virtual std::vector<Params> getAllParams() const = 0;
+        virtual std::map<unsigned int, Params> getBestParams() const = 0;
         static std::string getCommonCsvHeader() {
             return "Avg. FPS\tTotal frames\tBenchmark time [s]";
         }
@@ -86,6 +87,20 @@ namespace shadow {
             }
             return result;
         }
+        std::map<unsigned int, ShadowParams> getBestParams() const override {
+            std::map<unsigned int, ShadowParams> result{
+#if SHADOW_MASTER
+                {1200, {896,2,14,14}},
+                {800, {2048,4,18,18}},
+                {400, {3776,4,20,20}}
+#else
+                {1200, {832,2,12,14}},
+                {800, {2048,4,16,16}},
+                {400, {3776,4,20,20}}
+#endif
+            };
+            return result;
+        }
     };
 #elif SHADOW_PCSS
     struct PCSSParams {
@@ -126,6 +141,14 @@ namespace shadow {
             }
             return result;
         }
+        std::map<unsigned int, ShadowParams> getBestParams() const override {
+            std::map<unsigned int, ShadowParams> result{
+                {1200, {768,12,12}},
+                {800, {1728,16,16}},
+                {400, {3072,20,20}}
+            };
+            return result;
+        }
     };
 #elif SHADOW_VSM
     struct VSMParams {
@@ -160,6 +183,14 @@ namespace shadow {
                     result.push_back({ mapSize, blurPasses });
                 }
             }
+            return result;
+        }
+        std::map<unsigned int, ShadowParams> getBestParams() const override {
+            std::map<unsigned int, ShadowParams> result{
+                {1200, {1728,1}},
+                {800, {2496,1}},
+                {400, {4032,1}}
+            };
             return result;
         }
     };
@@ -198,6 +229,14 @@ namespace shadow {
             }
             return result;
         }
+        std::map<unsigned int, ShadowParams> getBestParams() const override {
+            std::map<unsigned int, ShadowParams> result{
+                {1200, {1728,3}},
+                {800, {2112,5}},
+                {400, {2496,9}}
+            };
+            return result;
+        }
     };
 #else
     struct BasicParams {
@@ -227,6 +266,14 @@ namespace shadow {
             for (unsigned int mapSize : MAP_SIZES) {
                 result.push_back({ mapSize });
             }
+            return result;
+        }
+        std::map<unsigned int, ShadowParams> getBestParams() const override {
+            std::map<unsigned int, ShadowParams> result{
+                {1200, {1984}},
+                {800, {2880}},
+                {400, {4608}}
+            };
             return result;
         }
     };
