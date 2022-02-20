@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "Benchmark.h"
 #include "MaterialModelMesh.h"
 #include "SceneNode.h"
@@ -387,11 +386,26 @@ int main(int argc, char** argv)
                     }
                     else {
                         const std::filesystem::path csvFile = (std::filesystem::path(configurator.getFullShadowName()) / (configurator.getShadowName() + ".csv"));
-                        FILE* file = std::fopen(csvFile.generic_string().c_str(), "w");
+                        FILE* file{};
+                        if (int err = fopen_s(&file, csvFile.generic_string().c_str(), "w"); err != 0) {
+                            constexpr size_t BUFFER_SIZE = 256;
+                            char buffer[BUFFER_SIZE];
+                            strerror_s(buffer, BUFFER_SIZE, err);
+                            SHADOW_ERROR("Failed to open file '{}' for writing! {}", csvFile.generic_string(), buffer);
+                            throw std::runtime_error("Failed to open output CSV file!");
+                        }
                         std::string csvString = benchmarkCsv.str();
                         benchmarkCsv.clear();
-                        std::fwrite(csvString.c_str(), 1, csvString.length(), file);
-                        std::fclose(file);
+                        size_t written = fwrite(csvString.c_str(), 1, csvString.length(), file);
+                        if (written != csvString.length()) {
+                            SHADOW_ERROR("Attempted to write {} bytes to '{}', but wrote only {}!", csvString.length(), csvFile.generic_string(), written);
+                        }
+                        if (int err = fclose(file); err != 0) {
+                            constexpr size_t BUFFER_SIZE = 256;
+                            char buffer[BUFFER_SIZE];
+                            strerror_s(buffer, BUFFER_SIZE, err);
+                            SHADOW_ERROR("Failed to close file '{}'! {}", csvFile.generic_string(), buffer);
+                        }
                         benchmarkRunning = false;
                         SHADOW_INFO("[BM] Benchmark finished! CSV: '{}'", csvFile.generic_string());
                         if (closeWindowAfterBenchmark)
@@ -416,6 +430,7 @@ int main(int argc, char** argv)
                 benchmarkCsv.clear();
                 benchmarkCsv << configurator.getCsvHeader() << '\t' << configurator.getCommonCsvHeader() << std::endl;
                 benchmarkWaitFrame = true;
+                std::filesystem::create_directory(std::filesystem::path(configurator.getFullShadowName()));
                 configurator.applyParams(benchmarkParams[currentBenchmarkIndex]);
                 if (resourceManager.reworkShaderFiles())
                 {
