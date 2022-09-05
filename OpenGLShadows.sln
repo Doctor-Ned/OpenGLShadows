@@ -32,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\ShadowVariants.glsl = Resources\Shaders\ShadowVariants.glsl
 		Resources\Shaders\SpotPenumbra.frag = Resources\Shaders\SpotPenumbra.frag
 		Resources\Shaders\SpotPenumbra.vert = Resources\Shaders\SpotPenumbra.vert
+		Resources\Shaders\SsboIgn.glsl = Resources\Shaders\SsboIgn.glsl
 		Resources\Shaders\Texture.frag = Resources\Shaders\Texture.frag
 		Resources\Shaders\Texture.vert = Resources\Shaders\Texture.vert
 		Resources\Shaders\UboLights.glsl = Resources\Shaders\UboLights.glsl
@@ -41,14 +42,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Glad\Glad.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
-		ImGui\ImGui.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
-		OpenGLShadowsLib\OpenGLShadowsLib.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
-		OpenGLShadowsLib\OpenGLShadowsLib.vcxitems*{2bdd08ae-0260-4a7b-b850-4b65ee95b030}*SharedItemsImports = 9
-		Glad\Glad.vcxitems*{b2cd12d8-9824-4fa9-89e6-4115949c3dff}*SharedItemsImports = 9
-		ImGui\ImGui.vcxitems*{eeab89b3-ba21-4473-b20e-60abc3e038b5}*SharedItemsImports = 9
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Basic|x64 = Debug Basic|x64
 		Debug CHSS|x64 = Debug CHSS|x64
@@ -112,5 +105,13 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E215E8CA-E2E4-46EA-8377-257BF360D42D}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Glad\Glad.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
+		ImGui\ImGui.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
+		OpenGLShadowsLib\OpenGLShadowsLib.vcxitems*{007c720a-112c-4a48-a739-aad6d0e4e367}*SharedItemsImports = 4
+		OpenGLShadowsLib\OpenGLShadowsLib.vcxitems*{2bdd08ae-0260-4a7b-b850-4b65ee95b030}*SharedItemsImports = 9
+		Glad\Glad.vcxitems*{b2cd12d8-9824-4fa9-89e6-4115949c3dff}*SharedItemsImports = 9
+		ImGui\ImGui.vcxitems*{eeab89b3-ba21-4473-b20e-60abc3e038b5}*SharedItemsImports = 9
 	EndGlobalSection
 EndGlobal

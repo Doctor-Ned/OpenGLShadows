@@ -244,6 +244,11 @@ std::shared_ptr<shadow::UboWindow> shadow::ShaderManager::getUboWindow() const
     return uboWindow;
 }
 
+std::shared_ptr<shadow::SsboIgn> shadow::ShaderManager::getSsboIgn() const
+{
+    return ssboIgn;
+}
+
 bool shadow::ShaderManager::rebuildShaderFile(const std::filesystem::path& path)
 {
     const std::map<std::filesystem::path, ShaderFileInfo>::iterator it = shaderFileInfos.find(path);
@@ -500,6 +505,9 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
         std::make_shared<DirectionalLight>(dirLightData),
         std::make_shared<SpotLight>(spotLightData));
     uboWindow = std::make_shared<UboWindow>();
+
+    SHADOW_DEBUG("Creating SSBOs...");
+    ssboIgn = std::make_shared<SsboIgn>(windowWidth, windowHeight);
 }
 
 void shadow::ShaderManager::updateInclude(const std::string& inclName, const std::string& inclContent)

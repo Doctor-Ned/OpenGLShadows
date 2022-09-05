@@ -186,6 +186,7 @@ void shadow::AppWindow::resize(GLsizei width, GLsizei height)
     camera->setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
     glm::vec2 windowSize{ width, height };
     uboWindow->setWindowSize(windowSize);
+    ResourceManager::getInstance().getSsboIgn()->resize(width, height);
 }
 
 #if SHADOW_MASTER || SHADOW_CHSS
