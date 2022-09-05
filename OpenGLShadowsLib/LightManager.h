@@ -13,9 +13,18 @@ namespace shadow
     public:
         static LightManager& getInstance();
         inline GLsizei getTextureSize() const;
-#if SHADOW_MASTER || SHADOW_CHSS
+#if SHADOW_MASTER
+        bool initialize(GLsizei textureSize, GLsizei windowWidth, GLsizei windowHeight, GLsizei penumbraTextureWidth, GLsizei penumbraTextureHeight);
+        void resize(GLsizei textureSize, GLsizei windowWidth, GLsizei windowHeight, GLsizei penumbraTextureWidth, GLsizei penumbraTextureHeight);
+        inline GLsizei getWindowWidth() const;
+        inline GLsizei getWindowHeight() const;
+        inline GLuint getIGNFbo() const;
+        inline GLuint getIGNTexture() const;
+#elif SHADOW_CHSS
         bool initialize(GLsizei textureSize, GLsizei penumbraTextureWidth, GLsizei penumbraTextureHeight);
         void resize(GLsizei textureSize, GLsizei penumbraTextureWidth, GLsizei penumbraTextureHeight);
+#endif
+#if SHADOW_MASTER || SHADOW_CHSS
         inline GLsizei getPenumbraTextureWidth() const;
         inline GLsizei getPenumbraTextureHeight() const;
         inline GLuint getDirPenumbraFbo() const;
@@ -39,6 +48,10 @@ namespace shadow
         std::shared_ptr<UboLights> uboLights{};
         Framebuffer dirFbo{}, spotFbo{};
         GLsizei textureSize{};
+#if SHADOW_MASTER
+        GLsizei windowWidth{}, windowHeight{};
+        Framebuffer ignFbo{};
+#endif
 #if SHADOW_MASTER || SHADOW_CHSS
         GLsizei penumbraTextureWidth{}, penumbraTextureHeight{};
         Framebuffer dirPenumbraFbo{}, spotPenumbraFbo{};
@@ -52,6 +65,28 @@ namespace shadow
         assert(textureSize);
         return textureSize;
     }
+
+#if SHADOW_MASTER
+    inline GLsizei LightManager::getWindowWidth() const
+    {
+        return windowWidth;
+    }
+
+    inline GLsizei LightManager::getWindowHeight() const
+    {
+        return windowHeight;
+    }
+
+    inline GLuint LightManager::getIGNFbo() const
+    {
+        return ignFbo.getFbo();
+    }
+
+    inline GLuint LightManager::getIGNTexture() const
+    {
+        return ignFbo.getTexture();
+    }
+#endif
 
 #if SHADOW_MASTER || SHADOW_CHSS
     inline GLsizei LightManager::getPenumbraTextureWidth() const
@@ -91,7 +126,7 @@ namespace shadow
     inline GLuint LightManager::getTempFbo() const
     {
         return tempFbo.getFbo();
-    }
+}
 
     inline GLuint LightManager::getTempTexture() const
     {

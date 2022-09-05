@@ -39,13 +39,13 @@ vec2 samplePenumbraVogelDisk(int sampleIndex, float phi)
     float theta = sampleIndex * 2.4f + phi;
     return vec2(r * cos(theta), r * sin(theta));
 }
-#endif
 
 float interleavedGradientNoise(vec2 screenPos)
 {
     const vec3 factors = vec3(0.06711056f, 0.00583715f, 52.9829189f);
     return fract(factors.z * sin(dot(screenPos.xy, factors.xy)));
 }
+#endif
 
 float penumbraSize(float receiverDepth, float blockerDepth)
 {
@@ -66,7 +66,11 @@ float calcPenumbra(vec4 lightSpacePos, float nearZ, float lightSize, sampler2D t
     float searchWidth = lightSize * (projCoords.z - nearZ) / projCoords.z;
     for(int i = 0; i < VOGEL_PS; ++i)
     {
+#if SHADOW_MASTER
+        float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, texture(ignTexture, gl_FragCoord.xy / windowSize).x) * searchWidth).r;
+#else
         float depth = texture(text, texCoords + samplePenumbraVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * searchWidth).r;
+#endif
         if(depth < projCoords.z)
         {
             blockerDepth += depth;
@@ -98,7 +102,11 @@ float calcShadow(float worldNdotL, vec4 lightSpacePos, float nearZ, float lightS
     float shadow = 0.0;
     for(int i = 0; i < VOGEL_SS; ++i)
     {
-        float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i, interleavedGradientNoise(screenCoords)) * filterRadiusUV).r;
+#if SHADOW_MASTER
+        float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i, texture(ignTexture, screenCoords).x) * filterRadiusUV).r;
+#else
+        float depth = texture(text, projCoords.xy + sampleShadowVogelDisk(i, interleavedGradientNoise(gl_FragCoord.xy / windowSize)) * filterRadiusUV).r;
+#endif
         if(depth < projCoords.z - 0.008)
         {
             shadow += 1.0;

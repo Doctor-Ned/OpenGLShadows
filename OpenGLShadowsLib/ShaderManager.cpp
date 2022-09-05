@@ -473,6 +473,9 @@ void shadow::ShaderManager::loadShaders(GLsizei windowWidth, GLsizei windowHeigh
     shaders.emplace(ShaderType::DepthSpotVSM, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DepthSpot.vert", "DepthVSM.frag")));
     shaders.emplace(ShaderType::GaussianBlur, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "GaussianBlur.frag")));
 #endif
+#if SHADOW_MASTER
+    shaders.emplace(ShaderType::InterleavedGradientNoise, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "PostProcess.vert", "InterleavedGradientNoise.frag")));
+#endif
 #if SHADOW_MASTER || SHADOW_CHSS
     shaders.emplace(ShaderType::DirPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "DirPenumbra.vert", "DirPenumbra.frag")));
     shaders.emplace(ShaderType::SpotPenumbra, std::shared_ptr<GLShader>(new GLShader(shadersDirectory, "SpotPenumbra.vert", "SpotPenumbra.frag")));

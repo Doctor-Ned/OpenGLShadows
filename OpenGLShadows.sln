@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shaders", "Shaders", "{F351
 		Resources\Shaders\DirPenumbra.frag = Resources\Shaders\DirPenumbra.frag
 		Resources\Shaders\DirPenumbra.vert = Resources\Shaders\DirPenumbra.vert
 		Resources\Shaders\GaussianBlur.frag = Resources\Shaders\GaussianBlur.frag
+		Resources\Shaders\InterleavedGradientNoise.frag = Resources\Shaders\InterleavedGradientNoise.frag
 		Resources\Shaders\LightStructs.glsl = Resources\Shaders\LightStructs.glsl
 		Resources\Shaders\Material.frag = Resources\Shaders\Material.frag
 		Resources\Shaders\Material.vert = Resources\Shaders\Material.vert
